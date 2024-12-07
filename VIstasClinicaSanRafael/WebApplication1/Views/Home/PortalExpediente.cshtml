@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<!-- Encabezado de Bienvenida -->
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a tu portal!</h1>
+    <p class="lead">Aquí podras encontrar información muy importante sobre tus exámenes, tratamientos y demás información de suma importancia</p>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Comentarios</h3>
+            <ul class="list-group">
+                <li class="list-group-item">Comentario 1</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Historial de Tratamientos</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Inicio del tratamiento</th>
+                        <th>Tipo de tratamiento</th>
+                        <th>Costo</th>
+                        <th>Fecha de finalización</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15/05/2021</td>
+                        <td>Ortodoncia</td>
+                        <td>3.500.000</td>
+                        <td>21/07/2024</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="carouselImg" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="imagen_medica.jpg" class="d-block w-100" alt="Imagen Médica 1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="imagen_medica2.jpg" class="d-block w-100" alt="Imagen Médica 2">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselImg" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Imagen anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselImg" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente imagen</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-primary" asp-controller="Home" asp-action="PortalExpedienteAdmin">Admin</a>
+
+</div>

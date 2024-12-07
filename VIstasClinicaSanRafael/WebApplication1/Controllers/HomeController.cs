@@ -18,6 +18,16 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public IActionResult PortalExpediente()
+        {
+            return View();
+        }
+
+        public IActionResult PortalExpedienteAdmin()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
