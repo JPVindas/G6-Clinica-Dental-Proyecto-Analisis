@@ -72,12 +72,32 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public IActionResult Inventario()
+        {
+            return View();
+        }
+
         public IActionResult AgregarUsuario()
         {
             return View();
         }
 
         public IActionResult ModificarUsuario()
+        {
+            return View();
+        }
+
+        public IActionResult ModificarExpediente()
+        {
+            return View();
+        }
+
+        public IActionResult AgregarInventario()
+        {
+            return View();
+        }
+
+        public IActionResult ModificarInventario()
         {
             return View();
         }

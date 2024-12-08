@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Modificar Expediente";
+}
+
+<div class="modify-user-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Modificar Expediente
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Edit" method="POST">
+                <div class="mb-3">
+                    <label for="comment" class="form-label" style="color: #003366;">Comentario</label>
+                    <input type="text" id="comment" name="comment" class="form-control" placeholder="Ingrese el comentario">
+                </div>
+                <div class="mb-3">
+                    <label for="inicio" class="form-label" style="color: #003366;">Inicio del tratamiento</label>
+                    <input type="date" id="inicio" name="inicio" class="form-control" placeholder="Ingrese el inicio del tratamiento">
+                </div>
+                <div class="mb-3">
+                    <label for="type" class="form-label" style="color: #003366;">Tipo de tratamiento</label>
+                    <input type="text" id="type" name="type" class="form-control" placeholder="Ingrese el tipo de tratamiento">
+                </div>
+                <div class="mb-3">
+                    <label for="cost" class="form-label" style="color: #003366;">Costo</label>
+                    <input type="text" id="cost" name="cost" class="form-control" placeholder="Ingrese el costo">
+                </div>
+                <div class="mb-3">
+                    <label for="final" class="form-label" style="color: #003366;">Fecha de finalización</label>
+                    <input type="date" id="final" name="final" class="form-control" placeholder="Ingrese la fecha de finalización">
+                </div>
+                <div class="mb-3">
+                    <label for="imagen" class="form-label" style="color: #003366;">Selecciona una imagen</label>
+                    <input type="file" id="imagen" name="imagen" accept="image/*">
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">Guardar Cambios</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="PortalExpedienteAdmin" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modify-user-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .card {
+        border: 1px solid #E6E6E6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+    }
+
+    .btn {
+        background-color: #003366;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #66b2ff;
+            transform: scale(1.05);
+        }
+</style>

@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Modificar Inventario";
+}
+
+<div class="modify-user-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Modificar Inventario
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Edit" method="POST">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label" style="color: #003366;">Nombre</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Ingrese el nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="type" class="form-label" style="color: #003366;">Tipo</label>
+                    <input type="text" id="type" name="type" class="form-control" placeholder="Ingrese el tipo" required>
+                </div>
+                <div class="mb-3">
+                    <label for="fabricante" class="form-label" style="color: #003366;">Fabricante</label>
+                    <input type="text" id="fabricante" name="fabricante" class="form-control" placeholder="Ingrese el fabricante" required>
+                </div>
+                <div class="mb-3">
+                    <label for="precio" class="form-label" style="color: #003366;">Precio</label>
+                    <input type="number" id="precio" name="precio" class="form-control" placeholder="Ingrese el precio" required step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="total" class="form-label" style="color: #003366;">Cantidad/Stock</label>
+                    <input type="number" id="total" name="total" class="form-control" placeholder="Ingrese la cantidad/stock" required>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">Guardar Cambios</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="Inventario" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modify-user-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .card {
+        border: 1px solid #E6E6E6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+    }
+
+    .btn {
+        background-color: #003366;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #66b2ff;
+            transform: scale(1.05);
+        }
+</style>

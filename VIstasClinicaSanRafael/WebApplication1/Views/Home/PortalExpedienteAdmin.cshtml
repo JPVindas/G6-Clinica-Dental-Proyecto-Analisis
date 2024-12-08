@@ -75,9 +75,8 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-sm" style="background-color: #66b2ff;">Agregar</button>
-                            <button type="button" class="btn btn-secondary btn-sm" style="background-color: #66b2ff;">Editar</button>
-                            <button type="button" class="btn btn-danger btn-sm" style="background-color: #66b2ff;">Eliminar</button>
+                            <a asp-controller="Home" asp-action="ModificarExpediente" asp-route-id="1" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="1" class="btn btn-sm delete-btn">Eliminar</a>
                         </td>
                     </tr>
                 </tbody>
