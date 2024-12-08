@@ -11,7 +11,6 @@
             Gestión de Citas
         </div>
         <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
-            <!-- Formulario para filtrar citas por fecha -->
             <form asp-action="FilterAppointments" method="GET" class="mb-4">
                 <div class="row">
                     <div class="col-md-6">
@@ -23,10 +22,8 @@
                         <input type="date" id="endDate" name="endDate" class="form-control">
                     </div>
                 </div>
-                <button type="submit" class="btn  mt-3 w-100" style="background-color: #066b2ff; color: #FFFFFF;">Filtrar Citas</button>
+                <button type="submit" class="btn  mt-3 w-100" style="background-color: #66b2ff; color: #FFFFFF;">Filtrar Citas</button>
             </form>
-
-            <!-- Tabla para mostrar citas -->
             <table class="table table-striped">
                 <thead style="background-color: #003366; color: #FFFFFF;">
                     <tr>
@@ -41,7 +38,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Ejemplo de citas -->
                     <tr>
                         <td>Juan Pérez Ramirez</td>
                         <td>847383822</td>
@@ -70,8 +66,6 @@
                     </tr>
                 </tbody>
             </table>
-
-            <!-- Botón para agendar una nueva cita -->
             <a asp-controller="Home" asp-action="AgregarCita" class="btn w-100 mt-3" style="background-color: #003366; color: #FFFFFF;">Agendar Nueva Cita</a>
         </div>
     </div>
@@ -98,16 +92,16 @@
 
     .reprogram-btn,
     .cancel-btn {
-        background-color: #66b2ff; /* Azul claro */
-        color: #FFFFFF; /* Texto blanco */
+        background-color: #66b2ff;
+        color: #FFFFFF;
         border: none;
         transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
         .reprogram-btn:hover,
         .cancel-btn:hover {
-            background-color: #003366; /* Azul oscuro en hover */
-            transform: scale(1.05); /* Efecto de aumento */
+            background-color: #003366;
+            transform: scale(1.05);
         }
     </style>
 

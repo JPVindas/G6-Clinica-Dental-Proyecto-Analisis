@@ -1,4 +1,4 @@
-/* General Reset */
+
 * {
     margin: 0;
     padding: 0;
@@ -9,47 +9,46 @@
 /* Tipografías y Colores Base */
 body {
     font-family: 'Arial', sans-serif;
-    color: #003366; /* Azul oscuro para texto principal */
-    background-color: #F8F9FA; /* Fondo claro */
-    line-height: 1.6; /* Mejor espaciado entre líneas */
+    color: #003366;
+    background-color: #F8F9FA;
+    line-height: 1.6;
 }
 
 h1, h2, h3 {
     font-family: 'Merriweather', serif;
-    color: #003366; /* Azul oscuro para títulos principales */
-    margin-bottom: 15px; /* Separación inferior */
+    color: #003366;
+    margin-bottom: 15px;
 }
 
 h4, h5, h6 {
     font-family: 'Lato', sans-serif;
-    color: #66b2ff; /* Azul claro para subtítulos */
+    color: #66b2ff;
     margin-bottom: 10px;
 }
 
 p, li, span {
     font-family: 'Arial', sans-serif;
-    color: #003366; /* Texto estándar */
-    margin-bottom: 10px; /* Separación entre párrafos */
+    color: #003366;
+    margin-bottom: 10px;
 }
 
 a {
     font-family: 'Arial Bold', sans-serif;
-    color: #066b2ff; /* Azul claro para enlaces */
+    color: #066b2ff;
     text-decoration: none;
     transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
     a:hover {
         text-decoration: underline;
-        color: #FFFFFF; /* Azul oscuro en hover */
+        color: #FFFFFF;
     }
 
 
-/* Botones */
 button, .btn {
     font-family: 'Arial Bold', sans-serif;
-    background-color: #003366; /* Azul claro */
-    color: #FFFFFF; /* Texto blanco */
+    background-color: #003366;
+    color: #FFFFFF;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -58,15 +57,14 @@ button, .btn {
 }
 
     button:hover, .btn:hover {
-        background-color: #003366; /* Azul oscuro en hover */
-        transform: scale(1.05); /* Efecto de aumento */
+        background-color: #003366;
+        transform: scale(1.05);
         color: #FFFFFF;
     }
 
-/* Encabezado */
 header {
-    background-color: #003366; /* Fondo azul oscuro */
-    color: #FFFFFF; /* Texto blanco */
+    background-color: #003366;
+    color: #FFFFFF;
     padding: 15px 20px;
 }
 
@@ -75,7 +73,6 @@ header {
         font-weight: bold;
     }
 
-/* Navegación */
 .navbar {
     background-color: #003366;
     padding: 10px;
@@ -89,10 +86,9 @@ header {
     }
 
         .navbar a:hover {
-            color: #003366; /* Azul claro en hover */
+            color: #003366;
         }
 
-    /* Iconos del Navbar */
     .navbar .badge {
         font-size: 0.8rem;
         padding: 5px 10px;
@@ -111,49 +107,44 @@ header {
         margin-right: 5px;
     }
 
-    /* Dropdown */
     .navbar .dropdown-menu {
-        background-color: #FFFFFF; /* Fondo blanco */
+        background-color: #FFFFFF;
         min-width: 200px;
-        border: 1px solid #E6E6E6; /* Borde gris claro */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+        border: 1px solid #E6E6E6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .navbar .dropdown-item {
-        color: #003366; /* Azul oscuro */
+        color: #003366;
         font-size: 0.95rem;
         padding: 10px 15px;
     }
 
         .navbar .dropdown-item:hover {
-            background-color: #E6E6E6; /* Fondo gris claro en hover */
+            background-color: #E6E6E6;
             color: #003366;
         }
 
 .navbar .dropdown-toggle {
-    color: #003366; /* Azul oscuro */
-    font-size: 1rem; /* Tamaño de fuente para alinear con la barra */
+    color: #003366;
+    font-size: 1rem;
 }
 
 .navbar .bi-person-circle {
-    font-size: 1.2rem; /* Ajustar tamaño del ícono */
-    margin-right: 5px; /* Espaciado con el texto */
+    font-size: 1.2rem;
+    margin-right: 5px;
 }
 
 
-
-
-/* Sección Principal */
 .jumbotron {
-    background-color: #E6E6E6; /* Fondo gris claro */
+    background-color: #E6E6E6;
     color: #003366;
     padding: 50px 30px;
     border-radius: 10px;
     text-align: center;
-    margin-bottom: 30px; /* Separación inferior */
+    margin-bottom: 30px;
 }
 
-/* Tarjetas */
 .card {
     border: 1px solid #E6E6E6;
     border-radius: 10px;
@@ -174,7 +165,7 @@ header {
 
 .card-text {
     font-family: 'Arial', sans-serif;
-    color: #66b2ff; /* Azul claro para textos en tarjetas */
+    color: #66b2ff;
     margin-bottom: 15px;
 }
 
@@ -193,10 +184,9 @@ header {
     }
 
 
-/* Footer */
 footer {
-    background-color: #003366; /* Azul oscuro */
-    color: #FFFFFF; /* Texto blanco */
+    background-color: #003366;
+    color: #FFFFFF;
     text-align: center;
     padding: 20px;
     margin-top: 350px;
@@ -206,19 +196,19 @@ footer {
 }
 
     footer p, footer li, footer span {
-        color: #FFFFFF; /* Asegura blanco solo para textos del footer */
+        color: #FFFFFF;
         margin-bottom: 10px;
     }
 
     footer a {
-        color: #FFFFFF; /* Enlaces blancos */
+        color: #FFFFFF;
         text-decoration: none;
         font-weight: bold;
         transition: color 0.3s ease, text-decoration 0.3s ease;
     }
 
         footer a:hover {
-            color: #66b2ff; /* Azul claro en hover */
+            color: #66b2ff;
             text-decoration: underline;
         }
 .blockquote-footer {
@@ -236,6 +226,6 @@ footer {
 }
 
     .icon:hover {
-        color: #66b2ff; /* Azul claro en hover */
+        color: #66b2ff;
     }
 

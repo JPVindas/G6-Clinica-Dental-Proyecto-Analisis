@@ -1,14 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Inicio";
 }
-
-<!-- Encabezado de Bienvenida -->
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido a la Clínica San Rafael!</h1>
     <p class="lead">Cuidamos tu sonrisa con los mejores tratamientos odontológicos y un equipo de especialistas comprometidos con tu salud.</p>
 </div>
-
-<!-- Tarjetas de Servicios -->
 <div class="container mt-5">
     <div class="row text-center">
         <div class="col-md-4">
@@ -16,7 +12,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Agendar Citas</h5>
                     <p class="card-text">Reserva tu próxima consulta odontológica de forma rápida y sencilla.</p>
-                    <a class="btn btn-primary" asp-area="" asp-controller="Citas" asp-action="Index">Ver Más</a>
+                    <a class="btn btn-primary" asp-area="" asp-controller="Home" asp-action="Citas">Ver Más</a>
                 </div>
             </div>
         </div>
@@ -40,8 +36,6 @@
         </div>
     </div>
 </div>
-
-<!-- Valores de la Clínica -->
 <div class="container mt-5">
     <h2 class="text-center mb-4">¿Por qué elegirnos?</h2>
     <div class="row text-center">
@@ -62,8 +56,6 @@
         </div>
     </div>
 </div>
-
-<!-- Testimonios -->
 <div class="container mt-5">
     <h2 class="text-center mb-4">Lo que dicen nuestros pacientes</h2>
     <div class="row text-center">
@@ -87,8 +79,6 @@
         </div>
     </div>
 </div>
-
-<!-- Llamado a la Acción -->
 <div class="text-center mt-5">
     <h3>¡Reserva tu cita hoy mismo!</h3>
     <p>Confía en nosotros para cuidar de tu sonrisa. Tu salud bucal es nuestra prioridad.</p>

@@ -24,9 +24,6 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Citas">Citas</a>
                         </li>
                         <li class="nav-item">
@@ -41,6 +38,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Inventario">Inventario</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="PortalExpedienteAdmin">Expedientes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Usuarios">Usuarios</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
@@ -49,15 +52,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Registro">Registrarse</a>
                         </li>
-
-                        <!-- Carrito de compras -->
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Carrito" asp-action="Index">
                                 <i class="bi bi-cart-plus-fill"></i>
                                 <span class="badge" style="background-color: #003366; color: #FFFFFF;">0</span>
                             </a>
                         </li>
-                        <!-- Perfil de usuario -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> Mi Perfil
@@ -85,15 +85,11 @@
             @RenderBody()
         </main>
     </div>
-
-    <!-- Footer -->
     <footer>
         <div class="container">
             <p>&copy; 2024 - Clínica San Rafael | Calle 123, San Rafael, Costa Rica | Teléfono: +506 1234-5678</p>
         </div>
     </footer>
-
-    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

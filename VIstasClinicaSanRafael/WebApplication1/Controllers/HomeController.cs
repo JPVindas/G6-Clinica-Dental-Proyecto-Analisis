@@ -67,6 +67,21 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public IActionResult Usuarios()
+        {
+            return View();
+        }
+
+        public IActionResult AgregarUsuario()
+        {
+            return View();
+        }
+
+        public IActionResult ModificarUsuario()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

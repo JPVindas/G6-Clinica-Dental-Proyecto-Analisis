@@ -1,0 +1,305 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a Usuarios!</h1>
+    <p class="lead">Aquí podras gestionar los Usuarios</p>
+</div>
+<div class="users-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Gestión de Usuarios
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Index" method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="role" class="form-label">Filtrar por Rol</label>
+                        <select id="role" name="role" class="form-select">
+                            <option value="">Todos los roles</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Paciente">Paciente</option>
+                            <option value="Secretaria">Secretaria</option>
+                            <option value="Odontologo">Odontólogo</option>
+                            <option value="Ortodoncista">Ortodoncista</option>
+                            <option value="Contador">Contador</option>
+                            <option value="Endodoncista">Endodoncista</option>
+                            <option value="Periodoncista">Periodoncista</option>
+                            <option value="Odontopediatra">Odontopediatra</option>
+                            <option value="Prostodoncista">Prostodoncista</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="searchName" class="form-label">Buscar por Nombre</label>
+                        <input type="text" id="searchName" name="searchName" class="form-control" placeholder="Ingrese el nombre">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3 w-100" style="background-color: #66b2ff; color: #FFFFFF;">Aplicar Filtros</button>
+            </form>
+            <div class="mb-3 text-end">
+                <a asp-controller="Home" asp-action="AgregarUsuario" class="btn btn-primary" style="background-color: #66b2ff; color: #FFFFFF;">Agregar Usuario</a>
+            </div>
+            <table class="table table-striped">
+                <thead style="background-color: #003366; color: #FFFFFF;">
+                    <tr>
+                        <th>ID</th>
+                        <th>Rol</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Cédula</th>
+                        <th>Celular</th>
+                        <th>Correo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Administrador</td>
+                        <td>Juan</td>
+                        <td>Pérez</td>
+                        <td>123456789</td>
+                        <td>8800-1234</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="1" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="1" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Paciente</td>
+                        <td>María</td>
+                        <td>López</td>
+                        <td>098765432</td>
+                        <td>8810-5678</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="2" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="2" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Secretaria</td>
+                        <td>Luisa</td>
+                        <td>Ramírez</td>
+                        <td>112233445</td>
+                        <td>8820-6789</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="3" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="3" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Ortodoncista</td>
+                        <td>Carlos</td>
+                        <td>Gómez</td>
+                        <td>223344556</td>
+                        <td>8830-7890</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="4" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="4" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Paciente</td>
+                        <td>Laura</td>
+                        <td>Hernández</td>
+                        <td>334455667</td>
+                        <td>8840-1234</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="5" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Odontólogo</td>
+                        <td>Andrés</td>
+                        <td>Mora</td>
+                        <td>445566778</td>
+                        <td>8850-4567</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="6" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Administrador</td>
+                        <td>Sofía</td>
+                        <td>Castro</td>
+                        <td>556677889</td>
+                        <td>8860-5678</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="7" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Paciente</td>
+                        <td>Daniel</td>
+                        <td>Chaves</td>
+                        <td>667788990</td>
+                        <td>8870-6789</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="8" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Contador</td>
+                        <td>Manuel</td>
+                        <td>Jiménez</td>
+                        <td>778899001</td>
+                        <td>8880-7890</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="9" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Paciente</td>
+                        <td>Gabriela</td>
+                        <td>Ramírez</td>
+                        <td>889900112</td>
+                        <td>8890-1234</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="10" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="10" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Secretaria</td>
+                        <td>Vanessa</td>
+                        <td>Fernández</td>
+                        <td>990011223</td>
+                        <td>8900-4567</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="11" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="11" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>Odontólogo</td>
+                        <td>Alberto</td>
+                        <td>García</td>
+                        <td>001122334</td>
+                        <td>8910-5678</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="12" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="12" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>Paciente</td>
+                        <td>Ana</td>
+                        <td>Solis</td>
+                        <td>112233445</td>
+                        <td>8920-6789</td>
+                        <td>gmail.com</td>
+                        <td>Inactivo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="13" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="13" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>Administrador</td>
+                        <td>Roberto</td>
+                        <td>Mendoza</td>
+                        <td>223344556</td>
+                        <td>8930-7890</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="14" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="14" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td>Ortodoncista</td>
+                        <td>Carolina</td>
+                        <td>Alvarado</td>
+                        <td>334455667</td>
+                        <td>8940-1234</td>
+                        <td>gmail.com</td>
+                        <td>Activo</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="ModificarUsuario" asp-route-id="15" class="btn btn-sm edit-btn">Modificar</a>
+                            <a asp-action="Delete" asp-route-id="15" class="btn btn-sm delete-btn">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .users-container {
+            margin-top: 20px;
+            background-color: #F8F9FA;
+            padding: 20px;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E6E6E6;
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+        }
+
+    .edit-btn,
+    .delete-btn {
+        background-color: #66b2ff;
+        color: #FFFFFF;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .edit-btn:hover,
+        .delete-btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+        }
+    </style>

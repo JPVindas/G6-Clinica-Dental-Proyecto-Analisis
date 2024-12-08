@@ -1,14 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Portal de Expedientes";
 }
-
-<br/>
-<br/>
-<div class="container">
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido al Portal de Expedientes!</h1>
+    <p class="lead">Aquí podras ver la informacion de los expedientes dentales</p>
+</div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4" style="font-family: 'Merriweather', serif; color: #003366;">Portal de Expedientes</h2>
     <div class="row">
         <div class="col-md-12">
             <table class="table table-bordered">
-                <thead>
+                <thead style="background-color: #003366; color: #FFFFFF;">
                     <tr>
                         <th>Cédula</th>
                         <th>Nombre</th>
@@ -25,11 +27,12 @@
                         <td>
                             <ul class="list-group">
                                 <li class="list-group-item">Comentario 1</li>
+                                <li class="list-group-item">Comentario 2</li>
                             </ul>
                         </td>
                         <td>
                             <table class="table table-sm">
-                                <thead>
+                                <thead style="background-color: #66b2ff; color: #FFFFFF;">
                                     <tr>
                                         <th>Inicio</th>
                                         <th>Tipo</th>
@@ -41,8 +44,14 @@
                                     <tr>
                                         <td>15/05/2021</td>
                                         <td>Ortodoncia</td>
-                                        <td>3.500.000</td>
+                                        <td>₡3,500,000</td>
                                         <td>21/07/2024</td>
+                                    </tr>
+                                    <tr>
+                                        <td>01/01/2023</td>
+                                        <td>Limpieza</td>
+                                        <td>₡25,000</td>
+                                        <td>01/01/2023</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -51,10 +60,10 @@
                             <div id="carouselImg" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active">
-                                        <img src="imagen_medica.jpg" class="d-block w-100" alt="Imagen Médica 1">
+                                        <img src="~/images/imagen_medica.jpg" class="d-block w-100" alt="Imagen Médica 1" style="border-radius: 10px;">
                                     </div>
                                     <div class="carousel-item">
-                                        <img src="imagen_medica2.jpg" class="d-block w-100" alt="Imagen Médica 2">
+                                        <img src="~/images/imagen_medica2.jpg" class="d-block w-100" alt="Imagen Médica 2" style="border-radius: 10px;">
                                     </div>
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselImg" data-bs-slide="prev">
@@ -66,9 +75,9 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-sm">Agregar</button>
-                            <button type="button" class="btn btn-secondary btn-sm">Editar</button>
-                            <button type="button" class="btn btn-danger btn-sm">Eliminar</button>
+                            <button type="button" class="btn btn-primary btn-sm" style="background-color: #66b2ff;">Agregar</button>
+                            <button type="button" class="btn btn-secondary btn-sm" style="background-color: #66b2ff;">Editar</button>
+                            <button type="button" class="btn btn-danger btn-sm" style="background-color: #66b2ff;">Eliminar</button>
                         </td>
                     </tr>
                 </tbody>
@@ -76,3 +85,40 @@
         </div>
     </div>
 </div>
+
+    <style>
+        .table-bordered {
+            border: 1px solid #E6E6E6;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .table-bordered th, .table-bordered td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table-bordered thead th {
+            font-family: 'Merriweather', serif;
+        }
+
+        .table-bordered tbody tr:hover {
+            background-color: #f2f8fc;
+        }
+
+        .carousel-inner img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .btn-primary:hover {
+            background-color: #003366;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6c757d;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc3545;
+        }
+    </style>

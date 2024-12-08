@@ -1,72 +1,100 @@
 ﻿@{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "PortalExpediente";
 }
 
-<!-- Encabezado de Bienvenida -->
 <div class="jumbotron text-center">
-    <h1 class="display-4">¡Bienvenido a tu portal!</h1>
-    <p class="lead">Aquí podras encontrar información muy importante sobre tus exámenes, tratamientos y demás información de suma importancia</p>
+    <h1 class="display-4">¡Bienvenido a Tu Portal!</h1>
+    <p class="lead">Aquí podras ver la informacion de tu expediente dental</p>
 </div>
 
-<div class="container">
-    <div class="row">
+<div class="container mt-4">
+    <div class="row mb-4">
         <div class="col-md-12">
-            <h3>Comentarios</h3>
+            <h3 style="font-family: 'Merriweather', serif; color: #003366;">Comentarios</h3>
             <ul class="list-group">
                 <li class="list-group-item">Comentario 1</li>
             </ul>
         </div>
     </div>
-
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-12">
-            <h3>Historial de Tratamientos</h3>
-            <table class="table">
-                <thead>
+            <h3 style="font-family: 'Merriweather', serif; color: #003366;">Historial de Tratamientos</h3>
+            <table class="table table-striped">
+                <thead style="background-color: #003366; color: #FFFFFF;">
                     <tr>
-                        <th>Inicio del tratamiento</th>
-                        <th>Tipo de tratamiento</th>
+                        <th>Inicio del Tratamiento</th>
+                        <th>Tipo de Tratamiento</th>
                         <th>Costo</th>
-                        <th>Fecha de finalización</th>
+                        <th>Fecha de Finalización</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>15/05/2021</td>
                         <td>Ortodoncia</td>
-                        <td>3.500.000</td>
+                        <td>₡3,500,000</td>
                         <td>21/07/2024</td>
+                    </tr>
+                    <tr>
+                        <td>01/01/2023</td>
+                        <td>Limpieza</td>
+                        <td>₡25,000</td>
+                        <td>01/01/2023</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div id="carouselImg" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="imagen_medica.jpg" class="d-block w-100" alt="Imagen Médica 1">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="imagen_medica2.jpg" class="d-block w-100" alt="Imagen Médica 2">
-                        </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 style="font-family: 'Merriweather', serif; color: #003366;">Imágenes Médicas</h3>
+            <div id="carouselImg" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="~/images/imagen_medica.jpg" class="d-block w-100" alt="Imagen Médica 1" style="border-radius: 10px;">
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselImg" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Imagen anterior</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselImg" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Siguiente imagen</span>
-                    </button>
+                    <div class="carousel-item">
+                        <img src="~/images/imagen_medica2.jpg" class="d-block w-100" alt="Imagen Médica 2" style="border-radius: 10px;">
+                    </div>
                 </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselImg" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Imagen anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselImg" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente imagen</span>
+                </button>
             </div>
         </div>
     </div>
-
-    <a class="btn btn-primary" asp-controller="Home" asp-action="PortalExpedienteAdmin">Admin</a>
-
 </div>
+
+    <style>
+        .jumbotron {
+            margin-bottom: 30px;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f2f2f2;
+        }
+
+        .table-striped tbody tr:hover {
+            background-color: #d9e6f2;
+        }
+
+        .carousel-inner img {
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        .btn-primary {
+            background-color: #66b2ff;
+            border-color: #66b2ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #003366;
+            border-color: #003366;
+        }
+    </style>

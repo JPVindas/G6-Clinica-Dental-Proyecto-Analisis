@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Modificar Usuario";
+}
+
+<div class="modify-user-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Modificar Usuario
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Edit" method="POST">
+                <div class="mb-3">
+                    <label for="role" class="form-label" style="color: #003366;">Rol</label>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="">Todos los roles</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Paciente">Paciente</option>
+                        <option value="Secretaria">Secretaria</option>
+                        <option value="Odontologo">Odontólogo</option>
+                        <option value="Ortodoncista">Ortodoncista</option>
+                        <option value="Contador">Contador</option>
+                        <option value="Endodoncista">Endodoncista</option>
+                        <option value="Periodoncista">Periodoncista</option>
+                        <option value="Odontopediatra">Odontopediatra</option>
+                        <option value="Prostodoncista">Prostodoncista</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="firstName" class="form-label" style="color: #003366;">Nombre</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Ingrese el nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label" style="color: #003366;">Apellido</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Ingrese el apellido" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cedula" class="form-label" style="color: #003366;">Cédula</label>
+                    <input type="text" id="cedula" name="cedula" class="form-control" placeholder="Ingrese el cédula" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cellphone" class="form-label" style="color: #003366;">Celular</label>
+                    <input type="text" id="cellphone" name="cellphone" class="form-control" placeholder="Ingrese el celular" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label" style="color: #003366;">Correo</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese el correo" required>
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label" style="color: #003366;">Estado</label>
+                    <select id="status" name="status" class="form-select" required>
+                        <option value="Activo" selected>Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">Guardar Cambios</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="Usuarios" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modify-user-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .card {
+        border: 1px solid #E6E6E6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+    }
+
+    .btn {
+        background-color: #003366;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #66b2ff;
+            transform: scale(1.05);
+        }
+</style>
