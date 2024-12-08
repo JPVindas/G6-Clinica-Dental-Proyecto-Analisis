@@ -33,6 +33,40 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public IActionResult Registro()
+        {
+            return View();
+        }
+
+        public IActionResult RecuperarPassword()
+        {
+            return View();
+        }
+        public IActionResult MiPerfil()
+        {
+            return View();
+        }
+
+        public IActionResult Citas()
+        {
+            return View();
+        }
+
+        public IActionResult ReprogramarCita()
+        {
+            return View();
+        }
+
+        public IActionResult AgregarCita()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -1,0 +1,112 @@
+﻿@{
+    ViewData["Title"] = "Mi Perfil";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a tu perfil!</h1>
+    <p class="lead">Aquí podras encontrar tu información personal</p>
+</div>
+<div class="profile-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Mi Perfil
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="UpdateProfile" method="POST">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label" style="color: #003366;">Nombre</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control"  placeholder="Ingresa tu nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label" style="color: #003366;">Apellido</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control"  placeholder="Ingresa tu apellido" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cedula" class="form-label" style="color: #003366;">Cédula</label>
+                    <input type="text" id="cedula" name="cedula" class="form-control"  placeholder="Ingresa tu cédula" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label" style="color: #003366;">Celular</label>
+                    <input type="text" id="phone" name="phone" class="form-control"  placeholder="Ingresa tu número de celular" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label" style="color: #003366;">Dirección</label>
+                    <input type="text" id="address" name="address" class="form-control"  placeholder="Ingresa tu dirección" required>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label" style="color: #003366;">Rol</label>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="Paciente" selected>Paciente</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Odontologo">Odontólogo</option>
+                        <option value="Recepcionista">Secretaria</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label" style="color: #003366;">Correo Electrónico</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Ingresa tu correo electrónico" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label" style="color: #003366;">Nueva Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Ingresa una nueva contraseña">
+                </div>
+                <div class="mb-3">
+                    <label for="confirm-password" class="form-label" style="color: #003366;">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="confirm-password" name="confirm-password" class="form-control" placeholder="Confirma tu nueva contraseña">
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Actualizar Perfil</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+        </div>
+    </div>
+</div>
+
+    <style>
+        .profile-container {
+            margin-top: 20px;
+            height: 100vh;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E6E6E6;
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            font-family: 'Merriweather', serif;
+        }
+
+        .btn {
+            font-family: 'Arial Bold', sans-serif;
+            background-color: #066b2ff;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+
+        a {
+            color: #066b2ff;
+            font-family: 'Arial Bold', sans-serif;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #066b2ff;
+        }
+    </style>

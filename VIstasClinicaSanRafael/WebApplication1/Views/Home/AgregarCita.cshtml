@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "Agregar Cita";
+}
+
+<div class="create-appointment-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Agregar Nueva Cita
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Create" method="POST">
+                <div class="mb-3">
+                    <label for="patient" class="form-label" style="color: #003366;">Nombre del Paciente</label>
+                    <input type="text" id="patient" name="patient" class="form-control" placeholder="Nombre del paciente" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contact" class="form-label" style="color: #003366;">Contacto</label>
+                    <input type="text" id="contact" name="contact" class="form-control" placeholder="Número de contacto" required>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label" style="color: #003366;">Fecha</label>
+                    <input type="date" id="date" name="date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="time" class="form-label" style="color: #003366;">Hora</label>
+                    <input type="time" id="time" name="time" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="treatment" class="form-label" style="color: #003366;">Tratamiento</label>
+                    <select id="treatment" name="treatment" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un tratamiento</option>
+                        <option value="Control">Control</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Ortodoncia">Ortodoncia</option>
+                        <option value="Blanqueamiento">Blanqueamiento</option>
+                        <option value="Extracción">Extracción</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="doctor" class="form-label" style="color: #003366;">Doctor</label>
+                    <select id="doctor" name="doctor" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un doctor</option>
+                        <option value="Dr. Juan Pérez">Dr. Juan Pérez</option>
+                        <option value="Dra. María López">Dra. María López</option>
+                        <option value="Dr. Carlos Gómez">Dr. Carlos Gómez</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Agregar Cita</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="Citas" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .create-appointment-container {
+            margin-top: 20px;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+        }
+
+        .card {
+            border: 1px solid #E6E6E6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+        }
+
+        .btn {
+            background-color: #66b2ff;
+            border: none;
+        }
+
+            .btn:hover {
+                background-color: #003366;
+                transform: scale(1.05);
+            }
+    </style>

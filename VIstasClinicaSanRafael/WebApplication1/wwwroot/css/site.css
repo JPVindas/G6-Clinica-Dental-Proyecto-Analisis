@@ -22,7 +22,7 @@ h1, h2, h3 {
 
 h4, h5, h6 {
     font-family: 'Lato', sans-serif;
-    color: #066b2ff; /* Azul claro para subtítulos */
+    color: #66b2ff; /* Azul claro para subtítulos */
     margin-bottom: 10px;
 }
 
@@ -41,14 +41,14 @@ a {
 
     a:hover {
         text-decoration: underline;
-        color: #003366; /* Azul oscuro en hover */
+        color: #FFFFFF; /* Azul oscuro en hover */
     }
 
 
 /* Botones */
 button, .btn {
     font-family: 'Arial Bold', sans-serif;
-    background-color: #066b2ff; /* Azul claro */
+    background-color: #003366; /* Azul claro */
     color: #FFFFFF; /* Texto blanco */
     border: none;
     padding: 10px 20px;
@@ -60,6 +60,7 @@ button, .btn {
     button:hover, .btn:hover {
         background-color: #003366; /* Azul oscuro en hover */
         transform: scale(1.05); /* Efecto de aumento */
+        color: #FFFFFF;
     }
 
 /* Encabezado */
@@ -81,14 +82,14 @@ header {
 }
 
     .navbar a {
-        color: #FFFFFF;
+        color: #003366;
         margin-right: 15px;
         font-family: 'Arial Bold', sans-serif;
         transition: color 0.3s ease;
     }
 
         .navbar a:hover {
-            color: #066b2ff; /* Azul claro en hover */
+            color: #003366; /* Azul claro en hover */
         }
 
     /* Iconos del Navbar */
@@ -173,7 +174,7 @@ header {
 
 .card-text {
     font-family: 'Arial', sans-serif;
-    color: #066b2ff; /* Azul claro para textos en tarjetas */
+    color: #66b2ff; /* Azul claro para textos en tarjetas */
     margin-bottom: 15px;
 }
 
@@ -224,7 +225,7 @@ footer {
     margin-top: 1rem;
     margin-bottom: 1rem;
     font-size: .875em;
-    color: #6c757d;
+    color: #FFFFFF;
 }
 
 /* Iconografía */
@@ -235,5 +236,6 @@ footer {
 }
 
     .icon:hover {
-        color: #066b2ff; /* Azul claro en hover */
+        color: #66b2ff; /* Azul claro en hover */
     }
+

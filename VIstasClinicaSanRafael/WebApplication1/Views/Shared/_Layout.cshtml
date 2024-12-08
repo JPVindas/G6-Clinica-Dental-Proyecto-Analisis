@@ -24,22 +24,19 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Citas" asp-action="Index">Citas</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Citas">Citas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Servicios" asp-action="Index">Servicios</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Contacto" asp-action="Index">Contacto</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Odontologos">Odontólogos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Productos">Prodcutos</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Productos">Productos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Inventario">Inventario</a>
@@ -47,17 +44,17 @@
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Login">Iniciar Sesión</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Registrarse</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Registro">Registrarse</a>
                         </li>
 
                         <!-- Carrito de compras -->
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Carrito" asp-action="Index">
-                                <i class="bi bi-cart-plus-fill"></i> 
-                                <span class="badge bg-primary">0</span>
+                                <i class="bi bi-cart-plus-fill"></i>
+                                <span class="badge" style="background-color: #003366; color: #FFFFFF;">0</span>
                             </a>
                         </li>
                         <!-- Perfil de usuario -->
@@ -67,10 +64,10 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Perfil" asp-action="Perfil">Ver Perfil</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MiPerfil">Ver Perfil</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">Cerrar Sesión</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Logout">Cerrar Sesión</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="PortalExpediente">Mi Portal</a>
@@ -92,9 +89,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2024 - Clínica San Rafael</p>
-            <p><a href="#" class="text-white text-decoration-none">Política de Privacidad</a></p>
-            <p>Dirección: Calle 123, San Rafael, Costa Rica | Teléfono: +506 1234-5678</p>
+            <p>&copy; 2024 - Clínica San Rafael | Calle 123, San Rafael, Costa Rica | Teléfono: +506 1234-5678</p>
         </div>
     </footer>
 

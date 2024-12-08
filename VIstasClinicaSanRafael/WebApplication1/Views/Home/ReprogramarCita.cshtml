@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Reprogramar Cita";
+}
+
+<div class="reschedule-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Reprogramar Cita
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form asp-action="Reschedule" method="POST">
+                <div class="mb-3">
+                    <label for="currentDate" class="form-label" style="color: #003366;">Fecha Actual</label>
+                    <input type="text" id="currentDate" name="currentDate" class="form-control" value="2024-12-10" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="currentTime" class="form-label" style="color: #003366;">Hora Actual</label>
+                    <input type="text" id="currentTime" name="currentTime" class="form-control" value="10:00 AM" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="newDate" class="form-label" style="color: #003366;">Nueva Fecha</label>
+                    <input type="date" id="newDate" name="newDate" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="newTime" class="form-label" style="color: #003366;">Nueva Hora</label>
+                    <input type="time" id="newTime" name="newTime" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="doctor" class="form-label" style="color: #003366;">Doctor que atenderá</label>
+                    <select id="doctor" name="doctor" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un doctor</option>
+                        <option value="Dr. Juan Pérez">Dr. Juan Pérez</option>
+                        <option value="Dra. María López">Dra. María López</option>
+                        <option value="Dr. Carlos Gómez">Dr. Carlos Gómez</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="treatment" class="form-label" style="color: #003366;">Tratamiento a realizar</label>
+                    <select id="treatment" name="treatment" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un tratamiento</option>
+                        <option value="Control">Control</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Ortodoncia">Ortodoncia</option>
+                        <option value="Blanqueamiento">Blanqueamiento</option>
+                        <option value="Extracción">Extracción</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Reprogramar Cita</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="Citas" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .reschedule-container {
+            margin-top: 20px;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+        }
+
+        .card {
+            border: 1px solid #E6E6E6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+        }
+
+        .btn {
+            background-color: #003366;
+            border: none;
+        }
+
+            .btn:hover {
+                background-color: #66b2ff;
+                transform: scale(1.05);
+            }
+    </style>
+
