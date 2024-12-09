@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Servicios";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a los Servicios!</h1>
+    <p class="lead">Aquí podras encontar nuestros servicios.</p>
+</div>
+<div class="users-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Servicios
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <table class="table table-striped">
+                <thead style="background-color: #003366; color: #FFFFFF;">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Propósito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Limpieza</td>
+                        <td>₡65,000</td>
+                        <td>Limpieza de los dientes.</td>
+                    </tr>
+                    <tr>
+                        <td>Radiografías</td>
+                        <td>₡25,000</td>
+                        <td>Radiografía para conocer el estado de los dientes.</td>
+                    </tr>
+                    <tr>
+                        <td>Ortodoncia</td>
+                        <td>₡2,500,000</td>
+                        <td>Tratamientos de ortodoncia.</td>
+                    </tr>
+                    <tr>
+                        <td>Cirugías</td>
+                        <td>₡1,800,000</td>
+                        <td>Cirugías dentales.</td>
+                    </tr>
+                    <tr>
+                        <td>Extracciones</td>
+                        <td>₡100,000</td>
+                        <td>Extracciones dentales.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .users-container {
+            margin-top: 20px;
+            background-color: #F8F9FA;
+            padding: 20px;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E6E6E6;
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+        }
+
+    .edit-btn,
+    .delete-btn {
+        background-color: #66b2ff;
+        color: #FFFFFF;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .edit-btn:hover,
+        .delete-btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+        }
+    </style>

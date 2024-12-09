@@ -77,6 +77,16 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        public IActionResult Productos()
+        {
+            return View();
+        }
+
+        public IActionResult Servicios()
+        {
+            return View();
+        }
+
         public IActionResult AgregarUsuario()
         {
             return View();
@@ -92,12 +102,22 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        public IActionResult AgregarInventario()
+        public IActionResult AgregarProducto()
         {
             return View();
         }
 
-        public IActionResult ModificarInventario()
+        public IActionResult AgregarServicio()
+        {
+            return View();
+        }
+
+        public IActionResult ModificarProducto()
+        {
+            return View();
+        }
+
+        public IActionResult ModificarServicio()
         {
             return View();
         }
