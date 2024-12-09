@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Odontólogos";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Conoce a nuestros Odontólogos!</h1>
+    <p class="lead">Selecciona un profesional y agenda tu cita fácilmente.</p>
+</div>
+<div class="odontologos-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Nuestros Odontólogos
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <table class="table table-striped">
+                <thead style="background-color: #003366; color: #FFFFFF;">
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nombre</th>
+                        <th>Especialidad</th>
+                        <th>Experiencia</th>
+                        <th>Estudios</th>
+                        <th>Horario</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <img src="/images/Juan-Odontologo.jpg" alt="Foto de Dr. Juan Pérez" style="width: 100px; height: auto; border-radius: 10px;">
+                        </td>
+                        <td>Dr. Juan Pérez</td>
+                        <td>Ortodoncia</td>
+                        <td>10 años</td>
+                        <td>Universidad de Costa Rica</td>
+                        <td>Lunes a Viernes, 9:00 AM - 5:00 PM</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dr. Juan Pérez" class="btn btn-sm" style="background-color: #66b2ff; color: #FFFFFF;">
+                                Agendar Cita
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="/images/Maria-Gomez-Odontologa.jpg" alt="Foto de Dra. María Gómez" style="width: 100px; height: auto; border-radius: 10px;">
+                        </td>
+                        <td>Dra. María Gómez</td>
+                        <td>Odontología Estética</td>
+                        <td>8 años</td>
+                        <td>Universidad Latina</td>
+                        <td>Lunes a Sábado, 10:00 AM - 6:00 PM</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dra. María Gómez" class="btn btn-sm" style="background-color: #66b2ff; color: #FFFFFF;">
+                                Agendar Cita
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <img src="/images/Carlos-Lopez-Odontologo.jpg" alt="Foto de Dr. Carlos López" style="width: 100px; height: auto; border-radius: 10px;">
+                        </td>
+                        <td>Dr. Carlos López</td>
+                        <td>Endodoncia</td>
+                        <td>12 años</td>
+                        <td>Universidad de Costa Rica</td>
+                        <td>Martes a Viernes, 8:00 AM - 4:00 PM</td>
+                        <td>
+                            <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dr. Carlos López" class="btn btn-sm" style="background-color: #66b2ff; color: #FFFFFF;">
+                                Agendar Cita
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .odontologos-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+
+    .btn:hover {
+        background-color: #003366;
+        transform: scale(1.05);
+    }
+</style>
