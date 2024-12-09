@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Aplicar Descuento";
+}
+
+<div class="container module-container mt-5">
+    <div class="jumbotron text-center mb-4">
+        <h1 class="display-4">Aplicar Descuento</h1>
+        <p class="lead">Introduce un código de descuento para aplicar promociones.</p>
+    </div>
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Descuento
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form id="discountForm">
+                <div class="mb-3">
+                    <label for="discountCode" class="form-label" style="color: #003366;">Código de Descuento</label>
+                    <input type="text" id="discountCode" name="discountCode" class="form-control" placeholder="Ingrese el código de descuento" required>
+                </div>
+                <button type="button" id="applyDiscount" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Aplicar Descuento</button>
+            </form>
+            <div id="discountResult" class="mt-3" style="display: none;">
+                <p class="mb-0" style="font-weight: bold; color: green;">Descuento aplicado correctamente. Total actualizado: <span id="updatedTotal">$0</span></p>
+            </div>
+            <div id="discountError" class="mt-3" style="display: none;">
+                <p class="mb-0" style="font-weight: bold; color: red;">Error: Código de descuento inválido o vencido.</p>
+            </div>
+            <div id="discountMultiple" class="mt-3" style="display: none;">
+                <p class="mb-0" style="font-weight: bold; color: orange;">Error: Solo se puede aplicar un descuento a la vez.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .module-container {
+        margin-top: 20px;
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+        font-family: 'Arial Bold', sans-serif;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .btn:hover {
+        transform: scale(1.05);
+    }
+</style>

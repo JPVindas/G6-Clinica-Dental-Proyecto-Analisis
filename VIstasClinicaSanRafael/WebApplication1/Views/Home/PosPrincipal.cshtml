@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Módulo Principal - POS";
+}
+
+<div class="container module-container mt-5">
+    <div class="jumbotron text-center mb-4">
+        <h1 class="display-4">Punto de Venta (POS)</h1>
+        <p class="lead">GestionaR ventas y operaciones de manera eficiente</p>
+    </div>
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Registrar Venta
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form>
+                <div class="mb-3">
+                    <label for="patientName" class="form-label" style="color: #003366;">Nombre del Paciente</label>
+                    <input type="text" id="patientName" name="patientName" class="form-control" placeholder="Ingrese el nombre del paciente" required>
+                </div>
+                <div class="mb-3">
+                    <label for="patientPhone" class="form-label" style="color: #003366;">Teléfono</label>
+                    <input type="text" id="patientPhone" name="patientPhone" class="form-control" placeholder="Ingrese el teléfono del paciente" required>
+                </div>
+                <div class="mb-3">
+                    <label for="paymentMethod" class="form-label" style="color: #003366;">Método de Pago</label>
+                    <select id="paymentMethod" name="paymentMethod" class="form-select" required>
+                        <option value="" selected>Seleccionar...</option>
+                        <option value="1">Efectivo</option>
+                        <option value="2">Tarjeta</option>
+                        <option value="3">Transferencia SINPE</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="totalAmount" class="form-label" style="color: #003366;">Total a Pagar</label>
+                    <input type="text" id="totalAmount" name="totalAmount" class="form-control" placeholder="Ingrese el monto total" required>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Registrar Venta</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Generar Recibo
+        </div>
+        <div class="card-body text-center" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <button class="btn btn-success me-3">Generar Recibo Físico</button>
+            <button class="btn btn-secondary">Enviar Recibo por Correo</button>
+        </div>
+    </div>
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Gestionar Inventario
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <p>El inventario se actualizará automáticamente según los movimientos en el POS.</p>
+            <button class="btn btn-warning">Ver Inventario</button>
+        </div>
+    </div>
+
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Gestión de Permisos
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <p>Asegúrese de que solo el personal autorizado pueda acceder al POS.</p>
+            <button class="btn btn-danger">Configurar Permisos</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .module-container {
+        margin-top: 20px;
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+        font-family: 'Arial Bold', sans-serif;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .btn:hover {
+        transform: scale(1.05);
+    }
+</style>
