@@ -1,0 +1,23 @@
+
+@{
+    ViewData["Title"] = "Generar Reporte Financiero";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Generar Reporte Financiero</h1>
+    <p class="lead">Genera reportes financieros basados en fechas y análisis específicos.</p>
+</div>
+<div class="container mt-5">
+    <form>
+        <div class="mb-3">
+            <label for="fechaInicio" class="form-label">Fecha de Inicio</label>
+            <input type="date" class="form-control" id="fechaInicio">
+        </div>
+        <div class="mb-3">
+            <label for="fechaFin" class="form-label">Fecha de Fin</label>
+            <input type="date" class="form-control" id="fechaFin">
+        </div>
+        <div class="text-center">
+            <button class="btn btn-success btn-lg">Generar Reporte</button>
+        </div>
+    </form>
+</div>

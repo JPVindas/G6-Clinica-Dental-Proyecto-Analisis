@@ -1,0 +1,78 @@
+
+@{
+    ViewData["Title"] = "Gestión de Códigos - DES-002";
+}
+
+<div class="container module-container mt-5">
+    <div class="jumbotron text-center mb-4">
+        <h1 class="display-4">Gestión de Códigos de Descuento</h1>
+        <p class="lead">Crea, edita, elimina y administra códigos de descuento para el sistema POS</p>
+    </div>
+
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Crear Nuevo Código de Descuento
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <form id="createForm">
+                <div class="mb-3">
+                    <label for="newDiscountCode" class="form-label">Código de Descuento</label>
+                    <input type="text" id="newDiscountCode" name="newDiscountCode" class="form-control" placeholder="Ej: DES-003" required>
+                </div>
+                <div class="mb-3">
+                    <label for="newDiscountValue" class="form-label">Valor del Descuento</label>
+                    <input type="number" id="newDiscountValue" name="newDiscountValue" class="form-control" placeholder="Ej: 10" required>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Crear Código</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Listado de Códigos
+        </div>
+        <div class="card-body">
+            <table class="table table-striped" id="discountTable">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Valor (%)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--Se llenará dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .module-container {
+        margin-top: 20px;
+        background-color: #FFFFFF;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+    }
+
+    .table th,
+    .table td {
+        text-align: center;
+    }
+
+    form input {
+        text-transform: uppercase;
+    }
+</style>
