@@ -152,38 +152,25 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-<<<<<<< Updated upstream
-        public IActionResult Ventas()
-=======
 
-        public IActionResult AplicarDescuento()
->>>>>>> Stashed changes
+        public IActionResult Ventas()
         {
             return View();
         }
-
-<<<<<<< Updated upstream
-=======
         public IActionResult GestionarDescuento()
         {
             return View();
         }
 
-        public IActionResult HistorialVentas()
-        {
-            return View();
-        }
 
-        public IActionResult PosPrincipal()
-        {
-            return View();
-        }
 
-        public IActionResult ReporteFinanciero()
-        {
-            return View();
-        }
->>>>>>> Stashed changes
+
+
+
+
+
+
+
 
 
 

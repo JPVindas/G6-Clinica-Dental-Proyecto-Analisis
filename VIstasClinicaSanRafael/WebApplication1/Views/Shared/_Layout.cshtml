@@ -17,7 +17,9 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Clínica San Rafael</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/ClinicaSanRafael.jpg" alt="Logo Clínica San Rafael" style="height: 100px; border-radius: 5px;">
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -45,26 +47,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Usuarios">Usuarios</a>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínicia</a>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínica</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Ventas">Ventas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="HistorialVentas">Historial de ventas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="PosPrincipal">Punto de Venta</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="GestionarDescuento">Gestión descuentos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="AplicarDescuento">Aplicar descuentos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="ReporteFinanciero">Reporte Financiero</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -102,6 +92,7 @@
         </nav>
     </header>
 
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -123,6 +114,7 @@
                     <i class="bi bi-facebook"></i>
                 </a>
             </div>
+        </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>

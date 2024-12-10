@@ -1,5 +1,4 @@
-
-@{
+﻿@{
     ViewData["Title"] = "Gestión de Códigos - DES-002";
 }
 
@@ -9,7 +8,7 @@
         <p class="lead">Crea, edita, elimina y administra códigos de descuento para el sistema POS</p>
     </div>
 
-
+    <!-- Formulario para Crear Nuevo Código -->
     <div class="card shadow-lg mb-4" style="border-radius: 10px;">
         <div class="card-header text-white" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
             Crear Nuevo Código de Descuento
@@ -21,31 +20,38 @@
                     <input type="text" id="newDiscountCode" name="newDiscountCode" class="form-control" placeholder="Ej: DES-003" required>
                 </div>
                 <div class="mb-3">
-                    <label for="newDiscountValue" class="form-label">Valor del Descuento</label>
+                    <label for="newDiscountValue" class="form-label">Valor del Descuento (%)</label>
                     <input type="number" id="newDiscountValue" name="newDiscountValue" class="form-control" placeholder="Ej: 10" required>
                 </div>
-                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">Crear Código</button>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF; font-family: 'Arial Bold', sans-serif;">
+                    Crear Código
+                </button>
             </form>
         </div>
     </div>
 
+    <!-- Listado de Códigos Existentes -->
     <div class="card shadow-lg mb-4" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
             Listado de Códigos
         </div>
         <div class="card-body">
-            <table class="table table-striped" id="discountTable">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Valor (%)</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!--Se llenará dinámicamente con JavaScript -->
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead style="background-color: #003366; color: white;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Código</th>
+                            <th>Valor (%)</th>
+                            <th>Fecha Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="discountCodesTable">
+                        <!-- Contenido dinámico de la tabla -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
