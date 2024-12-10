@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "Nuestro Equipo";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Conoce a Nuestro Equipo</h1>
+    <p class="lead">Un equipo de especialistas dedicados a cuidar de tu sonrisa.</p>
+</div>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4" style="color: #003366;">Nuestros Odontologos</h2>
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Juan-Odontologo.jpg" class="card-img-top img-fluid" alt="Dr. Juan Pérez" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dr. Juan Pérez</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Ortodoncia<br>
+                        <strong>Experiencia:</strong> 10 años<br>
+                        <strong>Universidad:</strong> Universidad de Costa Rica<br>
+                        <strong>Horario:</strong> Lunes a Viernes, 9:00 AM - 5:00 PM
+                    </p>
+                    <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dr. Juan Pérez" class="btn btn-primary">
+                        Agendar Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Maria-Gomez-Odontologa.jpg?v=1" alt="Dra. María Gómez" class="card-img-top img-fluid" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dra. María Gómez</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Odontología Estética<br>
+                        <strong>Experiencia:</strong> 8 años<br>
+                        <strong>Universidad:</strong> Universidad Latina<br>
+                        <strong>Horario:</strong> Lunes a Sábado, 10:00 AM - 6:00 PM
+                    </p>
+                    <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dra. María Gómez" class="btn btn-primary">
+                        Agendar Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+
+  
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Carlos-Odontologo.jpg" class="card-img-top img-fluid" alt="Dr. Carlos López" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dr. Carlos López</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Endodoncia<br>
+                        <strong>Experiencia:</strong> 12 años<br>
+                        <strong>Universidad:</strong> Universidad de Costa Rica<br>
+                        <strong>Horario:</strong> Martes a Viernes, 8:00 AM - 4:00 PM
+                    </p>
+                    <a asp-controller="Home" asp-action="AgregarCita" asp-route-doctor="Dr. Carlos López" class="btn btn-primary">
+                        Agendar Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4" style="color: #003366;">Nuestros Asistentes Dentales</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Asistente1.jpg" class="card-img-top img-fluid" alt="Asistente Dental Laura Morales" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Laura Morales</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Auxiliar en Ortodoncia<br>
+                        <strong>Experiencia:</strong> 5 años<br>
+                        <strong>Horario:</strong> Lunes a Viernes, 8:00 AM - 4:00 PM
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Asistente2.jpg" class="card-img-top img-fluid" alt="Asistente Dental Andrés Fernández" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Andrés Fernández</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Auxiliar en Endodoncia<br>
+                        <strong>Experiencia:</strong> 3 años<br>
+                        <strong>Horario:</strong> Martes a Sábado, 9:00 AM - 5:00 PM
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Asistente3.jpg" class="card-img-top img-fluid" alt="Asistente Dental María López" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">María López</h5>
+                    <p class="card-text">
+                        <strong>Especialidad:</strong> Auxiliar en Odontología General<br>
+                        <strong>Experiencia:</strong> 4 años<br>
+                        <strong>Horario:</strong> Lunes a Viernes, 10:00 AM - 6:00 PM
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-md-12 mb-5">
+    <h3 class="text-center">Secretarias</h3>
+    <div class="row justify-content-center text-center">
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Secretaria1.jpg" alt="Foto de Secretaria 1" class="card-img-top team-img" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Laura Rodríguez</h5>
+                    <p class="card-text">Horario: Lunes a Viernes, 8:00 AM - 5:00 PM</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4" style="border-radius: 10px;">
+                <img src="/images/Secretaria2.jpg" alt="Foto de Secretaria 2" class="card-img-top team-img" style="max-height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Marcela Jiménez</h5>
+                    <p class="card-text">Horario: Lunes a Sábado, 9:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Nuestras Instalaciones</h2>
+    <div class="row text-center">
+      
+        <div class="col-md-4 mb-4">
+            <img src="/images/Sala-Ortodoncial.jpg" alt="Sala de Ortodoncia" class="instalacion-img">
+            <h5>Sala de Ortodoncia</h5>
+            <p>Equipos modernos para tratamientos de ortodoncia.</p>
+        </div>
+     
+        <div class="col-md-4 mb-4">
+            <img src="/images/Sala-Infantil.jpg" alt="Sala Infantil" class="instalacion-img">
+            <h5>Sala Infantil</h5>
+            <p>Espacio diseñado para los más pequeños con entretenimiento.</p>
+        </div>
+       
+        <div class="col-md-4 mb-4">
+            <img src="/images/Recepcion.jpg" alt="Recepción" class="instalacion-img">
+            <h5>Recepción</h5>
+            <p>Atención personalizada y cómoda espera para los pacientes.</p>
+        </div>
+    </div>
+    <div class="row text-center">
+
+        <div class="col-md-4 mb-4">
+            <img src="/images/Sala-Radiografias.jpg" alt="Sala de Radiografías" class="instalacion-img">
+            <h5>Sala de Radiografías</h5>
+            <p>Equipos avanzados para diagnósticos precisos y rápidos.</p>
+        </div>
+      
+        <div class="col-md-4 mb-4">
+            <img src="/images/Consultorio-General.jpg" alt="Consultorio General" class="instalacion-img">
+            <h5>Consultorio General</h5>
+            <p>Espacio cómodo y equipado para consultas generales.</p>
+        </div>
+       
+        <div class="col-md-4 mb-4">
+            <img src="/images/Sala-Esterilizacion.jpg" alt="Sala de Esterilización" class="instalacion-img">
+            <h5>Sala de Esterilización</h5>
+            <p>Protocolos estrictos de higiene para la seguridad de nuestros pacientes.</p>
+        </div>
+    </div>
+    <div class="row text-center">
+        
+        <div class="col-md-4 mb-4">
+            <img src="/images/Sala-Estetica.jpg" alt="Sala de Tratamientos Estéticos" class="instalacion-img">
+            <h5>Sala de Tratamientos Estéticos</h5>
+            <p>Especializada en procedimientos estéticos para mejorar tu sonrisa.</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <img src="/images/Area-Espera-VIP.jpg" alt="Área de Espera VIP" class="instalacion-img">
+            <h5>Área de Espera VIP</h5>
+            <p>Zona exclusiva con comodidades para nuestros clientes VIP.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <img src="/images/Laboratorio-Dental.jpg" alt="Laboratorio Dental" class="instalacion-img">
+            <h5>Laboratorio Dental</h5>
+            <p>Tecnología avanzada para la fabricación de prótesis y más.</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">¿Dónde Estamos?</h2>
+    <div class="text-center">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15718.306676237587!2d-84.21207!3d9.9691348!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0f9b6515ecb4f%3A0x57161815d70fd572!2sClinica%20Dental%20San%20Rafael!5e0!3m2!1ses!2scr!4v1733814278901!5m2!1ses!2scr"
+                width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+</div>
+
+
+
+<style>
+
+    .card {
+        border: none;
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+    
+    .card-img-top {
+        width: 100%;
+        max-height: 150px;
+        object-fit: cover;
+    }
+
+  
+    .btn-primary {
+        background-color: #66b2ff;
+        border: none;
+        color: #fff;
+        font-size: 0.9rem;
+    }
+
+        .btn-primary:hover {
+            background-color: #003366;
+        }
+
+   
+    .odontologo-img,
+    .team-img,
+    .instalacion-img {
+        width: 100%;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+ 
+    .odontologos-container,
+    .container-section {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #F8F9FA;
+    }
+
+   
+    footer {
+        background-color: #003366;
+        color: #fff;
+        padding: 15px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+        footer p {
+            margin: 0;
+        }
+</style>
+

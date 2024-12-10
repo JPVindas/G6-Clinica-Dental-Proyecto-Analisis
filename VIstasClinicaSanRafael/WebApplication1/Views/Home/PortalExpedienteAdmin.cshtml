@@ -3,12 +3,17 @@
 }
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido al Portal de Expedientes!</h1>
-    <p class="lead">Aquí podras ver la informacion de los expedientes dentales</p>
+    <p class="lead">Aquí podrás ver la información de los expedientes dentales</p>
 </div>
 <div class="container mt-5">
     <h2 class="text-center mb-4" style="font-family: 'Merriweather', serif; color: #003366;">Portal de Expedientes</h2>
     <div class="row">
         <div class="col-md-12">
+            <div class="mb-3 text-end">
+                <a asp-controller="Expediente" asp-action="Agregar" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Expediente
+                </a>
+            </div>
             <table class="table table-bordered">
                 <thead style="background-color: #003366; color: #FFFFFF;">
                     <tr>
@@ -75,8 +80,12 @@
                             </div>
                         </td>
                         <td>
-                            <a asp-controller="Home" asp-action="ModificarExpediente" asp-route-id="1" class="btn btn-sm edit-btn">Modificar</a>
-                            <a asp-action="Delete" asp-route-id="1" class="btn btn-sm delete-btn">Eliminar</a>
+                            <a asp-controller="Expediente" asp-action="Modificar" asp-route-id="1" class="btn btn-sm btn-primary">
+                                Modificar
+                            </a>
+                            <a asp-controller="Expediente" asp-action="Eliminar" asp-route-id="1" class="btn btn-sm btn-danger">
+                                Eliminar
+                            </a>
                         </td>
                     </tr>
                 </tbody>
@@ -85,11 +94,13 @@
     </div>
 </div>
 
-    <style>
-        .table-bordered {
-            border: 1px solid #E6E6E6;
-            font-family: 'Arial', sans-serif;
-        }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    .table-bordered {
+        border: 1px solid #E6E6E6;
+        font-family: 'Arial', sans-serif;
+    }
 
         .table-bordered th, .table-bordered td {
             text-align: center;
@@ -104,20 +115,16 @@
             background-color: #f2f8fc;
         }
 
-        .carousel-inner img {
-            max-height: 200px;
-            object-fit: cover;
-        }
+    .carousel-inner img {
+        max-height: 200px;
+        object-fit: cover;
+    }
 
-        .btn-primary:hover {
-            background-color: #003366;
-        }
+    .btn-primary:hover {
+        background-color: #003366;
+    }
 
-        .btn-secondary:hover {
-            background-color: #6c757d;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc3545;
-        }
-    </style>
+    .btn-danger:hover {
+        background-color: #dc3545;
+    }
+</style>

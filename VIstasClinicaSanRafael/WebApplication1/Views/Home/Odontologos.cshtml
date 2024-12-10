@@ -26,7 +26,7 @@
                 <tbody>
                     <tr>
                         <td>
-                            <img src="/images/Juan-Odontologo.jpg" alt="Foto de Dr. Juan Pérez" style="width: 100px; height: auto; border-radius: 10px;">
+                            <img src="/images/Juan-Odontologo.jpg" alt="Foto de Dr. Juan Pérez" class="odontologo-img">
                         </td>
                         <td>Dr. Juan Pérez</td>
                         <td>Ortodoncia</td>
@@ -41,7 +41,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <img src="/images/Maria-Gomez-Odontologa.jpg" alt="Foto de Dra. María Gómez" style="width: 100px; height: auto; border-radius: 10px;">
+                            <img src="/images/Maria-Gomez-Odontologa.jpg?v=1" alt="Dra. María Gómez" class="odontologo-img">
                         </td>
                         <td>Dra. María Gómez</td>
                         <td>Odontología Estética</td>
@@ -56,7 +56,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <img src="/images/Carlos-Lopez-Odontologo.jpg" alt="Foto de Dr. Carlos López" style="width: 100px; height: auto; border-radius: 10px;">
+                            <img src="/images/Carlos-Odontologo.jpg" alt="Foto de Dr. Carlos López" class="odontologo-img">
                         </td>
                         <td>Dr. Carlos López</td>
                         <td>Endodoncia</td>
@@ -74,7 +74,6 @@
         </div>
     </div>
 </div>
-
 
 <style>
     .odontologos-container {
@@ -97,5 +96,17 @@
     .btn:hover {
         background-color: #003366;
         transform: scale(1.05);
+    }
+
+    /* Estilo para las imágenes */
+    .odontologo-img {
+        width: 100px; 
+        height: 100px;
+        object-fit: cover; 
+        border-radius: 10px; 
+    }
+
+    .table {
+        text-align: center;
     }
 </style>

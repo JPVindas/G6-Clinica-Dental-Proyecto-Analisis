@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="~/js/site.js"></script>
 
 </head>
 <body>
@@ -44,6 +45,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Usuarios">Usuarios</a>
                         </li>
+                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínicia</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
@@ -53,7 +57,7 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Registro">Registrarse</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Carrito" asp-action="Index">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Cart">
                                 <i class="bi bi-cart-plus-fill"></i>
                                 <span class="badge" style="background-color: #003366; color: #FFFFFF;">0</span>
                             </a>
@@ -85,11 +89,24 @@
             @RenderBody()
         </main>
     </div>
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 - Clínica San Rafael | Calle 123, San Rafael, Costa Rica | Teléfono: +506 1234-5678</p>
+    <footer style="background-color: #003366; color: white; padding: 20px;">
+        <div class="container text-center">
+            <p>&copy; 2024 - Clínica San Rafael</p>
+            <p>Calle 123, San Rafael, Costa Rica | Teléfono: <a href="tel:+47002859" style="color: #66b2ff;">+4700 2859</a></p>
+            <div class="social-icons mt-3">
+                <a href="https://www.instagram.com" target="_blank" style="margin: 0 10px; color: white; font-size: 1.5rem;">
+                    <i class="bi bi-instagram"></i>
+                </a>
+                <a href="https://wa.me/1234567890" target="_blank" style="margin: 0 10px; color: white; font-size: 1.5rem;">
+                    <i class="bi bi-whatsapp"></i>
+                </a>
+                <a href="https://www.facebook.com" target="_blank" style="margin: 0 10px; color: white; font-size: 1.5rem;">
+                    <i class="bi bi-facebook"></i>
+                </a>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

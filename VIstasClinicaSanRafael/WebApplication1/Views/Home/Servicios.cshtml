@@ -1,93 +1,129 @@
 ﻿@{
     ViewData["Title"] = "Servicios";
 }
+<script src="~/js/site.js"></script>
+
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido a los Servicios!</h1>
-    <p class="lead">Aquí podras encontar nuestros servicios.</p>
+    <p class="lead">Aquí podrás encontrar nuestros servicios.</p>
 </div>
-<div class="users-container mt-5">
-    <div class="card shadow-lg" style="border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-            Servicios
-        </div>
-        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
-            <table class="table table-striped">
-                <thead style="background-color: #003366; color: #FFFFFF;">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Propósito</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>PROC-LIM1</td>
-                        <td>Limpieza</td>
-                        <td>₡65,000</td>
-                        <td>Limpieza de los dientes.</td>
-                    </tr>
-                    <tr>
-                        <td>PROC-RAD1</td>
-                        <td>Radiografías</td>
-                        <td>₡25,000</td>
-                        <td>Radiografía para conocer el estado de los dientes.</td>
-                    </tr>
-                    <tr>
-                        <td>PROC-ORT1</td>
-                        <td>Ortodoncia</td>
-                        <td>₡2,500,000</td>
-                        <td>Tratamientos de ortodoncia.</td>
-                    </tr>
-                    <tr>
-                        <td>PROC-CIR1</td>
-                        <td>Cirugías</td>
-                        <td>₡1,800,000</td>
-                        <td>Cirugías dentales.</td>
-                    </tr>
-                    <tr>
-                        <td>PROC-EXT1</td>
-                        <td>Extracciones</td>
-                        <td>₡100,000</td>
-                        <td>Extracciones dentales.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </div>
+<div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+    <table class="table table-striped">
+        <thead style="background-color: #003366; color: #FFFFFF;">
+            <tr>
+                <th>ID</th>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Propósito</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>PROC-LIM1</td>
+                <td>
+                    <img src="/images/limpieza.jpg" alt="Limpieza" style="width: 80px; height: auto; border-radius: 10px;">
+                </td>
+                <td>Limpieza</td>
+                <td>₡65,000</td>
+                <td>Limpieza de los dientes.</td>
+                <td>
+                    <button class="btn btn-primary btn-sm add-to-cart"
+                            data-id="PROC-LIM1"
+                            data-name="Limpieza"
+                            data-price="65000"
+                            data-image="/images/limpieza.jpg"
+                            style="background-color: #66b2ff; color: #FFFFFF;">
+                        Agregar al Carrito
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>PROC-RAD1</td>
+                <td>
+                    <img src="/images/Radiografias.jpg" alt="Radiografías" style="width: 80px; height: auto; border-radius: 10px;">
+                </td>
+                <td>Radiografías</td>
+                <td>₡25,000</td>
+                <td>Radiografía para conocer el estado de los dientes.</td>
+                <td>
+                    <button class="btn btn-primary btn-sm add-to-cart"
+                            data-id="PROC-RAD1"
+                            data-name="Radiografías"
+                            data-price="25000"
+                            data-image="/images/Radiografias.jpg"
+                            style="background-color: #66b2ff; color: #FFFFFF;">
+                        Agregar al Carrito
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>PROC-CIR1</td>
+                <td>
+                    <img src="/images/cirugias.jpg" alt="Cirugías" style="width: 80px; height: auto; border-radius: 10px;">
+                </td>
+                <td>Cirugías</td>
+                <td>₡1,800,000</td>
+                <td>Cirugías dentales.</td>
+                <td>
+                    <button class="btn btn-primary btn-sm add-to-cart"
+                            data-id="PROC-CIR1"
+                            data-name="Cirugías"
+                            data-price="1800000"
+                            data-image="/images/cirugias.jpg"
+                            style="background-color: #66b2ff; color: #FFFFFF;">
+                        Agregar al Carrito
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>PROC-EXT1</td>
+                <td>
+                    <img src="/images/extracciones.jpg" alt="Extracciones" style="width: 80px; height: auto; border-radius: 10px;">
+                </td>
+                <td>Extracciones</td>
+                <td>₡100,000</td>
+                <td>Extracciones dentales.</td>
+                <td>
+                    <button class="btn btn-primary btn-sm add-to-cart"
+                            data-id="PROC-EXT1"
+                            data-name="Extracciones"
+                            data-price="100000"
+                            data-image="/images/extracciones.jpg"
+                            style="background-color: #66b2ff; color: #FFFFFF;">
+                        Agregar al Carrito
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-    <style>
-        .users-container {
-            margin-top: 20px;
-            background-color: #F8F9FA;
-            padding: 20px;
-        }
-
-        .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E6E6E6;
-        }
-
-        .card-header {
-            background-color: #003366;
-            color: #FFFFFF;
-            font-size: 1.5rem;
-        }
-
-    .edit-btn,
-    .delete-btn {
-        background-color: #66b2ff;
-        color: #FFFFFF;
-        border: none;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+<style>
+    .card-body {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
     }
 
-        .edit-btn:hover,
-        .delete-btn:hover {
+    .table {
+        width: 100%;
+    }
+
+    .btn {
+        background-color: #66b2ff;
+        color: #fff;
+    }
+
+        .btn:hover {
             background-color: #003366;
             transform: scale(1.05);
         }
-        }
-    </style>
+
+    img {
+        width: 80px;
+        height: auto;
+        border-radius: 10px;
+    }
+</style>

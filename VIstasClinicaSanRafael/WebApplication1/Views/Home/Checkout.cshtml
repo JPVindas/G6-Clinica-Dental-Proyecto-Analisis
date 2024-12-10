@@ -1,0 +1,237 @@
+﻿@{
+    ViewData["Title"] = "Proceso de Pago";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Proceso de Pago</h1>
+    <p class="lead">Finaliza tu compra proporcionando los detalles necesarios.</p>
+</div>
+
+<div class="checkout-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Detalles de Pago
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+          
+            <div>
+                <h5>Productos y Servicios:</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartDetails">
+                     
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mb-4">
+                <h5>Total sin impuestos: ₡<span id="subtotal">0</span></h5>
+                <h5>Impuesto (13%): ₡<span id="tax">0</span></h5>
+                <h5>Descuento: ₡<span id="discount">0</span></h5>
+                <h5><b>Total con impuestos y descuento: ₡<span id="totalWithTax">0</span></b></h5>
+            </div>
+
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="fullName">Nombre Completo</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Ingresa tu nombre completo" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="lastName">Apellido</label>
+                    <input type="text" class="form-control" id="lastName" placeholder="Ingresa tu apellido" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="cedula">Cédula</label>
+                    <input type="text" class="form-control" id="cedula" placeholder="Ingresa tu cédula" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="email">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo electrónico" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="paymentMethod">Método de Pago</label>
+                    <select class="form-control" id="paymentMethod" required>
+                        <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="tasaCero">Tasa Cero BAC</option>
+                        <option value="sinpeMovil">Sinpe Móvil</option>
+                        <option value="bancoBCR">Banco BCR</option>
+                    </select>
+                </div>
+
+                
+                <div id="cardDetailsSection" style="display: none;">
+                    <div class="form-group mt-3">
+                        <label for="cardNumber">Número de Tarjeta</label>
+                        <input type="text" class="form-control" id="cardNumber" placeholder="Número de tarjeta">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="expirationDate">Fecha de Expiración</label>
+                        <input type="text" class="form-control" id="expirationDate" placeholder="MM/YY">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="securityCode">Código de Seguridad</label>
+                        <input type="text" class="form-control" id="securityCode" placeholder="CVC">
+                    </div>
+                </div>
+                <div id="paypalDetailsSection" style="display: none;">
+                    <div class="form-group mt-3">
+                        <label for="paypalEmail">Cuenta de PayPal</label>
+                        <input type="email" class="form-control" id="paypalEmail" placeholder="Correo de tu cuenta PayPal">
+                    </div>
+                </div>
+                <div id="tasaCeroDetailsSection" style="display: none;">
+                    <div class="form-group mt-3">
+                        <label for="tasaCeroDetails">Información de Tasa Cero</label>
+                        <input type="text" class="form-control" id="tasaCeroDetails" placeholder="Número de plan o detalles adicionales">
+                    </div>
+                </div>
+                <div id="sinpeMovilDetailsSection" style="display: none;">
+                    <div class="form-group mt-3">
+                        <label for="sinpeMovilNumber">Número Sinpe Móvil</label>
+                        <input type="text" class="form-control" id="sinpeMovilNumber" placeholder="Número de teléfono asociado a Sinpe Móvil">
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="discountCode">Código de Descuento</label>
+                    <input type="text" class="form-control" id="discountCode" placeholder="Ingresa tu código de descuento">
+                </div>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-primary" id="applyDiscountButton">Aplicar Descuento</button>
+                </div>
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success">Pagar Ahora</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cartItems = JSON.parse(localStorage.getItem('cart')) || {};
+        const cartDetailsContainer = document.getElementById('cartDetails');
+        const cardDetailsSection = document.getElementById('cardDetailsSection');
+        const paypalDetailsSection = document.getElementById('paypalDetailsSection');
+        const tasaCeroDetailsSection = document.getElementById('tasaCeroDetailsSection');
+        const sinpeMovilDetailsSection = document.getElementById('sinpeMovilDetailsSection');
+        const paymentMethod = document.getElementById('paymentMethod');
+        let subtotal = 0;
+        let discount = 0;
+
+     
+        Object.keys(cartItems).forEach(productId => {
+            const item = cartItems[productId];
+            if (!item) return;
+
+            const itemTotal = item.quantity * (item.price || 0);
+            subtotal += itemTotal;
+
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₡${item.price.toLocaleString()}</td>
+                    <td>₡${itemTotal.toLocaleString()}</td>
+                </tr>`;
+            cartDetailsContainer.insertAdjacentHTML('beforeend', row);
+        });
+
+        
+        const taxRate = 0.13;
+        const tax = Math.round(subtotal * taxRate);
+        let totalWithTax = subtotal + tax;
+
+        
+        document.getElementById('subtotal').textContent = subtotal.toLocaleString();
+        document.getElementById('tax').textContent = tax.toLocaleString();
+        document.getElementById('totalWithTax').textContent = totalWithTax.toLocaleString();
+
+      
+        paymentMethod.addEventListener('change', () => {
+            const selectedMethod = paymentMethod.value;
+
+            cardDetailsSection.style.display = selectedMethod === 'tarjeta' ? 'block' : 'none';
+            paypalDetailsSection.style.display = selectedMethod === 'paypal' ? 'block' : 'none';
+            tasaCeroDetailsSection.style.display = selectedMethod === 'tasaCero' ? 'block' : 'none';
+            sinpeMovilDetailsSection.style.display = selectedMethod === 'sinpeMovil' ? 'block' : 'none';
+        });
+
+        
+        document.getElementById('applyDiscountButton').addEventListener('click', () => {
+            const discountCode = document.getElementById('discountCode').value;
+            if (discountCode === 'CODIGOANALISIS') {
+                discount = Math.round(totalWithTax * 0.05);
+                totalWithTax -= discount;
+
+                document.getElementById('discount').textContent = discount.toLocaleString();
+                document.getElementById('totalWithTax').textContent = totalWithTax.toLocaleString();
+                alert('¡Descuento aplicado con éxito!');
+            } else {
+                alert('Código de descuento inválido.');
+            }
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const selectedMethod = paymentMethod.value;
+
+            if (selectedMethod === 'paypal') {
+                alert('Redirigiendo a PayPal para procesar el pago...');
+            } else if (selectedMethod === 'sinpeMovil') {
+                alert('Pago mediante Sinpe Móvil. Por favor, siga las instrucciones enviadas a su teléfono.');
+            } else if (selectedMethod === 'bancoBCR') {
+                alert('Pago mediante Banco BCR confirmado. ¡Gracias por su compra!');
+            } else if (selectedMethod === 'tasaCero') {
+                alert('Pago procesado mediante Tasa Cero BAC. ¡Gracias por su compra!');
+            } else {
+                alert('Pago procesado exitosamente. ¡Gracias por su compra!');
+            }
+
+           
+            localStorage.setItem('cartFactura', JSON.stringify(cartItems));
+            localStorage.setItem('subtotal', subtotal);
+            localStorage.setItem('discount', discount);
+            localStorage.setItem('totalWithTax', totalWithTax);
+
+          
+            window.location.href = '/Home/Factura';
+        });
+    });
+</script>
+
+
+
+
+
+
+<style>
+    .checkout-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+
+    .text-end {
+        margin-top: 20px;
+    }
+</style>

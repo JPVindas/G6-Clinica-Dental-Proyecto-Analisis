@@ -12,6 +12,30 @@ namespace WebApplication1.Controllers
         {
             _logger = logger;
         }
+        [HttpGet]
+        public IActionResult Checkout()
+        {
+            return View(); 
+        }
+        
+        public IActionResult Factura()
+        {
+            return View();
+        }
+        public IActionResult Cart()
+        {
+            return View();
+        }
+
+        public IActionResult Contacts()
+        {
+            return View();
+        }
+        public IActionResult Clinica()
+        {
+            return View();
+        }
+
 
         public IActionResult Index()
         {
@@ -128,8 +152,8 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-   
-
+      
+    
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

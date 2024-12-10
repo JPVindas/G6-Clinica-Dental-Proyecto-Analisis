@@ -1,0 +1,126 @@
+﻿@{
+    ViewData["Title"] = "Factura";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Factura de Compra</h1>
+    <p class="lead">Gracias por su compra. A continuación, encontrará los detalles de su factura.</p>
+</div>
+
+<div class="factura-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Detalles de la Factura
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+         
+            <div>
+                <h5>Productos y Servicios Comprados:</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="facturaDetails">
+                        
+                    </tbody>
+                </table>
+            </div>
+
+          
+            <div class="mt-4">
+                <h5>Total sin impuestos: ₡<span id="subtotal">0</span></h5>
+                <h5>Impuesto (13%): ₡<span id="tax">0</span></h5>
+                <h5>Descuento: ₡<span id="discount">0</span></h5>
+                <h5><b>Total a Pagar: ₡<span id="totalWithTax">0</span></b></h5>
+            </div>
+
+      
+            <div class="mt-4">
+                <p>Gracias por su compra. Se ha enviado una copia de esta factura a su correo electrónico registrado.</p>
+            </div>
+
+       
+            <div class="text-center mt-5">
+                <button class="btn btn-primary" id="returnToMenuButton">Volver al Menú Principal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+        const cartItems = JSON.parse(localStorage.getItem('cartFactura')) || {};
+        const subtotal = parseInt(localStorage.getItem('subtotal')) || 0;
+        const discount = parseInt(localStorage.getItem('discount')) || 0;
+        const totalWithTax = parseInt(localStorage.getItem('totalWithTax')) || 0;
+        const tax = Math.round(subtotal * 0.13);
+
+        const facturaDetailsContainer = document.getElementById('facturaDetails');
+
+ 
+        Object.keys(cartItems).forEach(productId => {
+            const item = cartItems[productId];
+            if (!item) return;
+
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>₡${item.price.toLocaleString()}</td>
+                    <td>₡${(item.quantity * item.price).toLocaleString()}</td>
+                </tr>`;
+            facturaDetailsContainer.insertAdjacentHTML('beforeend', row);
+        });
+
+       
+        document.getElementById('subtotal').textContent = subtotal.toLocaleString();
+        document.getElementById('tax').textContent = tax.toLocaleString();
+        document.getElementById('discount').textContent = discount.toLocaleString();
+        document.getElementById('totalWithTax').textContent = totalWithTax.toLocaleString();
+
+        const clearCart = () => {
+            localStorage.removeItem('cart'); 
+            localStorage.removeItem('cartFactura'); 
+            localStorage.removeItem('subtotal');
+            localStorage.removeItem('discount');
+            localStorage.removeItem('totalWithTax');
+            alert('El carrito se ha vaciado exitosamente.');
+        };
+
+        document.getElementById('returnToMenuButton').addEventListener('click', () => {
+            clearCart(); 
+            window.location.href = '/Home/Index'; 
+        });
+    });
+</script>
+
+
+
+<style>
+    .factura-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+
+    .text-end {
+        margin-top: 20px;
+    }
+</style>
