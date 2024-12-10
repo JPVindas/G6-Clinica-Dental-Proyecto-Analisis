@@ -1,0 +1,128 @@
+﻿@{
+    ViewData["Title"] = "Ventas Realizadas";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Ventas Realizadas</h1>
+    <p class="lead">Consulta el historial de ventas realizadas y genera reportes en formato PDF.</p>
+</div>
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col text-end">
+            <button id="generatePdfButton" class="btn btn-primary">Crear Documento PDF</button>
+        </div>
+    </div>
+    <table class="table table-bordered">
+        <thead style="background-color: #003366; color: white;">
+            <tr>
+                <th>ID Venta</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total (₡)</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="ventasTableBody">
+           
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const ventas = [
+            {
+                id: "001",
+                cliente: "Juan Pérez",
+                producto: "Blanqueamiento Dental",
+                cantidad: 1,
+                total: 50000,
+                fecha: "2024-12-10"
+            },
+            {
+                id: "002",
+                cliente: "María Gómez",
+                producto: "Ortodoncia",
+                cantidad: 1,
+                total: 250000,
+                fecha: "2024-12-09"
+            },
+            {
+                id: "003",
+                cliente: "Carlos López",
+                producto: "Limpieza Dental",
+                cantidad: 2,
+                total: 130000,
+                fecha: "2024-12-08"
+            }
+        ];
+
+        const ventasTableBody = document.getElementById("ventasTableBody");
+
+      
+        ventas.forEach((venta) => {
+            const row = `
+                    <tr>
+                        <td>${venta.id}</td>
+                        <td>${venta.cliente}</td>
+                        <td>${venta.producto}</td>
+                        <td>${venta.cantidad}</td>
+                        <td>${venta.total.toLocaleString()}</td>
+                        <td>${venta.fecha}</td>
+                    </tr>
+                `;
+            ventasTableBody.insertAdjacentHTML("beforeend", row);
+        });
+
+       
+        document.getElementById("generatePdfButton").addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+           
+            doc.setFontSize(18);
+            doc.text("Reporte de Ventas Realizadas", 14, 22);
+
+            
+            const tableColumns = ["ID Venta", "Cliente", "Producto", "Cantidad", "Total (₡)", "Fecha"];
+            const tableRows = ventas.map((venta) => [
+                venta.id,
+                venta.cliente,
+                venta.producto,
+                venta.cantidad,
+                venta.total.toLocaleString(),
+                venta.fecha
+            ]);
+
+            doc.autoTable({
+                head: [tableColumns],
+                body: tableRows,
+                startY: 30
+            });
+
+           
+            doc.save("Reporte_Ventas.pdf");
+        });
+    });
+</script>
+
+<style>
+    .table-bordered th, .table-bordered td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #66b2ff;
+        }
+</style>
