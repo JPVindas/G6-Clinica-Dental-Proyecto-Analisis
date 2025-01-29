@@ -1,4 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.DATA;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Cadena de conexión
+var connectionString = builder.Configuration.GetConnectionString("Minombredeconexion");
+
+builder.Services.AddDbContext<MinombredeconexionDbContext>(options =>
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+    ));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
