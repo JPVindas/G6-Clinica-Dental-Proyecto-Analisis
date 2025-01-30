@@ -62,11 +62,6 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        public IActionResult Registro()
-        {
-            return View();
-        }
-
         public IActionResult RecuperarPassword()
         {
             return View();

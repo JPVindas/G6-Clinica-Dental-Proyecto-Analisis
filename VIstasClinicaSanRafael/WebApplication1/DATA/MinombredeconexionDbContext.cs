@@ -11,5 +11,14 @@ namespace WebApplication1.DATA
         : base(options) { }
 
         public DbSet<UsuariosModel> Usuarios { get; set; }
+        public DbSet<RolesModel> Roles { get; set; } // Agregamos la tabla Roles
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UsuariosModel>().ToTable("Usuarios");
+            modelBuilder.Entity<RolesModel>().ToTable("Roles");
+
+        }
     }
 }

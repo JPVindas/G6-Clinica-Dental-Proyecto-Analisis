@@ -1,0 +1,111 @@
+﻿@model WebApplication1.Models.UsuariosModel
+
+<div class="register-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 400px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem;">
+            Registro de Usuario
+        </div>
+        <div class="card-body" style="color: #003366;">
+            <form asp-action="Registrar" asp-controller="Registro" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Nombre de Usuario</label>
+                    <input asp-for="NombreUsuario" class="form-control" placeholder="Ingresa tu usuario" />
+                    <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input asp-for="CorreoElectronico" class="form-control" placeholder="Ingresa tu correo" />
+                    <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input asp-for="Contrasena" type="password" class="form-control" placeholder="Ingresa tu contraseña" />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" placeholder="Ingresa tu nombre" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" placeholder="Ingresa tu apellido" />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cédula</label>
+                    <input asp-for="Cedula" class="form-control" placeholder="Ingresa tu cédula" />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input asp-for="Telefono" class="form-control" placeholder="Ingresa tu teléfono" />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">
+                    Registrarse
+                </button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Home" asp-action="Login" style="color: #66b2ff;">¿Ya tienes una cuenta? Inicia Sesión</a>
+        </div>
+    </div>
+</div>
+
+<!-- Para mostrar los errores de validación del modelo -->
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+    <style>
+        .register-container {
+            margin-top: 20px; 
+            height: 100vh;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: start; 
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E6E6E6;
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            font-family: 'Merriweather', serif;
+        }
+
+        .btn {
+            font-family: 'Arial Bold', sans-serif;
+            background-color: #066b2ff;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+
+        .links a {
+            color: #003366;
+            font-family: 'Arial Bold', sans-serif;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+            color: #FFFFFF;
+        }
+    </style>
