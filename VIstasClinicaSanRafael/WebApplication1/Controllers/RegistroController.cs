@@ -56,7 +56,7 @@ namespace WebApplication1.Controllers
             _context.SaveChanges();
 
             // Redirigir a la página de inicio de sesión
-            return RedirectToAction("Login", "Home");
+            return RedirectToAction("Login", "Login");
         }
     }
 }
