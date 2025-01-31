@@ -25,68 +25,75 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Citas">Citas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Servicios">Servicios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Odontologos">Odontólogos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Productos">Productos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Inventario">Inventario</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="PortalExpedienteAdmin">Expedientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Usuarios">Usuarios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínica</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Ventas">Ventas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="GestionarDescuento">Gestión descuentos</a>
-                        </li>
-                    </ul>
+
+                    <!-- Si el usuario ha iniciado sesión, mostrar el menú completo -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Citas">Citas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Servicios">Servicios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Odontologos">Odontólogos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Productos">Productos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínica</a>
+                            </li>
+
+                            <!-- Solo Admin y Secretaria pueden ver el panel administrativo -->
+                            @if (User.IsInRole("1") || User.IsInRole("2"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Usuarios">Usuarios</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="GestionarDescuento">Gestión Descuentos</a>
+                                </li>
+                            }
+
+                            <!-- Solo Pacientes pueden ver su perfil y portal -->
+                            @if (User.IsInRole("3"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="MiPerfil">Mi Perfil</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="PortalExpediente">Mi Portal</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                    <!-- Opciones de autenticación -->
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Login">Iniciar Sesión</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Registro" asp-action="Registro">Registrarse</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Cart">
-                                <i class="bi bi-cart-plus-fill"></i>
-                                <span class="badge" style="background-color: #003366; color: #FFFFFF;">0</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle"></i> Mi Perfil
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MiPerfil">Ver Perfil</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Login" asp-action="Logout">Cerrar Sesión</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="PortalExpediente">Mi Portal</a>
-                                </li>
-                            </ul>
-                        </li>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <!-- Si NO hay sesión iniciada, mostrar solo estos enlaces -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Login">Iniciar Sesión</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Registro" asp-action="Registro">Registrarse</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Si está autenticado, mostrar 'Cerrar Sesión' -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Logout">Cerrar Sesión</a>
+                            </li>
+                        }
                     </ul>
+
                 </div>
             </div>
         </nav>
