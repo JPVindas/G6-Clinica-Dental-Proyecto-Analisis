@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -47,6 +49,7 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult PortalExpedienteAdmin()
         {
             return View();
@@ -83,12 +86,13 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-
+        [Authorize(Roles = "1,2")]
         public IActionResult Usuarios()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult Inventario()
         {
             return View();
@@ -104,36 +108,43 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult AgregarUsuario()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult ModificarUsuario()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult ModificarExpediente()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult AgregarProducto()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult AgregarServicio()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult ModificarProducto()
         {
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult ModificarServicio()
         {
             return View();
@@ -143,10 +154,13 @@ namespace WebApplication1.Controllers
             return View();
         }
 
+        [Authorize(Roles = "1,2")]
         public IActionResult Ventas()
         {
             return View();
         }
+
+        [Authorize(Roles = "1,2")]
         public IActionResult GestionarDescuento()
         {
             return View();

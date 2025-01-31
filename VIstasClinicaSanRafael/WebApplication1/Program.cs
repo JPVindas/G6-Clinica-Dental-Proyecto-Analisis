@@ -21,7 +21,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         // Configuración de la cookie de autenticación
-        options.LoginPath = "/Home/Login"; // Redirige a la página de login si no está autenticado
+        options.LoginPath = "/Login/Login"; // Redirige a la página de login si no está autenticado
         options.AccessDeniedPath = "/Home/AccessDenied"; // Redirige si no tiene permisos
     });
 
