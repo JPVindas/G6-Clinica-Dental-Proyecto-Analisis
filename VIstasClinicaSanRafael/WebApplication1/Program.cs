@@ -1,37 +1,42 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.DATA;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Configuration;
+using WebApplication1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cadena de conexión
+// Cargar la cadena de conexión desde el archivo de configuración
 var connectionString = builder.Configuration.GetConnectionString("Minombredeconexion");
 
+// Configurar el DbContext para MySQL
 builder.Services.AddDbContext<MinombredeconexionDbContext>(options =>
     options.UseMySql(
         connectionString,
         ServerVersion.AutoDetect(connectionString)
     ));
 
-// Agregar servicios para MVC
+// Registrar los servicios de MVC
 builder.Services.AddControllersWithViews();
 
 // Configurar la autenticación con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        // Configuración de la cookie de autenticación
-        options.LoginPath = "/Login/Login"; // Redirige a la página de login si no está autenticado
-        options.AccessDeniedPath = "/Home/AccessDenied"; // Redirige si no tiene permisos
+        options.LoginPath = "/Login/Login"; // Ruta de login
+        options.AccessDeniedPath = "/Home/AccessDenied"; // Ruta de acceso denegado
     });
 
-// Agregar autorización basada en roles
+// Configurar autorización basada en roles
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
     options.AddPolicy("Secretaria", policy => policy.RequireRole("Secretaria"));
     options.AddPolicy("Paciente", policy => policy.RequireRole("Paciente"));
 });
+
+// Registrar la configuración de correo electrónico
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
@@ -51,6 +56,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Configuración de rutas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

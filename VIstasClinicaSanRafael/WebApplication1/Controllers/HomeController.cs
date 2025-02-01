@@ -60,10 +60,6 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        public IActionResult RecuperarPassword()
-        {
-            return View();
-        }
         public IActionResult MiPerfil()
         {
             return View();
