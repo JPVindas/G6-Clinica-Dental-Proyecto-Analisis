@@ -1,17 +1,22 @@
-﻿@{
+﻿@model IEnumerable<VistasClinicaSanRafael.Models.Cita>
+
+@{
     ViewData["Title"] = "Citas";
 }
+
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido a Citas!</h1>
-    <p class="lead">Aquí podras gestionar las citas</p>
+    <p class="lead">Aquí podrás gestionar las citas</p>
 </div>
+
 <div class="appointments-container mt-5">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
             Gestión de Citas
         </div>
         <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
-            <form asp-action="FilterAppointments" method="GET" class="mb-4">
+            <!-- Formulario de filtrado -->
+            <form asp-action="Index" method="GET" class="mb-4">
                 <div class="row">
                     <div class="col-md-6">
                         <label for="startDate" class="form-label">Fecha Inicio</label>
@@ -22,8 +27,10 @@
                         <input type="date" id="endDate" name="endDate" class="form-control">
                     </div>
                 </div>
-                <button type="submit" class="btn  mt-3 w-100" style="background-color: #66b2ff; color: #FFFFFF;">Filtrar Citas</button>
+                <button type="submit" class="btn mt-3 w-100" style="background-color: #66b2ff; color: #FFFFFF;">Filtrar Citas</button>
             </form>
+
+            <!-- Tabla de citas -->
             <table class="table table-striped">
                 <thead style="background-color: #003366; color: #FFFFFF;">
                     <tr>
@@ -38,57 +45,58 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Juan Pérez Ramirez</td>
-                        <td>847383822</td>
-                        <td>2024-12-10</td>
-                        <td>10:00 AM</td>
-                        <td>Control</td>
-                        <td>Jose Mora</td>
-                        <td>Confirmada</td>
-                        <td>
-                            <a asp-controller="Home" asp-action="ReprogramarCita" asp-route-id="2" class="btn btn-sm reprogram-btn">Reprogramar</a>
-                            <a asp-action="Cancel" asp-route-id="1" class="btn btn-sm cancel-btn">Cancelar</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>María López Moya</td>
-                        <td>857689821</td>
-                        <td>2024-12-12</td>
-                        <td>3:00 PM</td>
-                        <td>Extraccion</td>
-                        <td>Karina Rojas</td>
-                        <td>Confirmada</td>
-                        <td>
-                            <a asp-controller="Home" asp-action="ReprogramarCita" asp-route-id="2" class="btn btn-sm reprogram-btn">Reprogramar</a>
-                            <a asp-action="Cancel" asp-route-id="2" class="btn btn-sm cancel-btn">Cancelar</a>
-                        </td>
-                    </tr>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var cita in Model)
+                        {
+                            <tr>
+                                <td>@cita.Paciente?.Nombre @cita.Paciente?.Apellidos</td>
+                                <td>@cita.Paciente?.Telefono</td>
+                                <td>@cita.Fecha.ToString("yyyy-MM-dd")</td>
+                                <td>@cita.Hora.ToString(@"hh\:mm")</td>
+                                <td>@cita.Tratamiento?.Nombre</td>
+                                <td>@cita.Empleado?.Nombre @cita.Empleado?.Apellidos</td>
+                                <td>@cita.Estado</td>
+                                <td>
+                                    <a asp-controller="Citas" asp-action="Edit" asp-route-id="@cita.IdCita" class="btn btn-sm reprogram-btn">Reprogramar</a>
+                                    <a asp-controller="Citas" asp-action="Delete" asp-route-id="@cita.IdCita" class="btn btn-sm cancel-btn">Cancelar</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center">No se encontraron citas.</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-            <a asp-controller="Home" asp-action="AgregarCita" class="btn w-100 mt-3" style="background-color: #003366; color: #FFFFFF;">Agendar Nueva Cita</a>
+
+            <!-- Botón para agregar una nueva cita -->
+            <a asp-controller="Citas" asp-action="Create" class="btn w-100 mt-3" style="background-color: #003366; color: #FFFFFF;">Agendar Nueva Cita</a>
         </div>
     </div>
 </div>
 
-    <style>
-        .appointments-container {
-            margin-top: 20px;
-            background-color: #F8F9FA;
-            padding: 20px;
-        }
+<style>
+    .appointments-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
 
-        .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E6E6E6;
-        }
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
 
-        .card-header {
-            background-color: #003366;
-            color: #FFFFFF;
-            font-size: 1.5rem;
-            font-family: 'Merriweather', serif;
-        }
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+        font-family: 'Merriweather', serif;
+    }
 
     .reprogram-btn,
     .cancel-btn {
@@ -103,5 +111,4 @@
             background-color: #003366;
             transform: scale(1.05);
         }
-    </style>
-
+</style>

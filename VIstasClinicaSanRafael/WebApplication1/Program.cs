@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using WebApplication1.DATA;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +7,7 @@ using WebApplication1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cargar la cadena de conexión desde el archivo de configuración
+// Cargar la cadena de conexiï¿½n desde el archivo de configuraciï¿½n
 var connectionString = builder.Configuration.GetConnectionString("Minombredeconexion");
 
 // Configurar el DbContext para MySQL
@@ -17,9 +18,25 @@ builder.Services.AddDbContext<MinombredeconexionDbContext>(options =>
     ));
 
 // Registrar los servicios de MVC
+
+using VistasClinicaSanRafael.Data; 
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurar Entity Framework Core para usar la cadena de conexiï¿½n
+// Habilitar logging en Program.cs para depurar consultas
+builder.Services.AddDbContext<ClinicaContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClinicaDB"))
+           .EnableSensitiveDataLogging() // Solo en desarrollo
+           .LogTo(Console.WriteLine));   // Imprime las consultas SQL
+
+
+
+// Agregar servicios de MVC
+
 builder.Services.AddControllersWithViews();
 
-// Configurar la autenticación con cookies
+// Configurar la autenticaciï¿½n con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -27,7 +44,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Home/AccessDenied"; // Ruta de acceso denegado
     });
 
-// Configurar autorización basada en roles
+// Configurar autorizaciï¿½n basada en roles
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
@@ -35,12 +52,16 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Paciente", policy => policy.RequireRole("Paciente"));
 });
 
-// Registrar la configuración de correo electrónico
+// Registrar la configuraciï¿½n de correo electrï¿½nico
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
-// Configurar la tubería de solicitudes HTTP
+
+// Configurar la tuberï¿½a de solicitudes HTTP
+
+// Configurar el pipeline HTTP
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -52,11 +73,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Habilitar autenticación y autorización
+// Habilitar autenticaciï¿½n y autorizaciï¿½n
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configuración de rutas
+
+// Configuraciï¿½n de rutas
+
+// Ruta predeterminada
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
