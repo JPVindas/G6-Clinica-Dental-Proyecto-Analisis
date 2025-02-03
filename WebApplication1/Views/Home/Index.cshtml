@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a la Clínica San Rafael!</h1>
+    <p class="lead">Cuidamos tu sonrisa con los mejores tratamientos odontológicos y un equipo de especialistas comprometidos con tu salud.</p>
+</div>
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Agendar Citas</h5>
+                    <p class="card-text">Reserva tu próxima consulta odontológica de forma rápida y sencilla.</p>
+                    <a class="btn btn-primary" asp-area="" asp-controller="Citas" asp-action="Citas">Ver Más</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Nuestros Servicios</h5>
+                    <p class="card-text">Descubre los tratamientos y servicios odontológicos que ofrecemos para tu salud bucal.</p>
+                    <a class="btn btn-primary" asp-area="" asp-controller="Home" asp-action="Servicios">Ver Más</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Contáctanos</h5>
+                    <p class="card-text">¿Tienes dudas? Estamos aquí para ayudarte con toda la información que necesites.</p>
+                    <a class="btn btn-primary" asp-area="" asp-controller="Home" asp-action="Contacts">Ver Más</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">¿Por qué elegirnos?</h2>
+    <div class="row text-center">
+        <div class="col-md-4">
+            <i class="icon bi bi-people"></i>
+            <h5 class="mt-3">Equipo Profesional</h5>
+            <p>Contamos con odontólogos expertos y en constante actualización.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="icon bi bi-tools"></i>
+            <h5 class="mt-3">Tecnología Avanzada</h5>
+            <p>Utilizamos equipos modernos y técnicas innovadoras para garantizar los mejores resultados.</p>
+        </div>
+        <div class="col-md-4">
+            <i class="icon bi bi-heart"></i>
+            <h5 class="mt-3">Atención Personalizada</h5>
+            <p>Nos preocupamos por cada detalle para que tengas una experiencia positiva.</p>
+        </div>
+    </div>
+</div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Lo que dicen nuestros pacientes</h2>
+    <div class="row text-center">
+        <div class="col-md-4">
+            <blockquote class="blockquote">
+                <p class="mb-0">"¡La atención fue increíble! Me sentí en las mejores manos."</p>
+                <footer class="blockquote-footer">Ana Rodríguez</footer>
+            </blockquote>
+        </div>
+        <div class="col-md-4">
+            <blockquote class="blockquote">
+                <p class="mb-0">"Un equipo profesional y amable, quedé encantado con los resultados."</p>
+                <footer class="blockquote-footer">Carlos Jiménez</footer>
+            </blockquote>
+        </div>
+        <div class="col-md-4">
+            <blockquote class="blockquote">
+                <p class="mb-0">"Instalaciones modernas y un servicio de calidad. ¡Muy recomendados!"</p>
+                <footer class="blockquote-footer">María Fernández</footer>
+            </blockquote>
+        </div>
+    </div>
+</div>
+<div class="text-center mt-5">
+    <h3>¡Reserva tu cita hoy mismo!</h3>
+    <p>Confía en nosotros para cuidar de tu sonrisa. Tu salud bucal es nuestra prioridad.</p>
+    <a class="btn btn-lg btn-primary" asp-area="" asp-controller="Home" asp-action="Citas">Reservar Ahora</a>
+</div>

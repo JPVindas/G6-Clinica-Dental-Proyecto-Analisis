@@ -1,0 +1,67 @@
+﻿@model WebApplication1.Models.CitasModel
+
+@{
+    ViewData["Title"] = "Confirmar Cita";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-success text-white text-center">
+            <h3>Confirmar Cita</h3>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            <dl class="row">
+                <dt class="col-sm-4">ID Cita:</dt>
+                <dd class="col-sm-8">@Model.Id</dd>
+
+                <dt class="col-sm-4">Paciente:</dt>
+                <dd class="col-sm-8">@($"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}")</dd>
+
+                <dt class="col-sm-4">Teléfono:</dt>
+                <dd class="col-sm-8">@Model.Paciente.Telefono</dd>
+
+                <dt class="col-sm-4">Fecha y Hora:</dt>
+                <dd class="col-sm-8">@Model.FechaHora.ToString("yyyy-MM-dd hh:mm tt")</dd>
+
+                <dt class="col-sm-4">Motivo:</dt>
+                <dd class="col-sm-8">@Model.Motivo</dd>
+
+                <dt class="col-sm-4">Doctor:</dt>
+                <dd class="col-sm-8">@($"{Model.Empleado.Nombre} {Model.Empleado.Apellidos}")</dd>
+
+                <dt class="col-sm-4">Estado Actual:</dt>
+                <dd class="col-sm-8">
+                    <span class="badge @(Model.Estado == "Pendiente" ? "bg-warning text-dark" : Model.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                        @Model.Estado
+                    </span>
+                </dd>
+            </dl>
+
+            <form asp-action="ConfirmarCitaPost" method="post">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-success w-100">Confirmar Cita</button>
+            </form>
+
+            <a asp-action="Citas" class="btn btn-secondary w-100 mt-3">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+    }
+
+    .card {
+        border-radius: 10px;
+    }
+</style>

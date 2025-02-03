@@ -1,0 +1,108 @@
+﻿@model WebApplication1.Models.CitasModel
+
+@{
+    ViewData["Title"] = "Crear";
+}
+
+<div class="create-appointment-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center bg-primary">
+            <h3>Agregar Nueva Cita</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Crear" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Paciente</label>
+                    <select asp-for="IdPaciente" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un paciente</option>
+                        @if (ViewBag.Pacientes != null && ViewBag.Pacientes.Count > 0)
+                        {
+                            @foreach (var paciente in ViewBag.Pacientes)
+                            {
+                                <option value="@paciente.Id">@paciente.Nombre @paciente.Apellidos</option>
+                            }
+                        }
+                        else
+                        {
+                            <option disabled>No hay pacientes disponibles</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IdPaciente" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Empleado (Doctor)</label>
+                    <select asp-for="IdEmpleado" class="form-select" required>
+                        <option value="" disabled selected>Seleccione un doctor</option>
+                        @if (ViewBag.Empleados != null && ViewBag.Empleados.Count > 0)
+                        {
+                            @foreach (var empleado in ViewBag.Empleados)
+                            {
+                                <option value="@empleado.Id">@empleado.Nombre @empleado.Apellidos</option>
+                            }
+                        }
+                        else
+                        {
+                            <option disabled>No hay empleados disponibles</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fecha y Hora</label>
+                    <input asp-for="FechaHora" type="datetime-local" class="form-control" required />
+                    <span asp-validation-for="FechaHora" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Motivo</label>
+                    <input asp-for="Motivo" type="text" class="form-control" required />
+                    <span asp-validation-for="Motivo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Observaciones (Opcional)</label>
+                    <textarea asp-for="Observaciones" class="form-control"></textarea>
+                    <span asp-validation-for="Observaciones" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Agregar Cita</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-action="Index" class="text-primary">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .create-appointment-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .card {
+        border: 1px solid #E6E6E6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
+        background-color: #66b2ff;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+</style>

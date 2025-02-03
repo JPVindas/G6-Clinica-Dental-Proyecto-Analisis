@@ -1,0 +1,85 @@
+﻿@model WebApplication1.Models.CitasModel
+
+@{
+    ViewData["Title"] = "Editar Cita";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>Editar Cita</h3>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            <form asp-controller="Citas" asp-action="GuardarEdicion" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="IdPaciente" class="form-label">Paciente</label>
+                    <select asp-for="IdPaciente" class="form-control" asp-items="@(ViewBag.Pacientes ?? new SelectList(Enumerable.Empty<SelectListItem>()))" required>
+                        <option value="">Seleccione un paciente</option>
+                    </select>
+                    <span asp-validation-for="IdPaciente" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="IdEmpleado" class="form-label">Doctor</label>
+                    <select asp-for="IdEmpleado" class="form-control" asp-items="@(ViewBag.Empleados ?? new SelectList(Enumerable.Empty<SelectListItem>()))" required>
+                        <option value="">Seleccione un doctor</option>
+                    </select>
+                    <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FechaHora" class="form-label">Fecha y Hora</label>
+                    <input asp-for="FechaHora" type="datetime-local" class="form-control" required value="@Model.FechaHora.ToString("yyyy-MM-ddTHH:mm")">
+                    <span asp-validation-for="FechaHora" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Motivo" class="form-label">Motivo</label>
+                    <input asp-for="Motivo" class="form-control" required>
+                    <span asp-validation-for="Motivo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Observaciones" class="form-label">Observaciones</label>
+                    <textarea asp-for="Observaciones" class="form-control"></textarea>
+                    <span asp-validation-for="Observaciones" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Estado" class="form-label">Estado</label>
+                    <select asp-for="Estado" class="form-control" required>
+                        <option value="Pendiente" selected="@(Model.Estado == "Pendiente")">Pendiente</option>
+                        <option value="Confirmada" selected="@(Model.Estado == "Confirmada")">Confirmada</option>
+                        <option value="Cancelada" selected="@(Model.Estado == "Cancelada")">Cancelada</option>
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+    }
+
+    .card {
+        border-radius: 10px;
+    }
+</style>

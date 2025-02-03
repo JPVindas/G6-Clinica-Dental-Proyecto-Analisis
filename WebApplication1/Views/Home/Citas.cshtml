@@ -1,0 +1,109 @@
+﻿@model IEnumerable<WebApplication1.Models.CitasModel>
+
+@{
+    ViewData["Title"] = "Citas";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a Citas!</h1>
+    <p class="lead">Aquí puedes gestionar las citas de la clínica</p>
+</div>
+
+<div class="appointments-container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header text-white text-center bg-primary">
+            <h3>Gestión de Citas</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3 w-100">Filtrar Citas</button>
+            </form>
+
+            @if (Model != null && Model.Any())
+            {
+                <table class="table table-striped">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Teléfono</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Motivo</th>
+                            <th>Doctor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in Model)
+                        {
+                            <tr>
+                                <td>@(cita?.Paciente != null ? $"{cita.Paciente.Nombre} {cita.Paciente.Apellidos}" : "Paciente no asignado")</td>
+                                <td>@(cita?.Paciente != null ? cita.Paciente.Telefono : "N/A")</td>
+                                <td>@(cita?.FechaHora != null ? cita.FechaHora.ToString("yyyy-MM-dd") : "N/A")</td>
+                                <td>@(cita?.FechaHora != null ? cita.FechaHora.ToString("hh:mm tt") : "N/A")</td>
+                                <td>@(cita?.Motivo ?? "Sin motivo")</td>
+                                <td>@(cita?.Empleado != null ? $"{cita.Empleado.Nombre} {cita.Empleado.Apellidos}" : "Empleado no asignado")</td>
+                                <td>
+                                    <span class="badge @(cita?.Estado == "Pendiente" ? "bg-warning text-dark" : cita?.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                                        @(cita?.Estado ?? "Sin estado")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (cita?.Estado != "Confirmada")
+                                    {
+                                        <a asp-action="ConfirmarCita" asp-route-id="@cita.Id" class="btn btn-success btn-sm">Confirmar</a>
+                                    }
+                                    @if (cita?.Estado != "Cancelada")
+                                    {
+                                        <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">Cancelar</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <strong>No hay citas disponibles.</strong>
+                </div>
+            }
+
+            <a asp-action="Crear" class="btn btn-primary w-100 mt-3">Agendar Nueva Cita</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .appointments-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .btn-sm {
+        margin-right: 5px;
+    }
+</style>
