@@ -1,0 +1,63 @@
+﻿@model WebApplication1.Models.UsuariosModel
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<div class="delete-user-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Eliminar Usuario
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <h5>¿Está seguro de que desea eliminar al usuario <strong>@Model.NombreUsuario</strong>?</h5>
+            <form asp-action="EliminarUsuario" method="POST">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn w-100" style="background-color: #ff4d4d; color: white;">Eliminar</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Usuarios" asp-action="Usuarios" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-user-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+    }
+
+    .btn {
+        background-color: #66b2ff;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+
+    .btn-danger {
+        background-color: #ff4d4d;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #ff1a1a;
+            transform: scale(1.05);
+        }
+</style>

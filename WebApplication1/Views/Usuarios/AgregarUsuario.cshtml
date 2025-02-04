@@ -1,0 +1,90 @@
+﻿@model WebApplication1.Models.UsuariosModel
+
+@{
+    ViewData["Title"] = "Agregar Usuario";
+}
+
+<div class="create-user-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Agregar Usuario
+        </div>
+        <div class="card-body">
+            <form asp-action="AgregarUsuario" method="POST">
+                <div class="mb-3">
+                    <label for="RolId" class="form-label">Rol</label>
+                    <select id="RolId" name="RolId" class="form-select" required>
+                        <option value="">Seleccionar rol</option>
+                        @foreach (var rol in ViewData["Roles"] as SelectList)
+                        {
+                            <option value="@rol.Value">@rol.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="NombreUsuario" class="form-label">Nombre de Usuario</label>
+                    <input type="text" id="NombreUsuario" name="NombreUsuario" class="form-control" placeholder="Ingrese el nombre de usuario" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Nombre" class="form-label">Nombre</label>
+                    <input type="text" id="Nombre" name="Nombre" class="form-control" placeholder="Ingrese el nombre" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Apellido" class="form-label">Apellido</label>
+                    <input type="text" id="Apellido" name="Apellido" class="form-control" placeholder="Ingrese el apellido" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Cedula" class="form-label">Cédula</label>
+                    <input type="text" id="Cedula" name="Cedula" class="form-control" placeholder="Ingrese la cédula" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Telefono" class="form-label">Celular</label>
+                    <input type="text" id="Telefono" name="Telefono" class="form-control" placeholder="Ingrese el celular" required>
+                </div>
+                <div class="mb-3">
+                    <label for="CorreoElectronico" class="form-label">Correo</label>
+                    <input type="text" id="CorreoElectronico" name="CorreoElectronico" class="form-control" placeholder="Ingrese el correo" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Contrasena" class="form-label">Contraseña</label>
+                    <input type="password" id="Contrasena" name="Contrasena" class="form-control" placeholder="Ingrese la contraseña" required>
+                </div>
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">Guardar</button>
+            </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Usuarios" asp-action="Usuarios" style="color: #66b2ff;">Cancelar</a>
+        </div>
+    </div>
+</div>
+
+
+    <style>
+        .create-user-container {
+            margin-top: 20px;
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E6E6E6;
+        }
+
+        .card-header {
+            background-color: #003366;
+            color: #FFFFFF;
+        }
+
+        .btn {
+            background-color: #66b2ff;
+            border: none;
+        }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+    </style>
