@@ -24,13 +24,13 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public IActionResult Registrar(UsuariosModel model)
         {
-            // Mostrar los errores si el modelo no es válido
+            
             if (!ModelState.IsValid)
             {
-                return View("Registro" ,model); // Retorna la vista con los errores de validación
+                return View("Registro" ,model);
             }
 
-            // Verificar si el nombre de usuario ya está en uso
+            
             var usuarioExistente = _context.Usuarios.FirstOrDefault(u => u.NombreUsuario == model.NombreUsuario);
             if (usuarioExistente != null)
             {
@@ -38,10 +38,10 @@ namespace WebApplication1.Controllers
                 return View(model);
             }
 
-            // Encriptar la contraseña
+            
             model.Contrasena = BCrypt.Net.BCrypt.HashPassword(model.Contrasena);
 
-            // Asignar el rol de Paciente por defecto
+            
             var rolPaciente = _context.Roles.FirstOrDefault(r => r.Nombre == "Paciente");
             if (rolPaciente == null)
             {
@@ -51,11 +51,11 @@ namespace WebApplication1.Controllers
 
             model.RolId = rolPaciente.Id;
 
-            // Guardar el usuario en la base de datos
+            
             _context.Usuarios.Add(model);
             _context.SaveChanges();
 
-            // Redirigir a la página de inicio de sesión
+            
             return RedirectToAction("Login", "Login");
         }
     }

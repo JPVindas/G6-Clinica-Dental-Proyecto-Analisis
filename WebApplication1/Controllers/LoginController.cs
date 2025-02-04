@@ -34,7 +34,7 @@ namespace WebApplication1.Controllers
                 return View();
             }
 
-            // Crear claims (datos del usuario en la sesión)
+            
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.NombreUsuario),
@@ -44,12 +44,12 @@ namespace WebApplication1.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
             {
-                IsPersistent = true // Mantener la sesión iniciada
+                IsPersistent = true 
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-            return RedirectToAction("Index", "Home"); // Redirige después del login
+            return RedirectToAction("Index", "Home"); 
         }
 
         [HttpGet]
