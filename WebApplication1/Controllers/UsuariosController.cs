@@ -64,14 +64,15 @@ namespace WebApplication1.Controllers
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
                 // Redirige a la acción de Usuarios
-                return RedirectToAction("Usuarios"); 
+                return RedirectToAction("Usuarios");
             }
             // Si la validación falla, vuelve a pasar los roles
             ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Nombre", usuario.RolId);
             return View(usuario);
         }
 
-        // GET: Usuarios/ModificarUsuario/5
+
+        // ✅ GET: Usuarios/ModificarUsuario/5
         public async Task<IActionResult> ModificarUsuario(int? id)
         {
             if (id == null)
@@ -79,65 +80,112 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
                 return NotFound();
             }
 
-            // Pasar los roles a la vista para que se pueda seleccionar uno
-            ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Nombre", usuario.RolId);
+            var roles = await _context.Roles.ToListAsync();
+            ViewBag.Roles = new SelectList(roles, "Id", "Nombre", usuario.RolId);
+
             return View(usuario);
         }
 
-        // POST: Usuarios/ModificarUsuario/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ModificarUsuario(int id, [Bind("Id,NombreUsuario,CorreoElectronico,Contrasena,Nombre,Apellido,Telefono,RolId")] UsuariosModel usuario)
+        public async Task<IActionResult> ModificarUsuario(
+            int id,
+            [Bind("Id,NombreUsuario,CorreoElectronico,Nombre,Apellido,Cedula,Telefono,RolId")] UsuariosModel usuario,
+            string? Contrasena,
+            bool cambiarContrasena,
+            string ContrasenaActual)
         {
+            Console.WriteLine("📌 POST ModificarUsuario ejecutado");
+
             if (id != usuario.Id)
             {
+                Console.WriteLine("❌ IDs no coinciden.");
                 return NotFound();
             }
 
-            // Verificar si el modelo es válido
+            var usuarioExistente = await _context.Usuarios.FindAsync(id);
+            if (usuarioExistente == null)
+            {
+                Console.WriteLine("❌ No se encontró el usuario en la base de datos.");
+                return NotFound();
+            }
+
+            //  Eliminar validación de Contrasena si no se está cambiando
+            if (!cambiarContrasena)
+            {
+                ModelState.Remove("Contrasena");
+            }
+
             if (!ModelState.IsValid)
             {
-                // Si el modelo no es válido, recarga los roles (si los tienes)
-                ViewData["Roles"] = new SelectList(_context.Roles, "Id", "Nombre", usuario.RolId);
-                return View(usuario);  // Regresa al formulario con los errores
+                Console.WriteLine("❌ ModelState inválido");
+                var roles = await _context.Roles.ToListAsync();
+                ViewBag.Roles = new SelectList(roles, "Id", "Nombre", usuario.RolId);
+                return View(usuario);
             }
 
             try
             {
-                // Si la contraseña ha sido modificada, se hashea
-                var existingUsuario = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-                if (existingUsuario != null && usuario.Contrasena != existingUsuario.Contrasena && !string.IsNullOrEmpty(usuario.Contrasena))
-                {
-                    usuario.Contrasena = BCrypt.Net.BCrypt.HashPassword(usuario.Contrasena);  // Hasheamos la nueva contraseña
-                }
+                Console.WriteLine($"🔍 Actualizando usuario con ID: {id}");
 
-                // Actualizamos el usuario
-                _context.Update(usuario);
-                await _context.SaveChangesAsync();
+                //  Asignar los nuevos valores
+                usuarioExistente.NombreUsuario = usuario.NombreUsuario;
+                usuarioExistente.CorreoElectronico = usuario.CorreoElectronico;
+                usuarioExistente.Nombre = usuario.Nombre;
+                usuarioExistente.Apellido = usuario.Apellido;
+                usuarioExistente.Cedula = usuario.Cedula;
+                usuarioExistente.Telefono = usuario.Telefono;
+                usuarioExistente.RolId = usuario.RolId;
 
-                // Redirigimos a la lista de usuarios
-                return RedirectToAction("Usuarios");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Verifica si el usuario aún existe
-                if (!UsuarioExists(usuario.Id))
+                //  Solo actualizar la contraseña si el usuario la quiere cambiar
+                if (cambiarContrasena && !string.IsNullOrWhiteSpace(Contrasena))
                 {
-                    return NotFound();
+                    usuarioExistente.Contrasena = BCrypt.Net.BCrypt.HashPassword(Contrasena);
+                    Console.WriteLine("🔑 Contraseña actualizada.");
                 }
                 else
                 {
-                    throw;
+                    usuarioExistente.Contrasena = ContrasenaActual; // Mantener la contraseña actual
+                    Console.WriteLine("🔒 Manteniendo contraseña existente.");
+                }
+
+                // Marcar entidad como modificada antes de guardar
+                _context.Entry(usuarioExistente).State = EntityState.Modified;
+                Console.WriteLine($"🔄 Estado de la entidad: {_context.Entry(usuarioExistente).State}");
+
+                int cambios = await _context.SaveChangesAsync();
+                Console.WriteLine($"✅ Cambios guardados: {cambios}");
+
+                if (cambios > 0)
+                {
+                    TempData["SuccessMessage"] = "Usuario actualizado correctamente.";
+                    return RedirectToAction("Usuarios");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "No se realizaron cambios en la base de datos.";
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al actualizar usuario: {ex.Message}");
+                TempData["ErrorMessage"] = "Error al actualizar usuario.";
+            }
+
+            return View(usuario);
         }
+
+
+
+
+
+
 
         // GET: Usuarios/EliminarUsuario/5
         public async Task<IActionResult> EliminarUsuario(int? id)
@@ -165,7 +213,7 @@ namespace WebApplication1.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Usuarios)); 
+            return RedirectToAction(nameof(Usuarios));
         }
 
         private bool UsuarioExists(int id)

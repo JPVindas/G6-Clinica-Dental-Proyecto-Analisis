@@ -17,56 +17,157 @@ namespace WebApplication1.Controllers
         {
             _context = context;
         }
-
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Citas()
         {
-            var citas = await _context.Citas
+            // Obtener el UserID y RolID del usuario autenticado desde los Claims
+            string userIdClaim = User.FindFirst("UserID")?.Value;
+            string rolIdClaim = User.FindFirst("RolID")?.Value;
+
+            Console.WriteLine($"🔍 Claims -> UserID: {userIdClaim}, RolID: {rolIdClaim}");
+
+            //  Convertir a enteros
+            int userId = 0, rolID = 3; // Cliente por defecto
+            int.TryParse(userIdClaim, out userId);
+            int.TryParse(rolIdClaim, out rolID);
+
+            if (userId == 0)
+            {
+                Console.WriteLine("❌ ERROR: No se pudo obtener el UserID del usuario autenticado.");
+                TempData["ErrorMessage"] = "No se pudo autenticar correctamente. Intente iniciar sesión nuevamente.";
+                return RedirectToAction("Login", "Login");
+            }
+
+            Console.WriteLine($"✅ Usuario autenticado - ID: {userId}, Rol: {rolID}");
+
+            // Obtener el IdPaciente del usuario autenticado
+            var paciente = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
+
+            Console.WriteLine($"📌 IdPaciente asignado: {paciente}");
+
+            if (rolID == 3 && paciente == 0)
+            {
+                TempData["ErrorMessage"] = "No tienes un perfil de paciente registrado. Contacta con el administrador.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Construcción de la consulta
+            var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
-                .ToListAsync();
+                .AsQueryable();
+
+            // Si el usuario es Cliente (rolID = 3), solo verá sus propias citas
+            if (rolID == 3)
+            {
+                Console.WriteLine($"🎯 Filtrando citas del paciente ID={paciente}");
+                citasQuery = citasQuery.Where(c => c.IdPaciente == paciente);
+            }
+
+            // Obtener la lista de citas ordenadas por fecha
+            var citas = await citasQuery.OrderBy(c => c.FechaHora).ToListAsync();
+
+            if (!citas.Any())
+            {
+                Console.WriteLine($"⚠ No se encontraron citas para el paciente con ID {paciente}");
+                TempData["ErrorMessage"] = "No hay citas registradas.";
+            }
+
+            Console.WriteLine($"📋 Total de citas encontradas: {citas.Count}");
+
+            // Pasar datos a la vista
+            ViewBag.UserRole = rolID;
+            ViewBag.UserId = userId;
+
             return View(citas);
         }
 
+
+
+
+
+
+
+
+
         public IActionResult CrearCita()
         {
-            ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos }), "IdPaciente", "NombreCompleto");
-            ViewBag.Empleados = new SelectList(_context.Empleados.Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos }), "IdEmpleado", "NombreCompleto");
+            int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+            int userRole = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
+
+            var paciente = _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                .FirstOrDefault();
+
+            ViewBag.UserRole = userRole;
+            ViewBag.UserId = userId;
+            ViewBag.PacienteId = paciente != null ? paciente.IdPaciente : 0;
+            ViewBag.NombrePaciente = paciente != null ? paciente.NombreCompleto : "No disponible";
+
+            Console.WriteLine($"📌 ID de paciente encontrado en CrearCita: {ViewBag.PacienteId}");
+
+            ViewBag.Pacientes = new SelectList(_context.Pacientes
+                .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                .ToList(), "IdPaciente", "NombreCompleto");
+
+            ViewBag.Empleados = new SelectList(_context.Empleados
+                .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
+                .ToList(), "IdEmpleado", "NombreCompleto");
+
             return View();
         }
 
+
+
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CrearCita(CitasModel cita)
         {
-            Console.WriteLine($"Intentando guardar cita: IdPaciente={cita.IdPaciente}, IdEmpleado={cita.IdEmpleado}, FechaHora={cita.FechaHora}, Estado={cita.Estado}");
+            int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+            int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
 
+            Console.WriteLine($"📌 Datos recibidos - Paciente={cita.IdPaciente}, Doctor={cita.IdEmpleado}, Fecha={cita.FechaHora}, Usuario={userId}, Rol={rolID}");
+
+            // Si el usuario es Cliente (rol 3), obtener su IdPaciente desde la base de datos
+            if (rolID == 3)
+            {
+                var paciente = await _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => p.IdPaciente)
+                    .FirstOrDefaultAsync();
+
+                if (paciente == 0)
+                {
+                    Console.WriteLine($"❌ ERROR: No se encontró un paciente vinculado al usuario autenticado con ID {userId}.");
+                    TempData["ErrorMessage"] = "No tienes un perfil de paciente registrado. Contacta con el administrador.";
+                    return RedirectToAction("CrearCita");
+                }
+
+                cita.IdPaciente = paciente; // 🔹 Asignar correctamente el ID
+                Console.WriteLine($"✅ Cliente asignado a su propio paciente ID: {cita.IdPaciente}");
+            }
+
+            // Validaciones
             if (cita.IdPaciente <= 0 || cita.IdEmpleado <= 0)
             {
+                Console.WriteLine("❌ ERROR: El paciente o el doctor no son válidos.");
                 TempData["ErrorMessage"] = "Debe seleccionar un paciente y un doctor válidos.";
                 return RedirectToAction("CrearCita");
             }
 
-            var pacienteExiste = await _context.Pacientes.FindAsync(cita.IdPaciente);
-            var empleadoExiste = await _context.Empleados.FindAsync(cita.IdEmpleado);
-
-            if (pacienteExiste == null)
-            {
-                ModelState.AddModelError("IdPaciente", "El paciente seleccionado no existe.");
-            }
-            if (empleadoExiste == null)
-            {
-                ModelState.AddModelError("IdEmpleado", "El doctor seleccionado no existe.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine("Error en ModelState: Paciente o Doctor no existen.");
-                ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos }), "IdPaciente", "NombreCompleto", cita.IdPaciente);
-                ViewBag.Empleados = new SelectList(_context.Empleados.Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos }), "IdEmpleado", "NombreCompleto", cita.IdEmpleado);
-                return View(cita);
-            }
-
             return await SaveCita(cita);
         }
+
+
+
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> SaveCita(CitasModel cita)
@@ -75,8 +176,14 @@ namespace WebApplication1.Controllers
             {
                 if (cita.FechaHora == DateTime.MinValue)
                 {
+                    Console.WriteLine("❌ ERROR: La fecha no es válida.");
                     TempData["ErrorMessage"] = "Debe seleccionar una fecha y hora válida.";
                     return RedirectToAction("CrearCita");
+                }
+
+                if (string.IsNullOrEmpty(cita.Motivo))
+                {
+                    cita.Motivo = "Consulta General"; // Se asigna un motivo predeterminado
                 }
 
                 if (string.IsNullOrEmpty(cita.Estado))
@@ -84,50 +191,94 @@ namespace WebApplication1.Controllers
                     cita.Estado = "Pendiente";
                 }
 
+                // Confirmar que el paciente y doctor existen en la base de datos
+                var pacienteExiste = await _context.Pacientes
+                    .AnyAsync(p => p.IdPaciente == cita.IdPaciente);
+
+                var empleadoExiste = await _context.Empleados
+                    .AnyAsync(e => e.IdEmpleado == cita.IdEmpleado);
+
+                if (!pacienteExiste)
+                {
+                    Console.WriteLine($"❌ ERROR: Paciente con ID {cita.IdPaciente} no existe en la base de datos.");
+                    TempData["ErrorMessage"] = "El paciente seleccionado no existe.";
+                    return RedirectToAction("CrearCita");
+                }
+
+                if (!empleadoExiste)
+                {
+                    Console.WriteLine($"❌ ERROR: Doctor con ID {cita.IdEmpleado} no existe en la base de datos.");
+                    TempData["ErrorMessage"] = "El doctor seleccionado no existe.";
+                    return RedirectToAction("CrearCita");
+                }
+
+                // Guardar la cita en la base de datos
                 _context.Citas.Add(cita);
                 await _context.SaveChangesAsync();
-                Console.WriteLine("✅ Cita guardada en la base de datos.");
+                Console.WriteLine("✅ Cita guardada correctamente en la base de datos.");
 
                 TempData["SuccessMessage"] = "La cita ha sido creada exitosamente.";
                 return RedirectToAction(nameof(Citas));
             }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"❌ Error de base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
+                TempData["ErrorMessage"] = $"Error en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}";
+            }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al guardar la cita: {ex.Message}");
-                TempData["ErrorMessage"] = "Hubo un error al guardar la cita.";
-                ModelState.AddModelError("", "Error al guardar en la base de datos: " + ex.Message);
+                Console.WriteLine($"❌ Error inesperado: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error inesperado: {ex.Message}";
             }
 
             return RedirectToAction("CrearCita");
         }
 
-        [HttpGet] // 👈 Especificamos que este método responde a solicitudes GET
-        public async Task<IActionResult> Citas(DateTime? startDate, DateTime? endDate)
+
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> FiltrarCitas(DateTime? startDate = null, DateTime? endDate = null)
         {
+            int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3"); // Cliente por defecto
+            int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+
             var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
                 .AsQueryable();
 
-            // Aplicar filtro por fecha si se ingresan valores
+            if (rolID == 3) // Si el usuario es Cliente, solo ve sus citas
+            {
+                citasQuery = citasQuery.Where(c => c.IdPaciente == userId);
+            }
+
+            // Aplicar filtros de fecha solo si startDate y endDate tienen valores
             if (startDate.HasValue)
             {
                 citasQuery = citasQuery.Where(c => c.FechaHora.Date >= startDate.Value.Date);
+                Console.WriteLine($"📆 Filtrando desde {startDate.Value.Date}");
             }
 
             if (endDate.HasValue)
             {
                 citasQuery = citasQuery.Where(c => c.FechaHora.Date <= endDate.Value.Date);
+                Console.WriteLine($"📆 Filtrando hasta {endDate.Value.Date}");
             }
 
             var citas = await citasQuery.OrderBy(c => c.FechaHora).ToListAsync();
 
-            // Pasar valores a la vista para mantener las fechas seleccionadas
+            Console.WriteLine($"📋 Total citas encontradas después del filtro: {citas.Count}");
+
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.UserRole = rolID;
+            ViewBag.UserId = userId;
 
-            return View(citas);
+            return View("Citas", citas); // Devuelve la misma vista que el listado general
         }
+
 
 
         [HttpGet]

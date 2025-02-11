@@ -5,21 +5,20 @@ namespace WebApplication1.Models
 {
     public class UsuariosModel
     {
-
         [Key]
+        [Column("Id")]
         public int Id { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "El nombre de usuario no puede tener más de 50 caracteres.")]
+        [StringLength(50)]
         public string NombreUsuario { get; set; }
 
         [Required]
-        [EmailAddress]
         [StringLength(100)]
+        [EmailAddress]
         public string CorreoElectronico { get; set; }
 
         [Required]
-        [StringLength(255)]
         public string Contrasena { get; set; }
 
         [Required]
@@ -39,6 +38,13 @@ namespace WebApplication1.Models
         public string Telefono { get; set; }
 
         [Required]
+        [Column("RolId")]
         public int RolId { get; set; }
+
+        [ForeignKey("RolId")]
+        public virtual RolesModel? Rol { get; set; }
+
+        //  Relación 1 a 1 con Paciente
+        public virtual PacientesModel? Paciente { get; set; }
     }
 }

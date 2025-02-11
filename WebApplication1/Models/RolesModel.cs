@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models
@@ -12,5 +13,8 @@ namespace WebApplication1.Models
         [Required]
         [StringLength(50)]
         public string Nombre { get; set; }
+
+        //  Relación con UsuariosModel (1 Rol puede tener muchos Usuarios)
+        public virtual ICollection<UsuariosModel>? Usuarios { get; set; } = new List<UsuariosModel>();
     }
 }

@@ -22,7 +22,6 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
@@ -34,23 +33,26 @@ namespace WebApplication1.Controllers
                 return View();
             }
 
-            
+            // 🔹 Asegurar que la propiedad correcta se usa para el ID del usuario
+            string userIdClaim = usuario.Id.ToString(); // Reemplazar con "usuario.Id.ToString()" si es necesario
+
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                new Claim(ClaimTypes.Role, usuario.RolId.ToString())
-            };
+    {
+        new Claim(ClaimTypes.Name, usuario.NombreUsuario),
+        new Claim("UserID", userIdClaim), // Verificar que esta propiedad existe en UsuariosModel
+        new Claim("RolID", usuario.RolId.ToString())
+    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true 
-            };
+            var authProperties = new AuthenticationProperties { IsPersistent = true };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-            return RedirectToAction("Index", "Home"); 
+            return RedirectToAction("Index", "Home");
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> Logout()

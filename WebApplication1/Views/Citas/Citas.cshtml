@@ -2,7 +2,13 @@
 
 @{
     ViewData["Title"] = "Citas";
+
+    int tempUserId = 0; // 🔹 Se inicializa para evitar CS0165
+
+    int rolID = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3; // Cliente por defecto
+    int userId = ViewBag.UserId != null && int.TryParse(ViewBag.UserId.ToString(), out tempUserId) ? tempUserId : 0;
 }
+
 
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido a Citas!</h1>
@@ -15,7 +21,20 @@
             <h3>Gestión de Citas</h3>
         </div>
         <div class="card-body">
-            <form asp-action="Citas" method="GET" class="mb-4">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger text-center">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success text-center">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <form asp-action="FiltrarCitas" method="GET" class="mb-4">
                 <div class="row">
                     <div class="col-md-5">
                         <label class="form-label">Fecha Inicio</label>
@@ -30,7 +49,6 @@
                     </div>
                 </div>
             </form>
-
 
             @if (Model != null && Model.Any())
             {
@@ -53,35 +71,41 @@
                         {
                             <tr>
                                 <td>@cita.Id</td>
-                                <td>@(cita?.Paciente != null ? $"{cita.Paciente.Nombre} {cita.Paciente.Apellidos}" : "Paciente no asignado")</td>
-                                <td>@(cita?.Paciente != null ? cita.Paciente.Telefono : "N/A")</td>
-                                <td>@(cita?.FechaHora != null ? cita.FechaHora.ToString("yyyy-MM-dd") : "N/A")</td>
-                                <td>@(cita?.FechaHora != null ? cita.FechaHora.ToString("hh:mm tt") : "N/A")</td>
-                                <td>@(cita?.Motivo ?? "Sin motivo")</td>
-                                <td>@(cita?.Empleado != null ? $"{cita.Empleado.Nombre} {cita.Empleado.Apellidos}" : "Empleado no asignado")</td>
+                                <td>@(cita.Paciente != null ? $"{cita.Paciente.Nombre} {cita.Paciente.Apellidos}" : "Paciente no asignado")</td>
+                                <td>@(cita.Paciente != null ? cita.Paciente.Telefono : "N/A")</td>
+                                <td>@(cita.FechaHora != null ? cita.FechaHora.ToString("yyyy-MM-dd") : "N/A")</td>
+                                <td>@(cita.FechaHora != null ? cita.FechaHora.ToString("hh:mm tt") : "N/A")</td>
+                                <td>@(cita.Motivo ?? "Sin motivo")</td>
+                                <td>@(cita.Empleado != null ? $"{cita.Empleado.Nombre} {cita.Empleado.Apellidos}" : "Empleado no asignado")</td>
                                 <td class="text-center">
-                                    <span class="badge @(cita?.Estado == "Pendiente" ? "bg-warning text-dark" : cita?.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
-                                        @(cita?.Estado ?? "Sin estado")
+                                    <span class="badge @(cita.Estado == "Pendiente" ? "bg-warning text-dark" : cita.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                                        @(cita.Estado ?? "Sin estado")
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
-                                        <a asp-action="EditarCita" asp-route-id="@cita.Id" class="btn btn-warning btn-sm">Editar</a>
-
-                                        @if (cita?.Estado == "Pendiente")
+                                        @if (rolID == 1 || rolID == 2)
                                         {
-                                            <a asp-action="ConfirmarCita" asp-route-id="@cita.Id" class="btn btn-success btn-sm">Confirmar</a>
-                                            <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">Cancelar</a>
+                                            <a asp-action="EditarCita" asp-route-id="@cita.Id" class="btn btn-warning btn-sm">Editar</a>
                                         }
 
-                                        @if (cita?.Estado == "Confirmada")
+                                        @if ((rolID == 1 || rolID == 2) || (rolID == 3 && cita.IdPaciente == ViewBag.UserId))
                                         {
-                                            <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">Cancelar</a>
-                                        }
+                                            @if (cita.Estado == "Pendiente")
+                                            {
+                                                <a asp-action="ConfirmarCita" asp-route-id="@cita.Id" class="btn btn-success btn-sm">Confirmar</a>
+                                                <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">Cancelar</a>
+                                            }
+                                            else if (cita.Estado == "Confirmada")
+                                            {
+                                                <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">Cancelar</a>
+                                            }
 
-                                        <form asp-action="EliminarCita" asp-route-id="@cita.Id" method="post" onsubmit="return confirm('¿Está seguro de que desea eliminar esta cita?');" style="display:inline;">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
-                                        </form>
+                                            <form asp-action="EliminarCita" asp-route-id="@cita.Id" method="post"
+                                                  onsubmit="return confirm('¿Está seguro de que desea eliminar esta cita?');" style="display:inline;">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                            </form>
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -96,7 +120,10 @@
                 </div>
             }
 
-            <a asp-action="CrearCita" class="btn btn-primary w-100 mt-3">Agendar Nueva Cita</a>
+            @if (rolID == 1 || rolID == 2 || rolID == 3) // Todos los roles pueden agendar citas
+            {
+                <a asp-action="CrearCita" class="btn btn-primary w-100 mt-3">Agendar Nueva Cita</a>
+            }
         </div>
     </div>
 </div>

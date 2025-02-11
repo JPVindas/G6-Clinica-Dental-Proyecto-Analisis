@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "Crear Cita";
+    var empleadosDisponibles = ViewBag.Empleados as IEnumerable<SelectListItem> ?? new List<SelectListItem>();
+    bool disableButton = !empleadosDisponibles.Any();
+    int userRole = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3;
+    int userId = ViewBag.UserId != null ? Convert.ToInt32(ViewBag.UserId) : 0;
+    int pacienteId = ViewBag.PacienteId != null ? Convert.ToInt32(ViewBag.PacienteId) : 0;
+    string nombrePaciente = ViewBag.NombrePaciente ?? "No disponible";
 }
 
 <div class="container mt-5">
@@ -19,66 +25,33 @@
                 <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
             }
 
-            @if (ViewBag.Pacientes == null || ((IEnumerable<SelectListItem>)ViewBag.Pacientes).Count() == 0)
-            {
-                <div class="alert alert-warning">No hay pacientes disponibles. Registre un paciente antes de crear una cita.</div>
-            }
-            @if (ViewBag.Empleados == null || ((IEnumerable<SelectListItem>)ViewBag.Empleados).Count() == 0)
-            {
-                <div class="alert alert-warning">No hay doctores disponibles. Registre un doctor antes de crear una cita.</div>
-            }
-
             <form asp-controller="Citas" asp-action="SaveCita" method="post">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
+                <!-- Paciente -->
                 <div class="mb-3">
                     <label asp-for="IdPaciente" class="form-label">Paciente</label>
-                    <select asp-for="IdPaciente" class="form-control" asp-items="@(ViewBag.Pacientes ?? new SelectList(Enumerable.Empty<SelectListItem>()))" required>
-                        <option value="">Seleccione un paciente</option>
-                    </select>
+                    <input type="hidden" asp-for="IdPaciente" value="@pacienteId" />
+                    <input class="form-control" value="@nombrePaciente" readonly />
                     <span asp-validation-for="IdPaciente" class="text-danger"></span>
                 </div>
 
+                <!-- Doctor -->
                 <div class="mb-3">
                     <label asp-for="IdEmpleado" class="form-label">Doctor</label>
-                    <select asp-for="IdEmpleado" class="form-control" asp-items="@(ViewBag.Empleados ?? new SelectList(Enumerable.Empty<SelectListItem>()))" required>
+                    <select asp-for="IdEmpleado" class="form-control" asp-items="empleadosDisponibles" required>
                         <option value="">Seleccione un doctor</option>
                     </select>
                     <span asp-validation-for="IdEmpleado" class="text-danger"></span>
                 </div>
 
+                <!-- Fecha y Hora -->
                 <div class="mb-3">
                     <label asp-for="FechaHora" class="form-label">Fecha y Hora</label>
-                    <input asp-for="FechaHora" type="datetime-local" class="form-control" required>
+                    <input asp-for="FechaHora" type="datetime-local" class="form-control"
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required>
                     <span asp-validation-for="FechaHora" class="text-danger"></span>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Motivo" class="form-label">Motivo</label>
-                    <input asp-for="Motivo" class="form-control" required>
-                    <span asp-validation-for="Motivo" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Observaciones" class="form-label">Observaciones</label>
-                    <textarea asp-for="Observaciones" class="form-control"></textarea>
-                    <span asp-validation-for="Observaciones" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Estado" class="form-label">Estado</label>
-                    <select asp-for="Estado" class="form-control" required>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Confirmada">Confirmada</option>
-                        <option value="Cancelada">Cancelada</option>
-                    </select>
-                    <span asp-validation-for="Estado" class="text-danger"></span>
-                </div>
-
-                @{
-                    bool disableButton = ViewBag.Pacientes == null || ((IEnumerable<SelectListItem>)ViewBag.Pacientes).Count() == 0 ||
-                    ViewBag.Empleados == null || ((IEnumerable<SelectListItem>)ViewBag.Empleados).Count() == 0;
-                }
 
                 <button type="submit" class="btn btn-success w-100" @(disableButton ? "disabled" : "")>
                     Guardar Cita
@@ -95,5 +68,9 @@
 
     .card {
         border-radius: 10px;
+    }
+
+    .alert {
+        margin-bottom: 15px;
     }
 </style>

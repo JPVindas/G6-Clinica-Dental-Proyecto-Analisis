@@ -21,46 +21,46 @@
 
             @if (Model == null || !Model.Any())
             {
-                    <div class="alert alert-warning" role="alert">
-                        No hay usuarios disponibles.
-                    </div>
+                <div class="alert alert-warning" role="alert">
+                    No hay usuarios disponibles.
+                </div>
             }
             else
             {
-                    <table class="table table-striped">
-                        <thead style="background-color: #003366; color: #FFFFFF;">
-                            <tr>
-                                <th>ID</th>
-                                <th>Usuario</th>
-                                <th>Correo</th>
-                                <th>Nombre</th>
-                                <th>Apellido</th>
-                                <th>Cedula</th>
-                                <th>Telefono</th>
-                                <th>Rol</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <table class="table table-striped">
+                    <thead style="background-color: #003366; color: #FFFFFF;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Cedula</th>
+                            <th>Telefono</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         @foreach (var item in Model)
                         {
-                                <tr>
-                                    <td>@item.Id</td>
-                                    <td>@item.NombreUsuario</td>
-                                    <td>@item.CorreoElectronico</td>
-                                    <td>@item.Nombre</td>
-                                    <td>@item.Apellido</td>
-                                    <td>@item.Cedula</td>
-                                    <td>@item.Telefono</td>
-                                    <td>@item.RolId</td> <!-- Mostrar RolId -->
-                                    <td>
-                                        <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-sm edit-btn">Modificar</a>
-                                        <a asp-controller="Usuarios" asp-action="EliminarUsuario" asp-route-id="@item.Id" class="btn btn-sm delete-btn">Eliminar</a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.NombreUsuario</td>
+                                <td>@item.CorreoElectronico</td>
+                                <td>@item.Nombre</td>
+                                <td>@item.Apellido</td>
+                                <td>@item.Cedula</td>
+                                <td>@item.Telefono</td>
+                                <td>@item.RolId</td> <!-- Mostrar RolId -->
+                                <td>
+                                    <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-sm edit-btn">Modificar</a>
+                                    <a asp-controller="Usuarios" asp-action="EliminarUsuario" asp-route-id="@item.Id" class="btn btn-sm delete-btn">Eliminar</a>
+                                </td>
+                            </tr>
                         }
-                        </tbody>
-                    </table>
+                    </tbody>
+                </table>
             }
         </div>
     </div>
@@ -68,23 +68,23 @@
 
 
 
-    <style>
-        .users-container {
-            margin-top: 20px;
-            background-color: #F8F9FA;
-            padding: 20px;
-        }
+<style>
+    .users-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
 
-        .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E6E6E6;
-        }
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
 
-        .card-header {
-            background-color: #003366;
-            color: #FFFFFF;
-            font-size: 1.5rem;
-        }
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
 
     .edit-btn,
     .delete-btn {
@@ -99,5 +99,6 @@
             background-color: #003366;
             transform: scale(1.05);
         }
-        }
-    </style>
+
+    }
+</style>

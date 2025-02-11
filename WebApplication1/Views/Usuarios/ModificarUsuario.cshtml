@@ -10,41 +10,98 @@
             Modificar Usuario
         </div>
         <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
-            <form asp-action="ModificarUsuario" method="POST">
-                <input type="hidden" asp-for="Id" />
-                <div class="mb-3">
-                    <label for="NombreUsuario" class="form-label" style="color: #003366;">Nombre de Usuario</label>
-                    <input type="text" id="NombreUsuario" name="NombreUsuario" class="form-control" placeholder="Ingrese el nombre de usuario" value="@Model.NombreUsuario">
-                </div>
-                <div class="mb-3">
-                    <label for="firstName" class="form-label" style="color: #003366;">Nombre</label>
-                    <input type="text" id="firstName" name="Nombre" class="form-control" placeholder="Ingrese el nombre" value="@Model.Nombre">
-                </div>
-                <div class="mb-3">
-                    <label for="lastName" class="form-label" style="color: #003366;">Apellido</label>
-                    <input type="text" id="lastName" name="Apellido" class="form-control" placeholder="Ingrese el apellido" value="@Model.Apellido">
-                </div>
-                <div class="mb-3">
-                    <label for="cellphone" class="form-label" style="color: #003366;">Celular</label>
-                    <input type="text" id="cellphone" name="Telefono" class="form-control" placeholder="Ingrese el celular" value="@Model.Telefono">
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label" style="color: #003366;">Correo</label>
-                    <input type="email" id="email" name="CorreoElectronico" class="form-control" placeholder="Ingrese el correo" value="@Model.CorreoElectronico">
-                </div>
-                <div class="mb-3">
-                    <label for="Contrasena" class="form-label" style="color: #003366;">Nueva Contraseña</label>
-                    <input type="password" id="Contrasena" name="Contrasena" class="form-control" placeholder="Ingrese la nueva contraseña">
-                </div>
-                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">Guardar Cambios</button>
-            </form>
+            <form asp-action="ModificarUsuario" method="post">
+                @Html.AntiForgeryToken()
 
+                <!-- ID del usuario (oculto) -->
+                <input type="hidden" asp-for="Id" />
+
+                <!-- Contraseña actual (se mantiene si no se cambia) -->
+                <input type="hidden" name="ContrasenaActual" value="@Model.Contrasena" />
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre de Usuario</label>
+                    <input asp-for="NombreUsuario" class="form-control" required />
+                    <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input asp-for="CorreoElectronico" type="email" class="form-control" required />
+                    <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" required />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" required />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Cédula</label>
+                    <input asp-for="Cedula" class="form-control" required />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input asp-for="Telefono" class="form-control" required />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rol</label>
+                    <select asp-for="RolId" class="form-control" asp-items="ViewBag.Roles"></select>
+                    <span asp-validation-for="RolId" class="text-danger"></span>
+                </div>
+
+                <!-- Checkbox para cambiar contraseña -->
+                <div class="mb-3">
+                    <input type="hidden" name="cambiarContrasena" value="false" />
+                    <input type="checkbox" id="cambiarContrasena" name="cambiarContrasena" value="true" />
+                    <label for="cambiarContrasena">Cambiar contraseña</label>
+                </div>
+
+                <!-- Campo para nueva contraseña -->
+                <div class="mb-3">
+                    <label class="form-label">Nueva Contraseña</label>
+                    <input type="password" name="Contrasena" class="form-control" id="passwordField" disabled />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;">
+                    Guardar Cambios
+                </button>
+            </form>
         </div>
         <div class="card-footer text-center">
-            <a asp-controller="Usuarios" asp-action="Usuarios" style="color: #66b2ff;">Cancelar</a>
+            <a asp-controller="Usuarios" asp-action="Usuarios" class="text-primary">Cancelar</a>
         </div>
     </div>
 </div>
+
+<!-- Script para habilitar o deshabilitar la contraseña -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let cambiarContrasenaCheckbox = document.getElementById("cambiarContrasena");
+        let passwordField = document.getElementById("passwordField");
+
+        if (cambiarContrasenaCheckbox) {
+            cambiarContrasenaCheckbox.addEventListener("change", function () {
+                passwordField.disabled = !this.checked;
+                if (!this.checked) {
+                    passwordField.value = ""; // Limpiar campo si no se cambia
+                }
+            });
+        }
+    });
+</script>
 
 <style>
     .modify-user-container {
