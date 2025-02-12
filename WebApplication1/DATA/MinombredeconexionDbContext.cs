@@ -13,6 +13,7 @@ namespace WebApplication1.DATA
         public DbSet<PacientesModel> Pacientes { get; set; }
         public DbSet<EmpleadosModel> Empleados { get; set; }
         public DbSet<CitasModel> Citas { get; set; }
+        public DbSet<ServiciosModel> Servicios { get; set; } // 🔹 Nueva tabla
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +23,7 @@ namespace WebApplication1.DATA
             modelBuilder.Entity<PacientesModel>().ToTable("Pacientes");
             modelBuilder.Entity<EmpleadosModel>().ToTable("Empleados");
             modelBuilder.Entity<CitasModel>().ToTable("Citas");
+            modelBuilder.Entity<ServiciosModel>().ToTable("Servicios"); // 🔹 Nueva tabla
 
             // 🔹 Relación Usuario - Paciente (1 a 1)
             modelBuilder.Entity<UsuariosModel>()
