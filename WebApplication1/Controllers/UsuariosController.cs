@@ -6,6 +6,12 @@ using WebApplication1.Models;
 using BCrypt.Net;
 using WebApplication1.DATA;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using X.PagedList;
+using X.PagedList.Mvc.Core;
+using X.PagedList.Extensions;
+
+
+
 
 namespace WebApplication1.Controllers
 {
@@ -18,12 +24,24 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // GET: Usuarios
-        public async Task<IActionResult> Usuarios()
+
+
+
+        public async Task<IActionResult> Usuarios(int? page)
         {
-            var usuarios = await _context.Usuarios.ToListAsync();
-            return View(usuarios);
+            int pageNumber = page ?? 1;  // Página actual, por defecto 1
+            int pageSize = 8;  // Tamaño de la página
+
+            // ✅ Solución: Usa `ToListAsync()` antes de `ToPagedList()`
+            var usuarios = await _context.Usuarios
+                .OrderBy(u => u.Id) // Ordenar por ID
+                .ToListAsync(); // Convierte a lista primero
+
+            var pagedUsuarios = usuarios.ToPagedList(pageNumber, pageSize); // ✅ Usa paginación correcta
+
+            return View(pagedUsuarios);
         }
+
 
         // GET: Usuarios/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -42,6 +60,7 @@ namespace WebApplication1.Controllers
 
             return View(usuario);
         }
+
 
         // GET: Usuarios/AgregarUsuario
         public IActionResult AgregarUsuario()
@@ -186,7 +205,7 @@ namespace WebApplication1.Controllers
 
 
 
-
+        /* METODO PARA ELIMINAR USUARIOS
         // GET: Usuarios/EliminarUsuario/5
         public async Task<IActionResult> EliminarUsuario(int? id)
         {
@@ -219,6 +238,76 @@ namespace WebApplication1.Controllers
         private bool UsuarioExists(int id)
         {
             return _context.Usuarios.Any(e => e.Id == id);
+        }*/
+        // GET: Usuarios/ArchivarUsuario/5
+        // GET: Usuarios/ArchivarUsuario/5
+        public async Task<IActionResult> ArchivarUsuario(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return View(usuario);
         }
+
+        // POST: Usuarios/ArchivarUsuario/5
+        [HttpPost, ActionName("ArchivarUsuario")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchivarConfirmed(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            // Se cambia el estado a Archivado (true)
+            usuario.Archivado = true;
+
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Usuarios));
+        }
+
+        // POST: Usuarios/ReactivarUsuario/5
+        [HttpPost, ActionName("ReactivarUsuario")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReactivarConfirmed(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            // Se cambia el estado a NO archivado (false)
+            usuario.Archivado = false;
+
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Usuarios));
+        }
+
+        // Método para verificar si un usuario existe
+        private bool UsuarioExists(int id)
+        {
+            return _context.Usuarios.Any(e => e.Id == id);
+        }
+
+
+
+
     }
+
 }

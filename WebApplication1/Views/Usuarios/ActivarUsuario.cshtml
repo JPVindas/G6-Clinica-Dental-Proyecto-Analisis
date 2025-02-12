@@ -1,0 +1,54 @@
+﻿@model WebApplication1.Models.UsuariosModel
+
+@{
+    ViewData["Title"] = "Activar Usuario";
+}
+
+<h2>@(Model.Archivado ? "Reactivar Usuario" : "Archivar Usuario")</h2>
+
+<div>
+    <h4>Detalles del Usuario</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Nombre de Usuario:</dt>
+        <dd class="col-sm-10">@Model.NombreUsuario</dd>
+
+        <dt class="col-sm-2">Correo Electrónico:</dt>
+        <dd class="col-sm-10">@Model.CorreoElectronico</dd>
+
+        <dt class="col-sm-2">Nombre:</dt>
+        <dd class="col-sm-10">@Model.Nombre @Model.Apellido</dd>
+
+        <dt class="col-sm-2">Teléfono:</dt>
+        <dd class="col-sm-10">@Model.Telefono</dd>
+
+        <dt class="col-sm-2">Estado:</dt>
+        <dd class="col-sm-10">
+            @if (Model.Archivado)
+            {
+                <span class="text-danger">Archivado</span>
+            }
+            else
+            {
+                <span class="text-success">Activo</span>
+            }
+        </dd>
+    </dl>
+</div>
+
+<form asp-action="@(Model.Archivado ? "ReactivarUsuario" : "ArchivarUsuario")" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <div class="form-group">
+        @if (Model.Archivado)
+        {
+            <button type="submit" class="btn btn-success">Reactivar Usuario</button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-warning">Archivar Usuario</button>
+        }
+        <a asp-action="Usuarios" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>

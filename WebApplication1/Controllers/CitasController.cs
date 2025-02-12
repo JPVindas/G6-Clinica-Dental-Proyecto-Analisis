@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
+using X.PagedList.Extensions;
 
 namespace WebApplication1.Controllers
 {
@@ -19,15 +20,18 @@ namespace WebApplication1.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Citas()
+        public async Task<IActionResult> Citas(int? page)
         {
+            int pageNumber = page ?? 1; // Página actual, por defecto 1
+            int pageSize = 8;  // Tamaño de la página
+
             // Obtener el UserID y RolID del usuario autenticado desde los Claims
             string userIdClaim = User.FindFirst("UserID")?.Value;
             string rolIdClaim = User.FindFirst("RolID")?.Value;
 
             Console.WriteLine($"🔍 Claims -> UserID: {userIdClaim}, RolID: {rolIdClaim}");
 
-            //  Convertir a enteros
+            // Convertir a enteros
             int userId = 0, rolID = 3; // Cliente por defecto
             int.TryParse(userIdClaim, out userId);
             int.TryParse(rolIdClaim, out rolID);
@@ -41,7 +45,7 @@ namespace WebApplication1.Controllers
 
             Console.WriteLine($"✅ Usuario autenticado - ID: {userId}, Rol: {rolID}");
 
-            // Obtener el IdPaciente del usuario autenticado
+            // Obtener el IdPaciente del usuario autenticado si es un cliente
             var paciente = await _context.Pacientes
                 .Where(p => p.IdUsuario == userId)
                 .Select(p => p.IdPaciente)
@@ -55,10 +59,11 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Construcción de la consulta
+            // Construcción de la consulta con inclusión de relaciones
             var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
+                .OrderBy(c => c.FechaHora)
                 .AsQueryable();
 
             // Si el usuario es Cliente (rolID = 3), solo verá sus propias citas
@@ -68,8 +73,11 @@ namespace WebApplication1.Controllers
                 citasQuery = citasQuery.Where(c => c.IdPaciente == paciente);
             }
 
-            // Obtener la lista de citas ordenadas por fecha
-            var citas = await citasQuery.OrderBy(c => c.FechaHora).ToListAsync();
+            // Convertir la consulta en una lista antes de aplicar la paginación
+            var citasList = await citasQuery.ToListAsync();
+
+            // Aplicar paginación usando ToPagedList()
+            var citas = citasList.ToPagedList(pageNumber, pageSize);
 
             if (!citas.Any())
             {
@@ -85,13 +93,6 @@ namespace WebApplication1.Controllers
 
             return View(citas);
         }
-
-
-
-
-
-
-
 
 
         public IActionResult CrearCita()

@@ -46,5 +46,6 @@ namespace WebApplication1.Models
 
         //  Relación 1 a 1 con Paciente
         public virtual PacientesModel? Paciente { get; set; }
+        public bool Archivado { get; set; } = false;
     }
 }
