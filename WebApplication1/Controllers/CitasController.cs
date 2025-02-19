@@ -43,7 +43,6 @@ namespace WebApplication1.Controllers
             var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
-                .OrderBy(c => c.FechaHora)
                 .AsQueryable();
 
             if (rolID == 3) // Cliente solo ve sus propias citas
@@ -58,7 +57,6 @@ namespace WebApplication1.Controllers
             }
             else if (rolID == 4) // Doctor solo ve sus citas asignadas
             {
-                // Obtener el ID del empleado correspondiente al usuario autenticado
                 var empleadoId = await _context.Empleados
                     .Where(e => e.IdUsuario == userId)
                     .Select(e => e.IdEmpleado)
@@ -76,12 +74,15 @@ namespace WebApplication1.Controllers
                     return RedirectToAction("Citas");
                 }
 
-                // Asignar el empleadoId al ViewBag para usarlo en la vista
                 ViewBag.UserEmpleadoId = empleadoId;
             }
 
+            // 🔹 Ordenar las citas por estado y fecha:
+            var citasList = await citasQuery
+                .OrderBy(c => c.Estado == "Pendiente" ? 1 : c.Estado == "Confirmada" ? 2 : 3) // 1: Pendiente, 2: Confirmada, 3: Cancelada
+                .ThenBy(c => c.FechaHora) // Ordenar por fecha dentro de cada estado
+                .ToListAsync();
 
-            var citasList = await citasQuery.ToListAsync();
             var citas = citasList.ToPagedList(pageNumber, pageSize);
 
             if (!citas.Any())

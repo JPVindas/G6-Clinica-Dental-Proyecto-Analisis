@@ -1,166 +1,164 @@
 ﻿@model X.PagedList.IPagedList<WebApplication1.Models.CitasModel>
-    @using X.PagedList
-    @using X.PagedList.Mvc.Core
+@using X.PagedList
+@using X.PagedList.Mvc.Core
 
-    @{
-        ViewData["Title"] = "Citas";
-        int tempUserId = 0;
-        int rolID = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3;
-        int userId = ViewBag.UserId != null && int.TryParse(ViewBag.UserId.ToString(), out tempUserId) ? tempUserId : 0;
-    }
+@{
+    ViewData["Title"] = "Citas";
+    int tempUserId = 0;
+    int rolID = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3;
+    int userId = ViewBag.UserId != null && int.TryParse(ViewBag.UserId.ToString(), out tempUserId) ? tempUserId : 0;
+}
 
-    <div class="jumbotron text-center">
-        <h1 class="display-4">¡Bienvenido a Citas!</h1>
-        <p class="lead">Aquí puedes gestionar las citas de la clínica</p>
-    </div>
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido a Citas!</h1>
+    <p class="lead">Aquí puedes gestionar las citas de la clínica</p>
+</div>
 
-    <div class="container mt-4">
-        <div class="card shadow-lg" style="border-radius: 10px;">
-            <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-                Gestión de Citas
-            </div>
-            <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Gestión de Citas
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
 
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger text-center">
-                        @TempData["ErrorMessage"]
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger text-center">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success text-center">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <!-- Filtros -->
+            <form asp-action="FiltrarCitas" method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-5">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
                     </div>
-                }
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success text-center">
-                        @TempData["SuccessMessage"]
+                    <div class="col-md-5">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
                     </div>
-                }
-
-                <!-- Filtros -->
-                <form asp-action="FiltrarCitas" method="GET" class="mb-4">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <label class="form-label">Fecha Inicio</label>
-                            <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Fecha Fin</label>
-                            <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-funnel"></i> Filtrar
-                            </button>
-                        </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
                     </div>
-                </form>
+                </div>
+            </form>
 
-                @if (Model != null && Model.Any())
-                {
-                    <table class="table table-striped table-hover text-center">
-                        <thead style="background-color: #003366; color: #FFFFFF;">
+            @if (Model != null && Model.Any())
+            {
+                <table class="table table-striped table-hover text-center">
+                    <thead style="background-color: #003366; color: #FFFFFF;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Paciente</th>
+                            <th>Teléfono</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Motivo</th>
+                            <th>Doctor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in Model.OrderBy(c => c.Estado != "Pendiente"))
+                        {
                             <tr>
-                                <th>ID</th>
-                                <th>Paciente</th>
-                                <th>Teléfono</th>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Motivo</th>
-                                <th>Doctor</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var cita in Model)
-                            {
-                                <tr>
-                                    <td>@cita.Id</td>
-                                    <td>@(cita.Paciente != null ? $"{cita.Paciente.Nombre} {cita.Paciente.Apellidos}" : "Paciente no asignado")</td>
-                                    <td>@(cita.Paciente != null ? cita.Paciente.Telefono : "N/A")</td>
-                                    <td>@(cita.FechaHora.ToString("yyyy-MM-dd") ?? "N/A")</td>
-                                    <td>@(cita.FechaHora.ToString("hh:mm tt") ?? "N/A")</td>
-                                    <td>@(cita.Motivo ?? "Sin motivo")</td>
-                                    <td>@(cita.Empleado != null ? $"{cita.Empleado.Nombre} {cita.Empleado.Apellidos}" : "Empleado no asignado")</td>
-                                    <td>
-                                        <span class="badge @(cita.Estado == "Pendiente" ? "bg-warning text-dark" : cita.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
-                                            @(cita.Estado ?? "Sin estado")
-                                        </span>
-                                    </td>
+                                <td>@cita.Id</td>
+                                <td>@(cita.Paciente != null ? $"{cita.Paciente.Nombre} {cita.Paciente.Apellidos}" : "Paciente no asignado")</td>
+                                <td>@(cita.Paciente != null ? cita.Paciente.Telefono : "N/A")</td>
+                                <td>@(cita.FechaHora.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                                <td>@(cita.FechaHora.ToString("hh:mm tt") ?? "N/A")</td>
+                                <td>@(cita.Motivo ?? "Sin motivo")</td>
+                                <td>@(cita.Empleado != null ? $"{cita.Empleado.Nombre} {cita.Empleado.Apellidos}" : "Empleado no asignado")</td>
+                                <td>
+                                    <span class="badge @(cita.Estado == "Pendiente" ? "bg-warning text-dark" : cita.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                                        @(cita.Estado ?? "Sin estado")
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="btn-group d-flex justify-content-center">
-                                        <!-- Editar (Amarillo) -->
+                                        <!-- Editar -->
                                         @if (rolID == 1 || rolID == 2 || (rolID == 4 && cita.IdEmpleado == ViewBag.UserEmpleadoId))
                                         {
                                             <a asp-action="EditarCita" asp-route-id="@cita.Id" class="btn btn-warning btn-sm">
-                                                <i class="bi bi-pencil-square"></i> Editar
+                                                <i class="bi bi-pencil-square"></i>
                                             </a>
                                         }
 
-                                        <!-- Confirmar (Verde) y Cancelar (Rojo) -->
+                                        <!-- Confirmar y Cancelar -->
                                         @if (rolID == 1 || rolID == 2 || (rolID == 4 && cita.IdEmpleado == ViewBag.UserEmpleadoId) || (rolID == 3 && cita.IdPaciente == ViewBag.UserId))
                                         {
                                             @if (cita.Estado == "Pendiente")
                                             {
                                                 <a asp-action="ConfirmarCita" asp-route-id="@cita.Id" class="btn btn-success btn-sm">
-                                                    <i class="bi bi-check-circle"></i> Confirmar
+                                                    <i class="bi bi-check-circle"></i>
                                                 </a>
                                                 <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-x-circle"></i> Cancelar
+                                                    <i class="bi bi-x-circle"></i>
                                                 </a>
                                             }
                                             else if (cita.Estado == "Confirmada")
                                             {
                                                 <a asp-action="CancelarCita" asp-route-id="@cita.Id" class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-x-circle"></i> Cancelar
+                                                    <i class="bi bi-x-circle"></i>
                                                 </a>
                                             }
                                         }
 
-                                        <!-- Eliminar (Borde rojo) - Solo administradores y secretarios -->
+                                        <!-- Eliminar -->
                                         @if (rolID == 1 || rolID == 2)
                                         {
                                             <form asp-action="EliminarCita" asp-route-id="@cita.Id" method="post"
                                                   onsubmit="return confirm('¿Está seguro de que desea eliminar esta cita?');" style="display:inline;">
                                                 <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                    <i class="bi bi-trash"></i> Eliminar
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
                                         }
                                     </div>
                                 </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
 
-
-
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-
-                    <!-- Paginación -->
-                    <div class="d-flex justify-content-center mt-3">
-                        @Html.PagedListPager(Model, page => Url.Action("Citas", new { page }),
-                                 new PagedListRenderOptions
-                    {
-                        LiElementClasses = new[] { "page-item" },
-                        PageClasses = new[] { "page-link" }
-                    })
-                    </div>
-                }
-                else
+                <!-- Paginación -->
+                <div class="d-flex justify-content-center mt-3">
+                    @Html.PagedListPager(Model, page => Url.Action("Citas", new { page }),
+                             new PagedListRenderOptions
                 {
-                    <div class="alert alert-warning text-center">
-                        <strong>No hay citas disponibles.</strong>
-                    </div>
-                }
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <strong>No hay citas disponibles.</strong>
+                </div>
+            }
 
-                @if (rolID == 1 || rolID == 2 || rolID == 3 || rolID == 4)
-                {
-                    <a asp-action="CrearCita" class="btn btn-primary w-100 mt-3">
-                        <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
-                    </a>
-                }
-            </div>
+            @if (rolID == 1 || rolID == 2 || rolID == 3 || rolID == 4)
+            {
+                <a asp-action="CrearCita" class="btn btn-primary w-100 mt-3">
+                    <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
+                </a>
+            }
         </div>
     </div>
+</div>
+
 
 
 <style>
@@ -197,9 +195,10 @@
 
     /* 🔹 Etiquetas de Estado */
     .badge {
-        font-size: 0.9rem;
-        padding: 6px 12px;
+        font-size: 0.85rem;
+        padding: 5px 10px;
         font-weight: bold;
+        border-radius: 6px;
     }
 
         .badge.bg-warning {
@@ -217,24 +216,32 @@
             color: #FFFFFF;
         }
 
-    /* 🔹 Botones */
+    /* 🔹 Botones de acción */
     .btn-sm {
-        font-size: 14px;
+        font-size: 13px; /* Tamaño de fuente uniforme */
+        width: 75px; /* Ancho compacto */
+        height: 30px; /* Altura más reducida */
+        padding: 4px 8px; /* Padding más ajustado */
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 130px;
-        padding: 8px;
         font-weight: bold;
         border-radius: 6px;
         transition: all 0.2s ease-in-out;
+        text-align: center;
+        border: none; /* Eliminar bordes extra */
     }
+
+        /* Íconos dentro de los botones */
+        .btn-sm i {
+            font-size: 14px;
+            margin-right: 4px;
+        }
 
     /* 🎨 Botones con colores diferenciados */
     .btn-warning {
         background-color: #FFC107;
         color: #212529;
-        border: none;
     }
 
         .btn-warning:hover {
@@ -244,7 +251,6 @@
     .btn-success {
         background-color: #28A745;
         color: white;
-        border: none;
     }
 
         .btn-success:hover {
@@ -254,15 +260,15 @@
     .btn-danger {
         background-color: #DC3545;
         color: white;
-        border: none;
     }
 
         .btn-danger:hover {
             background-color: #C82333;
         }
 
+    /* 🔹 Botón Eliminar con borde más pequeño */
     .btn-outline-danger {
-        border: 2px solid #DC3545;
+        border: 1.5px solid #DC3545;
         color: #DC3545;
         background-color: transparent;
     }
@@ -286,13 +292,13 @@
     /* 🔹 Grupo de Botones */
     .btn-group {
         display: flex;
-        gap: 8px;
+        gap: 4px; /* Menos separación entre botones */
         justify-content: center;
     }
 
     /* 🔹 Íconos */
     .bi {
-        margin-right: 5px;
+        margin-right: 3px; /* Espaciado menor entre icono y texto */
     }
 
     /* 🔹 Paginación */
@@ -304,8 +310,8 @@
         color: #003366 !important;
         background-color: #fff;
         border: 1px solid #003366;
-        padding: 10px 14px;
-        font-size: 16px;
+        padding: 8px 12px;
+        font-size: 14px;
         font-weight: bold;
         border-radius: 6px;
         transition: background-color 0.2s;
@@ -321,7 +327,16 @@
         color: white !important;
     }
 
+    /* Uniformidad en los botones */
+    .btn-warning,
+    .btn-success,
+    .btn-danger,
+    .btn-outline-danger {
+        min-width: 75px;
+        height: 30px;
+    }
 </style>
+
 
 <!-- Importar Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

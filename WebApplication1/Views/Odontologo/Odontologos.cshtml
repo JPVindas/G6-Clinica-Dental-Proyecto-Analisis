@@ -44,24 +44,26 @@
                         <p class="text-success fw-bold"><i class="bi bi-award-fill"></i> @odontologo.Experiencia años de experiencia</p>
 
                         <div class="d-flex justify-content-center gap-2 mt-2">
-                            <!-- 🔹 Botón para Agendar Cita (Redirige a CrearCita con el odontólogo seleccionado) -->
+                            <!-- Botón para Agendar Cita (con texto) -->
                             <a asp-controller="Citas" asp-action="CrearCita"
                                asp-route-idPaciente="@userId"
                                asp-route-idDoctor="@odontologo.IdEmpleado"
-                               class="btn btn-primary btn-sm text-white shadow btn-uniform">
+                               class="btn btn-agendar btn-sm text-white shadow btn-uniform-text">
                                 <i class="bi bi-calendar-check"></i> Agendar Cita
                             </a>
 
                             @if (userRole == 1 || userRole == 2) // Solo admin y secretario pueden editar y eliminar
                             {
-                                <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-success btn-sm text-white shadow btn-uniform">
-                                    <i class="bi bi-pencil-fill"></i> Editar
+                                <!-- Botón Editar (Solo Icono) -->
+                                <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-editar btn-sm text-white shadow btn-uniform">
+                                    <i class="bi bi-pencil-fill"></i>
                                 </a>
 
+                                <!-- Botón Eliminar (Solo Icono) -->
                                 <form asp-action="Eliminar" asp-route-id="@odontologo.IdEmpleado" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger btn-sm text-white shadow btn-uniform"
+                                    <button type="submit" class="btn btn-eliminar btn-sm text-white shadow btn-uniform"
                                             onclick="return confirm('¿Estás seguro de que deseas eliminar este odontólogo?');">
-                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                        <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>
                             }
@@ -114,25 +116,62 @@
         color: #007bff;
     }
 
-    .btn-primary, .btn-success, .btn-danger {
+    /* 🔹 Botones uniformes de Editar y Eliminar (Solo icono) */
+    .btn-uniform {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
         border-radius: 8px;
         transition: 0.3s ease-in-out;
-        font-weight: bold;
-        width: 140px;
     }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
+    /* 🔹 Botón Agendar Cita (Con texto) */
+    .btn-uniform-text {
+        width: auto;
+        padding: 6px 14px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
+        transition: 0.3s ease-in-out;
+    }
+
+    /* 🔹 Botón Agendar Cita - Verde azulado */
+    .btn-agendar {
+        background-color: #17A589;
+        color: white;
+        border: none;
+    }
+
+        .btn-agendar:hover {
+            background-color: #138D75;
             transform: scale(1.05);
         }
 
-        .btn-success:hover {
-            background-color: #218838;
+    /* 🔹 Botón Editar - Azul eléctrico */
+    .btn-editar {
+        background-color: #2E86C1;
+        color: white;
+        border: none;
+    }
+
+        .btn-editar:hover {
+            background-color: #21618C;
             transform: scale(1.05);
         }
 
-        .btn-danger:hover {
-            background-color: #c82333;
+    /* 🔹 Botón Eliminar - Rojo intenso */
+    .btn-eliminar {
+        background-color: #E74C3C;
+        color: white;
+        border: none;
+    }
+
+        .btn-eliminar:hover {
+            background-color: #C0392B;
             transform: scale(1.05);
         }
 
