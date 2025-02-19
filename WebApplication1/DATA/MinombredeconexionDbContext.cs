@@ -53,6 +53,14 @@ namespace WebApplication1.DATA
                 .HasForeignKey(c => c.IdEmpleado)
                 .HasConstraintName("FK_Citas_Empleados");
 
+            // 🔹 Relación Usuario - Empleado (1 a 1)
+            modelBuilder.Entity<UsuariosModel>()
+                .HasOne(u => u.Empleado)
+                .WithOne(e => e.Usuario)
+                .HasForeignKey<EmpleadosModel>(e => e.IdUsuario)
+                .HasConstraintName("FK_Empleados_Usuarios");
+
+
             base.OnModelCreating(modelBuilder);
         }
     }

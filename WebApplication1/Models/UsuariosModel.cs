@@ -44,8 +44,13 @@ namespace WebApplication1.Models
         [ForeignKey("RolId")]
         public virtual RolesModel? Rol { get; set; }
 
-        //  Relación 1 a 1 con Paciente
+        // 🔹 Relación 1 a 1 con Paciente
         public virtual PacientesModel? Paciente { get; set; }
+
+        // 🔹 Relación 1 a 1 con Empleado
+        public virtual EmpleadosModel? Empleado { get; set; } // <--- Agregar esta línea
+
         public bool Archivado { get; set; } = false;
     }
+
 }

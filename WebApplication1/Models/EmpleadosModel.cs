@@ -8,35 +8,44 @@ namespace WebApplication1.Models
     public class EmpleadosModel
     {
         [Key]
-        [Column("id_empleado")] // Mapeo correcto con la base de datos
+        [Column("id_empleado")]
         public int IdEmpleado { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
+        [StringLength(100)]
         public string Nombre { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "Los apellidos no pueden exceder los 100 caracteres.")]
+        [StringLength(100)]
         public string Apellidos { get; set; }
 
         [Required]
         [EmailAddress]
-        [StringLength(150, ErrorMessage = "El correo no puede exceder los 150 caracteres.")]
+        [StringLength(150)]
         public string Correo { get; set; }
 
         [Required]
-        [StringLength(15, ErrorMessage = "El teléfono no puede exceder los 15 caracteres.")]
+        [StringLength(15)]
         public string Telefono { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "La especialidad no puede exceder los 100 caracteres.")]
+        [StringLength(100)]
         public string Especialidad { get; set; }
 
         [Required]
-        [Range(0, 50, ErrorMessage = "La experiencia debe ser entre 0 y 50 años.")]
-        public int Experiencia { get; set; } = 0; // Valor por defecto si no se especifica
+        [Range(0, 50)]
+        public int Experiencia { get; set; } = 0;
 
-        // Relación 1:N con CitasModel
+        // 🔹 Nuevo campo para la imagen del odontólogo (Puede ser NULL)
+        [StringLength(255)]
+        public string? ImagenUrl { get; set; }
+
+        // 🔹 Relación con Citas
         public virtual ICollection<CitasModel> Citas { get; set; } = new List<CitasModel>();
+
+        // 🔹 Relación 1 a 1 con Usuario
+        [ForeignKey("IdUsuario")]
+        public int? IdUsuario { get; set; }
+        public virtual UsuariosModel? Usuario { get; set; }
     }
 }

@@ -3,74 +3,168 @@
 @{
     ViewData["Title"] = "Crear Cita";
     var empleadosDisponibles = ViewBag.Empleados as IEnumerable<SelectListItem> ?? new List<SelectListItem>();
-    bool disableButton = !empleadosDisponibles.Any();
+    var pacientesDisponibles = ViewBag.Pacientes as IEnumerable<SelectListItem> ?? new List<SelectListItem>();
     int userRole = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3;
-    int userId = ViewBag.UserId != null ? Convert.ToInt32(ViewBag.UserId) : 0;
     int pacienteId = ViewBag.PacienteId != null ? Convert.ToInt32(ViewBag.PacienteId) : 0;
+    int doctorId = ViewBag.DoctorId != null ? Convert.ToInt32(ViewBag.DoctorId) : 0;
     string nombrePaciente = ViewBag.NombrePaciente ?? "No disponible";
+    string nombreDoctor = ViewBag.NombreDoctor ?? "No disponible";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white text-center">
-            <h3>Crear Nueva Cita</h3>
+<div class="create-appointment-container mt-5 d-flex justify-content-center align-items-start">
+    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Crear Nueva Cita
         </div>
         <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
-
-            <form asp-controller="Citas" asp-action="SaveCita" method="post">
+            <form asp-controller="Citas" asp-action="SaveCita" method="post" id="citaForm">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Mensajes de error personalizados -->
+                <div id="error-message" class="alert alert-danger d-none"></div>
 
                 <!-- Paciente -->
                 <div class="mb-3">
-                    <label asp-for="IdPaciente" class="form-label">Paciente</label>
-                    <input type="hidden" asp-for="IdPaciente" value="@pacienteId" />
-                    <input class="form-control" value="@nombrePaciente" readonly />
+                    <label class="form-label">Paciente</label>
+                    @if (userRole == 3)
+                    {
+                        <input type="hidden" asp-for="IdPaciente" value="@pacienteId" />
+                        <input class="form-control" value="@nombrePaciente" readonly />
+                    }
+                    else
+                    {
+                        <select asp-for="IdPaciente" class="form-select" required>
+                            <option value="">Seleccione un paciente</option>
+                            @foreach (var paciente in pacientesDisponibles)
+                            {
+                                <option value="@paciente.Value">@paciente.Text</option>
+                            }
+                        </select>
+                    }
                     <span asp-validation-for="IdPaciente" class="text-danger"></span>
                 </div>
 
                 <!-- Doctor -->
                 <div class="mb-3">
-                    <label asp-for="IdEmpleado" class="form-label">Doctor</label>
-                    <select asp-for="IdEmpleado" class="form-control" asp-items="empleadosDisponibles" required>
-                        <option value="">Seleccione un doctor</option>
-                    </select>
+                    <label class="form-label">Doctor</label>
+                    @if (userRole == 4)
+                    {
+                        <input type="hidden" asp-for="IdEmpleado" value="@doctorId" />
+                        <input class="form-control" value="@nombreDoctor" readonly />
+                    }
+                    else
+                    {
+                        <select asp-for="IdEmpleado" class="form-select" required id="doctorSelect">
+                            <option value="">Seleccione un doctor</option>
+                            @foreach (var empleado in empleadosDisponibles)
+                            {
+                                <option value="@empleado.Value" selected="@(empleado.Value == doctorId.ToString())">@empleado.Text</option>
+                            }
+                        </select>
+                    }
                     <span asp-validation-for="IdEmpleado" class="text-danger"></span>
                 </div>
 
                 <!-- Fecha y Hora -->
                 <div class="mb-3">
-                    <label asp-for="FechaHora" class="form-label">Fecha y Hora</label>
+                    <label class="form-label">Fecha y Hora</label>
                     <input asp-for="FechaHora" type="datetime-local" class="form-control"
-                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required>
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required id="fechaHoraInput">
                     <span asp-validation-for="FechaHora" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100" @(disableButton ? "disabled" : "")>
-                    Guardar Cita
+                <div id="suggested-time" class="alert alert-warning d-none">
+                    <strong>El doctor ya tiene una cita en ese horario.</strong> Intente programar la cita en el siguiente horario disponible: <span id="nextAvailable"></span>
+                </div>
+
+                <!-- Motivo de la Cita -->
+                <div class="mb-3">
+                    <label class="form-label">Motivo</label>
+                    <input asp-for="Motivo" class="form-control" placeholder="Ingrese el motivo de la cita" required>
+                    <span asp-validation-for="Motivo" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;" id="submitButton">
+                    <i class="bi bi-calendar-plus"></i> Guardar Cita
                 </button>
             </form>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-controller="Citas" asp-action="Citas" style="color: #66b2ff;">Cancelar</a>
         </div>
     </div>
 </div>
 
+<!-- JavaScript para validar disponibilidad -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#submitButton").click(function (event) {
+            event.preventDefault(); // Evita que el formulario se envíe directamente
+
+            let fechaHora = new Date($("#fechaHoraInput").val());
+            let doctorId = $("#doctorSelect").val();
+
+            $.ajax({
+                url: "/Citas/VerificarDisponibilidad",
+                type: "GET",
+                data: { idDoctor: doctorId, fechaHora: $("#fechaHoraInput").val() },
+                success: function (response) {
+                    if (response.disponible) {
+                        $("#citaForm").unbind('submit').submit(); // Enviar formulario si está disponible
+                    } else {
+                        $("#error-message").removeClass("d-none").text("El doctor ya tiene una cita en ese horario.");
+                        $("#suggested-time").removeClass("d-none");
+                        $("#nextAvailable").text(response.siguienteHorario);
+                    }
+                },
+                error: function () {
+                    $("#error-message").removeClass("d-none").text("Error al verificar la disponibilidad.");
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Estilos personalizados -->
 <style>
-    .container {
-        max-width: 600px;
+    .create-appointment-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        display: flex;
+        justify-content: center;
+        align-items: start;
     }
 
     .card {
-        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
     }
 
-    .alert {
-        margin-bottom: 15px;
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
     }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 5px;
+    }
+
+    .btn {
+        background-color: #66b2ff;
+        border: none;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
 </style>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

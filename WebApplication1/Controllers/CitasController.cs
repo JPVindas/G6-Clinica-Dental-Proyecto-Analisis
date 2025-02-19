@@ -22,106 +22,177 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> Citas(int? page)
         {
-            int pageNumber = page ?? 1; // Página actual, por defecto 1
-            int pageSize = 8;  // Tamaño de la página
+            int pageNumber = page ?? 1;
+            int pageSize = 8;
 
-            // Obtener el UserID y RolID del usuario autenticado desde los Claims
             string userIdClaim = User.FindFirst("UserID")?.Value;
             string rolIdClaim = User.FindFirst("RolID")?.Value;
 
-            Console.WriteLine($"🔍 Claims -> UserID: {userIdClaim}, RolID: {rolIdClaim}");
-
-            // Convertir a enteros
-            int userId = 0, rolID = 3; // Cliente por defecto
+            int userId = 0, rolID = 3;
             int.TryParse(userIdClaim, out userId);
             int.TryParse(rolIdClaim, out rolID);
 
             if (userId == 0)
             {
-                Console.WriteLine("❌ ERROR: No se pudo obtener el UserID del usuario autenticado.");
-                TempData["ErrorMessage"] = "No se pudo autenticar correctamente. Intente iniciar sesión nuevamente.";
+                TempData["ErrorMessage"] = "No se pudo autenticar correctamente.";
                 return RedirectToAction("Login", "Login");
             }
 
             Console.WriteLine($"✅ Usuario autenticado - ID: {userId}, Rol: {rolID}");
 
-            // Obtener el IdPaciente del usuario autenticado si es un cliente
-            var paciente = await _context.Pacientes
-                .Where(p => p.IdUsuario == userId)
-                .Select(p => p.IdPaciente)
-                .FirstOrDefaultAsync();
-
-            Console.WriteLine($"📌 IdPaciente asignado: {paciente}");
-
-            if (rolID == 3 && paciente == 0)
-            {
-                TempData["ErrorMessage"] = "No tienes un perfil de paciente registrado. Contacta con el administrador.";
-                return RedirectToAction("Index", "Home");
-            }
-
-            // Construcción de la consulta con inclusión de relaciones
             var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
                 .OrderBy(c => c.FechaHora)
                 .AsQueryable();
 
-            // Si el usuario es Cliente (rolID = 3), solo verá sus propias citas
-            if (rolID == 3)
+            if (rolID == 3) // Cliente solo ve sus propias citas
             {
-                Console.WriteLine($"🎯 Filtrando citas del paciente ID={paciente}");
+                var paciente = await _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => p.IdPaciente)
+                    .FirstOrDefaultAsync();
+
                 citasQuery = citasQuery.Where(c => c.IdPaciente == paciente);
+                Console.WriteLine($"🎯 Filtrando citas del paciente ID={paciente}");
+            }
+            else if (rolID == 4) // Doctor solo ve sus citas asignadas
+            {
+                // Obtener el ID del empleado correspondiente al usuario autenticado
+                var empleadoId = await _context.Empleados
+                    .Where(e => e.IdUsuario == userId)
+                    .Select(e => e.IdEmpleado)
+                    .FirstOrDefaultAsync();
+
+                if (empleadoId > 0)
+                {
+                    citasQuery = citasQuery.Where(c => c.IdEmpleado == empleadoId);
+                    Console.WriteLine($"🎯 Filtrando citas asignadas al doctor con ID de empleado: {empleadoId}");
+                }
+                else
+                {
+                    Console.WriteLine($"❌ ERROR: No se encontró un ID de empleado para el usuario ID={userId}");
+                    TempData["ErrorMessage"] = "No tienes un perfil de empleado registrado.";
+                    return RedirectToAction("Citas");
+                }
+
+                // Asignar el empleadoId al ViewBag para usarlo en la vista
+                ViewBag.UserEmpleadoId = empleadoId;
             }
 
-            // Convertir la consulta en una lista antes de aplicar la paginación
-            var citasList = await citasQuery.ToListAsync();
 
-            // Aplicar paginación usando ToPagedList()
+            var citasList = await citasQuery.ToListAsync();
             var citas = citasList.ToPagedList(pageNumber, pageSize);
 
             if (!citas.Any())
             {
-                Console.WriteLine($"⚠ No se encontraron citas para el paciente con ID {paciente}");
+                Console.WriteLine($"⚠ No se encontraron citas para el usuario ID={userId}");
                 TempData["ErrorMessage"] = "No hay citas registradas.";
             }
 
-            Console.WriteLine($"📋 Total de citas encontradas: {citas.Count}");
-
-            // Pasar datos a la vista
             ViewBag.UserRole = rolID;
             ViewBag.UserId = userId;
-
             return View(citas);
         }
 
 
-        public IActionResult CrearCita()
+        [HttpGet]
+        public async Task<IActionResult> VerificarDisponibilidad(int idDoctor, DateTime fechaHora)
+        {
+            bool disponible = !await _context.Citas
+                .AnyAsync(c => c.IdEmpleado == idDoctor &&
+                               c.FechaHora >= fechaHora.AddMinutes(-59) &&
+                               c.FechaHora <= fechaHora.AddMinutes(59));
+
+            if (disponible)
+            {
+                return Json(new { disponible = true });
+            }
+            else
+            {
+                // Calcular el siguiente horario disponible (sumando 1 hora)
+                DateTime siguienteHorario = fechaHora.AddHours(1);
+
+                return Json(new
+                {
+                    disponible = false,
+                    mensaje = "El doctor ya tiene una cita en ese horario.",
+                    siguienteHorario = siguienteHorario.ToString("yyyy-MM-dd HH:mm")
+                });
+            }
+        }
+
+
+
+        [HttpGet]
+        public IActionResult CrearCita(int? idPaciente, int? idDoctor)
         {
             int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
             int userRole = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
 
-            var paciente = _context.Pacientes
-                .Where(p => p.IdUsuario == userId)
-                .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
-                .FirstOrDefault();
-
             ViewBag.UserRole = userRole;
             ViewBag.UserId = userId;
-            ViewBag.PacienteId = paciente != null ? paciente.IdPaciente : 0;
-            ViewBag.NombrePaciente = paciente != null ? paciente.NombreCompleto : "No disponible";
 
-            Console.WriteLine($"📌 ID de paciente encontrado en CrearCita: {ViewBag.PacienteId}");
+            // 🔹 Si el usuario es Cliente (Rol 3), asignarle su propio paciente
+            if (userRole == 3)
+            {
+                var paciente = _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                    .FirstOrDefault();
 
-            ViewBag.Pacientes = new SelectList(_context.Pacientes
-                .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
-                .ToList(), "IdPaciente", "NombreCompleto");
+                ViewBag.PacienteId = paciente?.IdPaciente ?? 0;
+                ViewBag.NombrePaciente = paciente?.NombreCompleto ?? "No disponible";
+            }
+            else
+            {
+                // 🔹 Para admin y secretario, permitir seleccionar cualquier paciente
+                ViewBag.Pacientes = new SelectList(_context.Pacientes
+                    .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                    .ToList(), "IdPaciente", "NombreCompleto");
+            }
 
-            ViewBag.Empleados = new SelectList(_context.Empleados
-                .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
-                .ToList(), "IdEmpleado", "NombreCompleto");
+            // 🔹 Si el usuario es un doctor (Rol 4), solo se asigna a sí mismo
+            if (userRole == 4)
+            {
+                var doctor = _context.Empleados
+                    .Where(e => e.IdUsuario == userId && e.Usuario.RolId == 4)
+                    .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
+                    .FirstOrDefault();
+
+                ViewBag.DoctorId = doctor?.IdEmpleado ?? 0;
+                ViewBag.NombreDoctor = doctor?.NombreCompleto ?? "No disponible";
+            }
+            else
+            {
+                // 🔹 Si se recibió un doctor desde la vista de odontólogos, lo preseleccionamos
+                if (idDoctor.HasValue)
+                {
+                    var doctorSeleccionado = _context.Empleados
+                        .Where(e => e.IdEmpleado == idDoctor)
+                        .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
+                        .FirstOrDefault();
+
+                    if (doctorSeleccionado != null)
+                    {
+                        ViewBag.DoctorId = doctorSeleccionado.IdEmpleado;
+                        ViewBag.NombreDoctor = doctorSeleccionado.NombreCompleto;
+                    }
+                }
+
+                // 🔹 Para admin y secretaria, permitir seleccionar cualquier doctor
+                ViewBag.Empleados = new SelectList(_context.Empleados
+                    .Include(e => e.Usuario)
+                    .Where(e => e.Usuario.RolId == 4)
+                    .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
+                    .ToList(), "IdEmpleado", "NombreCompleto");
+            }
 
             return View();
         }
+
+
+
 
 
 
@@ -156,12 +227,84 @@ namespace WebApplication1.Controllers
             // Validaciones
             if (cita.IdPaciente <= 0 || cita.IdEmpleado <= 0)
             {
-                Console.WriteLine("❌ ERROR: El paciente o el doctor no son válidos.");
+                Console.WriteLine($"❌ ERROR: Datos inválidos - Paciente ID={cita.IdPaciente}, Doctor ID={cita.IdEmpleado}");
                 TempData["ErrorMessage"] = "Debe seleccionar un paciente y un doctor válidos.";
                 return RedirectToAction("CrearCita");
             }
 
+            // 🔹 Verificación antes de guardar la cita
+            Console.WriteLine("📌 Cita preparada para guardar:");
+            Console.WriteLine($"   - Paciente ID: {cita.IdPaciente}");
+            Console.WriteLine($"   - Doctor ID: {cita.IdEmpleado}");
+            Console.WriteLine($"   - Fecha y Hora: {cita.FechaHora}");
+            Console.WriteLine($"   - Motivo: {cita.Motivo}");
+
             return await SaveCita(cita);
+
+
+
+        }
+
+
+
+        private async Task<bool> EsHorarioDisponible(int doctorId, DateTime fechaHora)
+        {
+            // Definir horarios permitidos
+            var diaSemana = fechaHora.DayOfWeek;
+            TimeSpan horaApertura, horaCierre;
+
+            if (diaSemana >= DayOfWeek.Monday && diaSemana <= DayOfWeek.Friday) // Lunes - Viernes
+            {
+                horaApertura = new TimeSpan(8, 0, 0);  // 8:00 AM
+                horaCierre = new TimeSpan(22, 0, 0);   // 10:00 PM
+            }
+            else // Sábados y Domingos
+            {
+                horaApertura = new TimeSpan(7, 0, 0);  // 7:00 AM
+                horaCierre = new TimeSpan(14, 0, 0);   // 2:00 PM
+            }
+
+            // Validar si la hora de la cita está dentro del horario permitido
+            if (fechaHora.TimeOfDay < horaApertura || fechaHora.TimeOfDay >= horaCierre)
+            {
+                return false; // Hora fuera del horario permitido
+            }
+
+            // Validar que el doctor no tenga otra cita en la misma hora o con menos de 1 hora de diferencia
+            var existeCita = await _context.Citas
+                .AnyAsync(c => c.IdEmpleado == doctorId &&
+                               c.FechaHora >= fechaHora.AddMinutes(-59) &&
+                               c.FechaHora <= fechaHora.AddMinutes(59)); // Margen de 1 hora
+
+            return !existeCita; // Devuelve true si el horario está disponible
+        }
+
+        private bool EsHorarioPermitido(DateTime fechaHora)
+        {
+            var diaSemana = fechaHora.DayOfWeek;
+            TimeSpan horaApertura, horaCierre;
+
+            if (diaSemana >= DayOfWeek.Monday && diaSemana <= DayOfWeek.Friday) // Lunes - Viernes
+            {
+                horaApertura = new TimeSpan(8, 0, 0);  // 8:00 AM
+                horaCierre = new TimeSpan(22, 0, 0);   // 10:00 PM
+            }
+            else // Sábados y Domingos
+            {
+                horaApertura = new TimeSpan(7, 0, 0);  // 7:00 AM
+                horaCierre = new TimeSpan(14, 0, 0);   // 2:00 PM
+            }
+
+            // Validar si la hora de la cita está dentro del horario permitido
+            return fechaHora.TimeOfDay >= horaApertura && fechaHora.TimeOfDay < horaCierre;
+        }
+
+        private async Task<bool> DoctorTieneCitaEnHorario(int doctorId, DateTime fechaHora)
+        {
+            return await _context.Citas
+                .AnyAsync(c => c.IdEmpleado == doctorId &&
+                               c.FechaHora >= fechaHora.AddMinutes(-59) &&
+                               c.FechaHora <= fechaHora.AddMinutes(59)); // Margen de 1 hora
         }
 
 
@@ -179,6 +322,22 @@ namespace WebApplication1.Controllers
                 {
                     Console.WriteLine("❌ ERROR: La fecha no es válida.");
                     TempData["ErrorMessage"] = "Debe seleccionar una fecha y hora válida.";
+                    return RedirectToAction("CrearCita");
+                }
+
+                // Validar que el horario de la cita sea permitido
+                if (!EsHorarioPermitido(cita.FechaHora))
+                {
+                    Console.WriteLine("❌ ERROR: La cita está fuera del horario permitido.");
+                    TempData["ErrorMessage"] = "La cita está fuera del horario permitido.";
+                    return RedirectToAction("CrearCita");
+                }
+
+                // Validar que el doctor no tenga otra cita en la misma hora o con menos de 1 hora de diferencia
+                if (await DoctorTieneCitaEnHorario(cita.IdEmpleado, cita.FechaHora))
+                {
+                    Console.WriteLine("❌ ERROR: El doctor ya tiene una cita en el mismo horario o con menos de 1 hora de diferencia.");
+                    TempData["ErrorMessage"] = "El doctor ya tiene una cita en el mismo horario o con menos de 1 hora de diferencia.";
                     return RedirectToAction("CrearCita");
                 }
 
@@ -238,47 +397,74 @@ namespace WebApplication1.Controllers
 
 
 
+
+
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> FiltrarCitas(DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<IActionResult> FiltrarCitas(DateTime? startDate = null, DateTime? endDate = null, int? page = 1)
         {
+            int pageNumber = page ?? 1;
+            int pageSize = 8;
+
             int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3"); // Cliente por defecto
             int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
 
             var citasQuery = _context.Citas
                 .Include(c => c.Paciente)
                 .Include(c => c.Empleado)
+                .OrderBy(c => c.FechaHora)
                 .AsQueryable();
 
             if (rolID == 3) // Si el usuario es Cliente, solo ve sus citas
             {
-                citasQuery = citasQuery.Where(c => c.IdPaciente == userId);
+                var pacienteId = await _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => p.IdPaciente)
+                    .FirstOrDefaultAsync();
+
+                citasQuery = citasQuery.Where(c => c.IdPaciente == pacienteId);
+            }
+            else if (rolID == 4) // Si es doctor, solo ve sus citas asignadas
+            {
+                var empleadoId = await _context.Empleados
+                    .Where(e => e.IdUsuario == userId)
+                    .Select(e => e.IdEmpleado)
+                    .FirstOrDefaultAsync();
+
+                if (empleadoId > 0)
+                {
+                    citasQuery = citasQuery.Where(c => c.IdEmpleado == empleadoId);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "No tienes un perfil de empleado registrado.";
+                    return RedirectToAction("Citas");
+                }
             }
 
-            // Aplicar filtros de fecha solo si startDate y endDate tienen valores
+            // Aplicar filtros de fecha
             if (startDate.HasValue)
             {
                 citasQuery = citasQuery.Where(c => c.FechaHora.Date >= startDate.Value.Date);
-                Console.WriteLine($"📆 Filtrando desde {startDate.Value.Date}");
             }
 
             if (endDate.HasValue)
             {
                 citasQuery = citasQuery.Where(c => c.FechaHora.Date <= endDate.Value.Date);
-                Console.WriteLine($"📆 Filtrando hasta {endDate.Value.Date}");
             }
 
-            var citas = await citasQuery.OrderBy(c => c.FechaHora).ToListAsync();
+            // Convertir la lista de citas a IPagedList para evitar el error
+            var citasPagedList = citasQuery.ToPagedList(pageNumber, pageSize);
 
-            Console.WriteLine($"📋 Total citas encontradas después del filtro: {citas.Count}");
 
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
             ViewBag.UserRole = rolID;
             ViewBag.UserId = userId;
 
-            return View("Citas", citas); // Devuelve la misma vista que el listado general
+            return View("Citas", citasPagedList);
         }
+
 
 
 
@@ -301,8 +487,11 @@ namespace WebApplication1.Controllers
                 .ToListAsync(), "IdPaciente", "NombreCompleto", cita.IdPaciente);
 
             ViewBag.Empleados = new SelectList(await _context.Empleados
-                .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
-                .ToListAsync(), "IdEmpleado", "NombreCompleto", cita.IdEmpleado);
+     .Include(e => e.Usuario) // 🔹 Asegurar que se incluya la relación
+     .Where(e => e.Usuario.RolId == 4) // 🔹 Filtrar solo odontólogos
+     .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
+     .ToListAsync(), "IdEmpleado", "NombreCompleto", cita.IdEmpleado);
+
 
             return View(cita);
         }
@@ -443,29 +632,39 @@ namespace WebApplication1.Controllers
                 var cita = await _context.Citas.FindAsync(id);
                 if (cita == null)
                 {
-                    Console.WriteLine($"❌ ERROR: La cita con Id={id} no fue encontrada.");
                     TempData["ErrorMessage"] = "No se encontró la cita.";
                     return RedirectToAction("Citas");
                 }
 
-                // Actualizar estado
-                cita.Estado = "Confirmada";
+                int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+                int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
 
+                var empleadoId = await _context.Empleados
+                    .Where(e => e.IdUsuario == userId)
+                    .Select(e => e.IdEmpleado)
+                    .FirstOrDefaultAsync();
+
+                if (rolID != 1 && rolID != 2 && (rolID != 4 || cita.IdEmpleado != empleadoId))
+                {
+                    TempData["ErrorMessage"] = "No tienes permiso para confirmar esta cita.";
+                    return RedirectToAction("Citas");
+                }
+
+                cita.Estado = "Confirmada";
                 _context.Entry(cita).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine($"✅ Cita con Id={id} confirmada correctamente.");
                 TempData["SuccessMessage"] = "La cita ha sido confirmada correctamente.";
-
                 return RedirectToAction("Citas");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al confirmar la cita: {ex.Message}");
                 TempData["ErrorMessage"] = "Ocurrió un error al confirmar la cita.";
                 return RedirectToAction("Citas");
             }
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> CancelarCita(int id)
@@ -496,7 +695,16 @@ namespace WebApplication1.Controllers
                     return RedirectToAction("Citas");
                 }
 
-                // Guardar motivo de cancelación y cambiar estado
+                int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+                int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
+
+                // Permitir que el doctor asignado pueda cancelar la cita
+                if (rolID != 1 && rolID != 2 && (rolID != 4 || citaExistente.IdEmpleado != userId))
+                {
+                    TempData["ErrorMessage"] = "No tienes permiso para cancelar esta cita.";
+                    return RedirectToAction("Citas");
+                }
+
                 citaExistente.Estado = "Cancelada";
                 citaExistente.Observaciones = cita.Observaciones;
                 citaExistente.Motivo = "Cancelado por: " + cita.Observaciones; // Motivo incluye observaciones
@@ -516,6 +724,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Citas");
             }
         }
+
 
 
 
