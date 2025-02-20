@@ -127,12 +127,6 @@ namespace WebApplication1.Controllers
         }
 
         [Authorize(Roles = "1,2")]
-        public IActionResult AgregarProducto()
-        {
-            return View();
-        }
-
-        [Authorize(Roles = "1,2")]
         public IActionResult AgregarServicio()
         {
             return View();

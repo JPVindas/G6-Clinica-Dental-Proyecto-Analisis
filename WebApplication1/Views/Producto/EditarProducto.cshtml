@@ -1,7 +1,7 @@
 ﻿@model WebApplication1.Models.ProductosModel
 
 @{
-    ViewData["Title"] = "Editar Producto";
+    ViewData["Title"] = "EditarProducto";
 }
 
 <h2 class="text-center">Editar Producto</h2>
@@ -19,6 +19,11 @@
             <div class="mb-3">
                 <label asp-for="Descripcion" class="form-label">Descripción</label>
                 <textarea asp-for="Descripcion" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Marca" class="form-label">Marca</label>
+                <textarea asp-for="Marca" class="form-control"></textarea>
             </div>
 
             <div class="mb-3">

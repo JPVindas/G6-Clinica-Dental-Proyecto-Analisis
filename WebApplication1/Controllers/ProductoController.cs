@@ -18,13 +18,13 @@ namespace WebApplication1.Controllers
         // ✅ FORMULARIO PARA AGREGAR PRODUCTO (GET)
         public IActionResult AgregarProducto()
         {
-            return View();
+            return View(new ProductosModel()); // Evita que Model sea null
         }
 
         // ✅ PROCESAR CREACIÓN DE PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Costo,Stock")] ProductosModel producto)
+        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Marca,Costo,Stock,UrlImagen")] ProductosModel producto)
         {
             if (ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR EDICIÓN DEL PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GuardarProductoEdicion(int id, [Bind("Id,Nombre,Descripcion,Costo,Stock")] ProductosModel producto)
+        public async Task<IActionResult> GuardarProductoEdicion(int id, [Bind("Id,Nombre,Descripcion,Marca,Costo,Stock,UrlImagen")] ProductosModel producto)
         {
             if (id != producto.Id)
             {
