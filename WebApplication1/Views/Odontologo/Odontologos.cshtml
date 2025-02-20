@@ -18,9 +18,11 @@
         : 0;
 }
 
-<div class="container mt-5">
-    <h2 class="text-center text-dark fw-bold">👨‍⚕️ Nuestro Equipo de Odontología 👩‍⚕️</h2>
-    <p class="text-center text-muted">Profesionales dedicados a tu salud bucal</p>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Conoce a Nuestro Equipo de Odontólogos</h1>
+    <p class="lead">Un equipo de especialistas dedicados a cuidar de tu sonrisa.</p>
+</div>
+
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var odontologo in Model.OrderBy(o => o.Apellidos))

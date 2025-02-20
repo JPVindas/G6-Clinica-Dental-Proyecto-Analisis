@@ -1,0 +1,50 @@
+﻿@model WebApplication1.Models.PacientesModel
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center text-dark fw-bold">✏️ Editar Perfil</h2>
+    <p class="text-center text-muted">Modifica tu información personal aquí.</p>
+
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <form asp-action="Editar" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Apellidos</label>
+                    <input asp-for="Apellidos" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input asp-for="Correo" type="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input asp-for="Telefono" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <textarea asp-for="Direccion" class="form-control"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Guardar Cambios
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

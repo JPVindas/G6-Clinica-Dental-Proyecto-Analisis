@@ -1,0 +1,217 @@
+﻿@using System.Security.Claims
+@model Tuple<WebApplication1.Models.PacientesModel, List<WebApplication1.Models.HistorialMedicoModel>, List<WebApplication1.Models.TratamientosModel>, List<WebApplication1.Models.CitasModel>>
+
+@{
+    ViewData["Title"] = "Portal del Paciente";
+    var paciente = Model.Item1;
+    var historial = Model.Item2;
+    var tratamientos = Model.Item3;
+    var citas = Model.Item4;
+
+    var userClaims = User.Claims.ToList();
+    var userRoleClaim = userClaims.FirstOrDefault(c =>
+        c.Type == "rol_id" ||
+        c.Type == ClaimTypes.Role ||
+        c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" ||
+        c.Type == "RolID" ||
+        c.Type == "UserRole"
+    );
+
+    int userRole = userRoleClaim != null ? Convert.ToInt32(userRoleClaim.Value) : 0;
+}
+
+<!-- 🔹 TÍTULO PRINCIPAL -->
+<div class="jumbotron text-center">
+    <h1 class="display-4">📂 Portal del Paciente</h1>
+    <p class="lead">Consulta toda tu información médica y gestiona tu historial con facilidad.</p>
+</div>
+
+<div class="container mt-4">
+    <!-- 🔹 INFORMACIÓN DEL PACIENTE -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem;">
+            👤 Información del Paciente
+        </div>
+        <div class="card-body">
+            <p><strong>📛 Nombre:</strong> @paciente.Nombre @paciente.Apellidos</p>
+            <p><strong>📧 Correo:</strong> @paciente.Correo</p>
+            <p><strong>📞 Teléfono:</strong> @(paciente.Telefono ?? "No registrado")</p>
+            <p><strong>🏠 Dirección:</strong> @(paciente.Direccion ?? "No registrada")</p>
+            <p><strong>📅 Fecha de Registro:</strong> @paciente.FechaRegistro.ToString("dd/MM/yyyy")</p>
+
+            @if (userRole == 1 || userRole == 2)
+            {
+                <div class="text-end">
+                    <a asp-action="Editar" class="btn btn-warning">
+                        <i class="bi bi-pencil-square"></i> Editar Perfil
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 🔹 HISTORIAL MÉDICO -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem;">
+            📋 Historial Médico
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                @foreach (var historialItem in historial)
+                {
+                    <li class="list-group-item">
+                        <strong>📅 Fecha:</strong> @historialItem.FechaActualizacion.ToString("dd/MM/yyyy")<br>
+                        <strong>📑 Diagnóstico:</strong> @historialItem.Diagnostico<br>
+                        <strong>💊 Tratamiento:</strong> @(historialItem.Tratamiento != null ? historialItem.Tratamiento.Nombre : "No asignado")
+                    </li>
+                }
+            </ul>
+
+            @if (userRole == 4)
+            {
+                <div class="mt-3 text-end">
+                    <a asp-controller="HistorialMedico" asp-action="AgregarHistorialMedico"
+                       asp-route-idPaciente="@paciente.IdPaciente"
+                       class="btn btn-success">
+                        <i class="bi bi-file-plus"></i> Agregar Historial Médico
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 🔹 HISTORIAL DE TRATAMIENTOS -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem;">
+            💊 Historial de Tratamientos
+        </div>
+        <div class="card-body">
+            <table class="table table-striped text-center">
+                <thead style="background-color: #004080; color: #FFFFFF;">
+                    <tr>
+                        <th>Tratamiento</th>
+                        <th>Servicio Relacionado</th>
+                        <th>Descripción</th>
+                        <th>Costo</th>
+                        <th>Duración Estimada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tratamiento in tratamientos)
+                    {
+                        <tr>
+                            <td>@tratamiento.Nombre</td>
+                            <td>@tratamiento.Servicio?.Nombre</td>
+                            <td>@tratamiento.Descripcion</td>
+                            <td>₡@tratamiento.Costo.ToString("N0")</td>
+                            <td>@tratamiento.DuracionEstimada</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 🔹 CITAS AGENDADAS -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem;">
+            📅 Citas Agendadas
+        </div>
+        <div class="card-body">
+            <table class="table table-striped text-center">
+                <thead style="background-color: #004080; color: #FFFFFF;">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Motivo</th>
+                        <th>Odontólogo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cita in citas)
+                    {
+                        <tr>
+                            <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@cita.Motivo</td>
+                            <td>@(cita.Empleado != null ? cita.Empleado.Nombre + " " + cita.Empleado.Apellidos : "No asignado")</td>
+                            <td>@cita.Estado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 ESTILOS MEJORADOS -->
+<style>
+    .jumbotron {
+        background-color: #f8f9fa;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: 1px solid #E6E6E6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f2f9ff;
+    }
+
+    .table-striped tbody tr:hover {
+        background-color: #e6f2ff;
+    }
+
+    .btn-primary {
+        background-color: #004080;
+        border-color: #004080;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        transition: 0.3s;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+    .btn-warning {
+        background-color: #ffc107;
+        transition: 0.3s;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        transition: 0.3s;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+</style>

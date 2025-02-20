@@ -1,0 +1,111 @@
+﻿@model WebApplication1.Models.HistorialMedicoModel
+
+@{
+    ViewData["Title"] = "Crear";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">📋 Registrar Historial Médico</h1>
+    <p class="lead">Ingrese la información del historial médico del paciente</p>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Nuevo Historial Médico
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger text-center">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form asp-action="Crear" method="post" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="IdEmpleado" /> <!-- Guardar ID del doctor autenticado -->
+
+                <div class="mb-3">
+                    <label class="form-label">Paciente</label>
+                    <select asp-for="IdPaciente" class="form-control" asp-items="ViewBag.Pacientes" required>
+                        <option value="">Seleccione un paciente</option>
+                    </select>
+                    <span class="text-danger" asp-validation-for="IdPaciente"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Doctor</label>
+                    <input type="text" class="form-control" value="@User.Identity.Name" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Diagnóstico</label>
+                    <textarea asp-for="Diagnostico" class="form-control" rows="3" placeholder="Describa el diagnóstico del paciente" required></textarea>
+                    <span class="text-danger" asp-validation-for="Diagnostico"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tratamiento</label>
+                    <select asp-for="IdTratamiento" class="form-control" asp-items="ViewBag.Tratamientos" required>
+                        <option value="">Seleccione un tratamiento</option>
+                    </select>
+                    <span class="text-danger" asp-validation-for="IdTratamiento"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Actualización</label>
+                    <input asp-for="FechaActualizacion" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" readonly>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Guardar Historial
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos personalizados -->
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: 1px solid #E6E6E6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-weight: bold;
+        color: #003366;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+</style>
+
+<!-- Importar Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

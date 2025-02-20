@@ -32,14 +32,17 @@ namespace WebApplication1.Models
 
         [Required]
         [Column("fecha_registro", TypeName = "DATE")]
-        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow.Date; // Usa UTC para evitar problemas de zona horaria
+        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow.Date;
 
-        //  Relación con UsuariosModel (Opcional, ya que no todos los pacientes tienen usuario)
+        // Relación con UsuariosModel (1 Paciente puede tener 1 Usuario)
         [ForeignKey("IdUsuario")]
         public int? IdUsuario { get; set; }
         public virtual UsuariosModel? Usuario { get; set; }
 
-        // Relación con CitasModel (1 Paciente puede tener muchas citas)
+        // 🔹 Relación con CitasModel (1 Paciente puede tener muchas citas)
         public virtual ICollection<CitasModel> Citas { get; set; } = new List<CitasModel>();
+
+        // 🔹 Relación con HistorialMedicoModel (1 Paciente puede tener múltiples historiales)
+        public virtual ICollection<HistorialMedicoModel> HistorialMedico { get; set; } = new List<HistorialMedicoModel>();
     }
 }

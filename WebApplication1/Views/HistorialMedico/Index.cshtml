@@ -1,0 +1,225 @@
+﻿@model X.PagedList.IPagedList<WebApplication1.Models.HistorialMedicoModel>
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Historial Médico";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">📁 Historial Médico</h1>
+    <p class="lead">Consulta y administra los historiales médicos de los pacientes</p>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            📋 Gestión de Historial Médico
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger text-center">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success text-center">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <!-- 🔍 Filtro de búsqueda por ID de Paciente -->
+            <form method="get" asp-action="Index" class="mb-4">
+                <div class="input-group">
+                    <select name="idPaciente" class="form-select">
+                        <option value="">-- Seleccionar Paciente --</option>
+                        @foreach (var paciente in ViewBag.Pacientes as SelectList)
+                        {
+                            <option value="@paciente.Value" selected="@(Context.Request.Query["idPaciente"] == paciente.Value)">
+                                @paciente.Text
+                            </option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-end mb-3">
+                <a asp-action="Crear" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Historial
+                </a>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <table class="table table-bordered table-hover text-center">
+                    <thead style="background-color: #004080; color: #FFFFFF;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Paciente</th>
+                            <th>Doctor</th>
+                            <th>Diagnóstico</th>
+                            <th>Tratamiento</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var historial in Model)
+                        {
+                            <tr>
+                                <td>@historial.IdHistorial</td>
+                                <td>@(historial.Paciente != null ? $"{historial.Paciente.Nombre} {historial.Paciente.Apellidos}" : "No asignado")</td>
+                                <td>@(historial.Empleado != null ? $"{historial.Empleado.Nombre} {historial.Empleado.Apellidos}" : "No asignado")</td>
+                                <td>@(historial.Diagnostico != null && historial.Diagnostico.Length > 30 ? historial.Diagnostico.Substring(0, 30) + "..." : historial.Diagnostico ?? "No disponible")</td>
+                                <td>@(historial.Tratamiento != null ? historial.Tratamiento.Nombre : "No asignado")</td>
+                                <td>@historial.FechaActualizacion.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <div class="btn-group d-flex justify-content-center gap-2">
+                                        <a asp-action="Detalles" asp-route-id="@historial.IdHistorial" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                        
+                                       
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Paginación -->
+                <div class="d-flex justify-content-center mt-3">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, idPaciente = Context.Request.Query["idPaciente"] }),
+                             new PagedListRenderOptions
+                {
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" }
+                })
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">
+                    <strong>No hay registros en el historial médico.</strong>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Importar Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<!-- Estilos personalizados -->
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: 1px solid #E6E6E6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 🔹 Tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f2f9ff !important;
+    }
+
+    th {
+        background-color: #004080;
+        color: white;
+        padding: 12px;
+    }
+
+    td {
+        padding: 10px;
+        vertical-align: middle;
+    }
+
+    /* 🔹 Botones de acción */
+    .btn-sm {
+        font-size: 13px;
+        padding: 6px 10px;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+        text-align: center;
+        border: none;
+    }
+
+    /* 🎨 Colores diferenciados */
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+    .btn-primary {
+        background-color: #004080;
+        color: white;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #003366;
+        }
+
+    /* 🔹 Paginación */
+    .pagination .page-item {
+        margin: 2px;
+    }
+
+    .pagination .page-link {
+        color: #004080 !important;
+        background-color: #fff;
+        border: 1px solid #004080;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+    }
+
+    .pagination .active .page-link {
+        background-color: #004080 !important;
+        color: white !important;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #66b2ff !important;
+        color: white !important;
+    }
+</style>

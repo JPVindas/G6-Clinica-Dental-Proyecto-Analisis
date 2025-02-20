@@ -1,0 +1,26 @@
+﻿@model WebApplication1.Models.PacientesModel
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">👤 Mi Perfil Personal</h1>
+    <p class="lead">Administra y actualiza tu información fácilmente.</p>
+</div>
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <h4 class="card-title text-primary">@Model.Nombre @Model.Apellidos</h4>
+            <p><strong>Correo:</strong> @Model.Correo</p>
+            <p><strong>Teléfono:</strong> @(Model.Telefono ?? "No registrado")</p>
+            <p><strong>Dirección:</strong> @(Model.Direccion ?? "No registrada")</p>
+            <p><strong>Fecha de Registro:</strong> @Model.FechaRegistro.ToString("dd/MM/yyyy")</p>
+
+            <a asp-action="Editar" class="btn btn-primary mt-3">
+                <i class="bi bi-pencil-square"></i> Editar Perfil
+            </a>
+        </div>
+    </div>
+</div>

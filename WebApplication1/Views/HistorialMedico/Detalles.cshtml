@@ -1,0 +1,125 @@
+﻿@model WebApplication1.Models.HistorialMedicoModel
+
+@{
+    ViewData["Title"] = "Detalles del Historial Médico";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            🏥 Detalles del Historial Médico
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+
+            <dl class="row">
+                <dt class="col-sm-4 text-end">📌 ID Historial:</dt>
+                <dd class="col-sm-8">@Model.IdHistorial</dd>
+
+                <dt class="col-sm-4 text-end">🧑 Paciente:</dt>
+                <dd class="col-sm-8">
+                    @if (Model.Paciente != null)
+                    {
+                        <span>@Model.Paciente.Nombre @Model.Paciente.Apellidos</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No asignado</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-end">👨‍⚕️ Doctor:</dt>
+                <dd class="col-sm-8">
+                    @if (Model.Empleado != null)
+                    {
+                        <span>@Model.Empleado.Nombre @Model.Empleado.Apellidos</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No asignado</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-end">💉 Tratamiento:</dt>
+                <dd class="col-sm-8">
+                    @if (Model.Tratamiento != null)
+                    {
+                        <span>@Model.Tratamiento.Nombre</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No asignado</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-end">📄 Diagnóstico:</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.Diagnostico))
+                    {
+                        <span>@Model.Diagnostico</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No disponible</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-end">📅 Fecha de Actualización:</dt>
+                <dd class="col-sm-8">@Model.FechaActualizacion.ToString("dd/MM/yyyy")</dd>
+            </dl>
+
+            <div class="text-center mt-4">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+               
+               
+               
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Importar Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<!-- Estilos personalizados -->
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: 1px solid #E6E6E6;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    dt {
+        font-weight: bold;
+        color: #004080;
+    }
+
+    dd {
+        color: #003366;
+        font-size: 1.1rem;
+    }
+
+    .btn {
+        font-weight: bold;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .btn-secondary:hover {
+        background-color: #505050;
+    }
+</style>
