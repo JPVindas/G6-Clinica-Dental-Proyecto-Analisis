@@ -14,6 +14,7 @@ namespace WebApplication1.DATA
         public DbSet<EmpleadosModel> Empleados { get; set; }
         public DbSet<CitasModel> Citas { get; set; }
         public DbSet<ServiciosModel> Servicios { get; set; }
+        public DbSet<ProductosModel> Productos { get; set; }
         public DbSet<TratamientosModel> Tratamientos { get; set; }
         public DbSet<HistorialMedicoModel> HistorialMedico { get; set; }
 
@@ -26,6 +27,7 @@ namespace WebApplication1.DATA
             modelBuilder.Entity<EmpleadosModel>().ToTable("Empleados");
             modelBuilder.Entity<CitasModel>().ToTable("Citas");
             modelBuilder.Entity<ServiciosModel>().ToTable("Servicios");
+            modelBuilder.Entity<ProductosModel>().ToTable("Productos");
             modelBuilder.Entity<TratamientosModel>().ToTable("Tratamientos");
             modelBuilder.Entity<HistorialMedicoModel>().ToTable("Historial_Medico");
 
