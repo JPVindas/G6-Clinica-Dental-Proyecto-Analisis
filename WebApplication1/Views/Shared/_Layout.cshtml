@@ -11,7 +11,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,98 +29,65 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/ClinicaSanRafael.jpg" alt="Logo Clínica San Rafael" style="height: 100px; border-radius: 5px;">
+                    <img src="~/images/ClinicaSanRafael.jpg" alt="Logo Clínica San Rafael" style="height: 80px; border-radius: 5px;">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
 
+                <div class="collapse navbar-collapse" id="navbarNav">
                     @if (User.Identity.IsAuthenticated)
                     {
                         <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Citas" asp-action="Citas">Citas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Servicio" asp-action="Servicios">Servicios</a>
-                            </li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Citas" asp-action="Citas">Citas</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Servicio" asp-action="Servicios">Servicios</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">Odontólogos</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Producto" asp-action="Productos">Productos</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Clinica">Clínica</a></li>
+                        </ul>
 
+                        <!-- 🔹 Sección derecha: Carrito + Menú de usuario -->
+                        <ul class="navbar-nav ms-auto">
+                            <!-- 🔹 Carrito de compras (siempre visible) -->
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">Odontólogos</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Producto" asp-action="Productos">Productos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Clinica">Clínica</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Cart">
+                                <a class="nav-link" asp-controller="Home" asp-action="Cart">
                                     <i class="bi bi-cart-plus-fill"></i>
-                                    <span class="badge bg-primary text-white">0</span>
+                                    <span class="badge bg-primary text-white">
+                                        @(ViewBag.CarritoItems != null ? ViewBag.CarritoItems : 0)
+                                    </span>
                                 </a>
                             </li>
 
-                            <!-- Solo Admin (1) y Secretaria (2) pueden ver estas opciones -->
-                            @if (userRole == "1" || userRole == "2")
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Usuarios" asp-action="Usuarios">Usuarios</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="GestionarDescuento">Gestión Descuentos</a>
-                                </li>
-                            }
+                            <!-- 🔹 Dropdown "Mi Cuenta" -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ⚙️ Mi Cuenta
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (userRole == "3") // Pacientes
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="MiPerfil" asp-action="MiPerfil">📄 Mi Perfil</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Portal" asp-action="Expediente">📂 Mi Portal</a></li>
+                                    }
+                                    @if (userRole == "4") // Odontólogos
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="HistorialMedico" asp-action="Index">📁 Historial Médico</a></li>
+                                    }
+                                    @if (userRole == "1" || userRole == "2") // Administradores y Secretarias
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Usuarios">👥 Usuarios</a></li>
+                                    }
+                                </ul>
+                            </li>
 
-                            <!-- Solo Pacientes (3) pueden ver estas opciones -->
-                            @if (userRole == "3")
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="MiPerfil" asp-action="MiPerfil">Mi Perfil</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Portal" asp-action="Expediente">Mi Portal</a>
-                                </li>
-                            }
-
-                            @if (userRole == "4")
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="HistorialMedico" asp-action="Index">
-                                        📁 Historial Médico
-                                    </a>
-                                </li>
-                            }
-
-
+                            <!-- 🔹 Botón "Cerrar Sesión" independiente -->
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a>
+                            </li>
                         </ul>
                     }
-
-                    <!-- Opciones de autenticación -->
-                    <ul class="navbar-nav ms-auto">
-                        @if (!User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Login">Iniciar Sesión</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Registro" asp-action="Registro">Registrarse</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Logout">Cerrar Sesión</a>
-                            </li>
-                        }
-                    </ul>
-
                 </div>
             </div>
         </nav>
