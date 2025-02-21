@@ -108,35 +108,39 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> Crear(HistorialMedicoModel historial)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                historial.FechaActualizacion = DateTime.UtcNow.Date;
-                _context.HistorialMedico.Add(historial);
-                await _context.SaveChangesAsync();
+                TempData["ErrorMessage"] = "Hay errores en el formulario.";
+                ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial.IdPaciente);
+                ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial.IdTratamiento);
+                return View(historial);
+            }
 
+            if (historial.IdTratamiento == 0)
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar un tratamiento válido.";
+                ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial.IdPaciente);
+                ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial.IdTratamiento);
+                return View(historial);
+            }
+
+            historial.FechaActualizacion = DateTime.Now.Date;
+
+            _context.HistorialMedico.Add(historial);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Historial médico creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
-
-            // Recargar listas en caso de error
-            ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial.IdPaciente);
-            ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial.IdTratamiento);
-
-            return View(historial);
-        }
-
-        // 🔹 Vista para editar un historial médico
-        [HttpGet]
-        public async Task<IActionResult> Editar(int id)
-        {
-            var historial = await _context.HistorialMedico.FindAsync(id);
-            if (historial == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Error al guardar en la base de datos: " + ex.Message;
+                return View(historial);
             }
-
-            CargarViewBags(historial);
-            return View(historial);
         }
+
 
         // 🔹 Guardar cambios en historial médico
         [HttpPost]
@@ -191,5 +195,5 @@ namespace WebApplication1.Controllers
             ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial?.IdPaciente);
             ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial?.IdTratamiento);
         }
-    }
+    } 
 }
