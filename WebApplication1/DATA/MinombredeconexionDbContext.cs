@@ -15,6 +15,7 @@ namespace WebApplication1.DATA
         public DbSet<CitasModel> Citas { get; set; }
         public DbSet<ServiciosModel> Servicios { get; set; }
         public DbSet<ProductosModel> Productos { get; set; }
+        public DbSet<InventarioModel> Inventario { get; set; }
         public DbSet<TratamientosModel> Tratamientos { get; set; }
         public DbSet<HistorialMedicoModel> HistorialMedico { get; set; }
 
@@ -28,6 +29,7 @@ namespace WebApplication1.DATA
             modelBuilder.Entity<CitasModel>().ToTable("Citas");
             modelBuilder.Entity<ServiciosModel>().ToTable("Servicios");
             modelBuilder.Entity<ProductosModel>().ToTable("Productos");
+            modelBuilder.Entity<InventarioModel>().ToTable("Inventario");
             modelBuilder.Entity<TratamientosModel>().ToTable("Tratamientos");
             modelBuilder.Entity<HistorialMedicoModel>().ToTable("Historial_Medico");
 
@@ -72,6 +74,13 @@ namespace WebApplication1.DATA
                 .WithMany(s => s.Tratamientos)
                 .HasForeignKey(t => t.IdServicio)
                 .HasConstraintName("FK_Tratamientos_Servicios");
+
+            // 🔹 Relación Inventario - Productos (Uno a muchos)
+            modelBuilder.Entity<InventarioModel>()
+                .HasOne(i => i.Producto) // Un inventario tiene un solo producto
+                .WithMany(p => p.Inventario) // Un producto puede estar en varios inventarios
+                .HasForeignKey(i => i.IdProducto) // La clave foránea en Inventario es IdProducto
+                .HasConstraintName("FK_Inventario_Producto");
 
             // 🔹 Relación Paciente - Historial Médico (1 a muchos)
             modelBuilder.Entity<HistorialMedicoModel>()

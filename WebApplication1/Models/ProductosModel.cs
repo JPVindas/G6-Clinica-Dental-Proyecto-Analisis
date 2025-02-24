@@ -30,5 +30,8 @@ namespace WebApplication1.Models
         [Column("url_imagen")] // Mapea a la columna en la BD
         public string UrlImagen { get; set; } // Nuevo campo para la URL de la imagen
 
+        // Relación con Inventario
+        public ICollection<InventarioModel> Inventario { get; set; } = new List<InventarioModel>();
+
     }
 }

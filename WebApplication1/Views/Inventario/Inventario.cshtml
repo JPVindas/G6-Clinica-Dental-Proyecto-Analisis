@@ -1,0 +1,90 @@
+﻿@model IEnumerable<WebApplication1.Models.InventarioModel>
+@{
+    ViewData["Title"] = "Gestión de Inventario";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Bienvenido al Inventario!</h1>
+    <p class="lead">Aquí podrás gestionar el inventario de productos</p>
+</div>
+
+<div class="inventory-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Gestión de Inventario
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+
+            <div class="mb-3 text-end">
+                <a asp-controller="Inventario" asp-action="Agregar" class="btn btn-primary" style="background-color: #66b2ff; color: #FFFFFF;">Agregar Inventario</a>
+            </div>
+
+            @if (Model == null || !Model.Any())
+            {
+                <div class="alert alert-warning" role="alert">
+                    No hay productos en el inventario.
+                </div>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead style="background-color: #003366; color: #FFFFFF;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre del producto</th>
+                            <th>Cantidad Actual</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id_Inventario</td>
+                                <td>@item.Producto.Nombre</td>
+                                <td>@item.Cantidad_Actual</td>
+                                <td>
+                                    <a asp-controller="Inventario" asp-action="Modificar" asp-route-id="@item.Id_Inventario" class="btn btn-sm edit-btn">Modificar</a>
+                                    <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id_Inventario" class="btn btn-sm delete-btn">Eliminar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .inventory-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        background-color: #66b2ff;
+        color: #FFFFFF;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .edit-btn:hover,
+        .delete-btn:hover {
+            background-color: #003366;
+            transform: scale(1.05);
+        }
+</style>
