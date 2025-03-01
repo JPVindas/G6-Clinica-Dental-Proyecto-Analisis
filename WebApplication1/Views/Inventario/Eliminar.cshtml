@@ -1,49 +1,48 @@
-﻿@model WebApplication1.Models.InventarioModel
+﻿@model WebApplication1.Models.ProductosModel
 
 @{
     ViewData["Title"] = "Eliminar Inventario";
 }
 
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #990000; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-            Eliminar Inventario
+        <div class="card-header text-white text-center" style="background-color: #D9534F; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Confirmar Eliminación de Producto
         </div>
-        <div class="card-body text-center" style="font-family: 'Arial', sans-serif; color: #003366;">
-            <h4>¿Estás seguro de que deseas eliminar este registro?</h4>
-            <p class="text-danger">Esta acción no se puede deshacer.</p>
+        <div class="card-body text-center" style="font-family: 'Arial', sans-serif; color: #333;">
+            <p class="lead">¿Estás seguro de que deseas eliminar este producto del inventario?</p>
 
-            <hr>
+            <table class="table table-bordered mt-3">
+                <tr>
+                    <th>ID Producto:</th>
+                    <td>@Model.Id</td>
+                </tr>
+                <tr>
+                    <th>Nombre Producto:</th>
+                    <td>@Model.Nombre</td>
+                </tr>
+                <tr>
+                    <th>Stock Actual:</th>
+                    <td>@Model.Stock</td>
+                </tr>
+            </table>
 
-            <dl class="row">
-                <dt class="col-sm-4">ID de Inventario:</dt>
-                <dd class="col-sm-8">@Model.Id_Inventario</dd>
+            <form asp-action="Eliminar" method="post">
+                @Html.AntiForgeryToken() <!-- Para proteger contra ataques CSRF -->
+                @Html.HiddenFor(model => model.Id)
 
-                <dt class="col-sm-4">Producto:</dt>
-                <dd class="col-sm-8">@Model.Producto.Nombre</dd>
-
-                <dt class="col-sm-4">Cantidad Actual:</dt>
-                <dd class="col-sm-8">@Model.Cantidad_Actual</dd>
-            </dl>
-
-            <form asp-action="Delete" method="post">
-                <input type="hidden" asp-for="Id_Inventario" />
-
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Eliminar
-                </button>
-
-                <a asp-action="Inventario" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
+                <div class="d-flex justify-content-center mt-3">
+                    <a asp-action="Index" class="btn btn-secondary me-3">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 <style>
-    .card {
-        max-width: 500px;
-        margin: auto;
+    .container {
+        max-width: 600px;
     }
 </style>
+

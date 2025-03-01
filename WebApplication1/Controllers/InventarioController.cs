@@ -1,133 +1,137 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.DATA;
-using WebApplication1.Models;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.Models;
+using WebApplication1.DATA;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-public class InventarioController : Controller
+namespace WebApplication1.Controllers
 {
-    private readonly MinombredeconexionDbContext _context;
-
-    public InventarioController(MinombredeconexionDbContext context)
+    public class InventarioController : Controller
     {
-        _context = context;
-    }
+        private readonly MinombredeconexionDbContext _context;
 
-    // GET: Inventario
-    public async Task<IActionResult> Inventario()
-    {
-        var inventario = await _context.Inventario.Include(i => i.Producto).ToListAsync();
-        return View(inventario);
-    }
-
-    // GET: Inventario/Details/5
-    public async Task<IActionResult> Details(int? id)
-    {
-        if (id == null)
-            return NotFound();
-
-        var inventario = await _context.Inventario
-            .Include(i => i.Producto)
-            .FirstOrDefaultAsync(m => m.Id_Inventario == id);
-
-        if (inventario == null)
-            return NotFound();
-
-        return View(inventario);
-    }
-
-    // GET: Inventario/Agregar
-    public IActionResult Agregar()
-    {
-        ViewBag.Productos = _context.Productos.ToList();
-        return View();
-    }
-
-    // POST: Inventario/Agregar
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Agregar([Bind("IdProducto, Cantidad_Actual")] InventarioModel inventario)
-    {
-        if (ModelState.IsValid)
+        // Constructor con inyección de dependencias
+        public InventarioController(MinombredeconexionDbContext context)
         {
-            _context.Add(inventario);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Inventario));
+            _context = context;
         }
-        ViewBag.Productos = _context.Productos.ToList();
-        return View(inventario);
-    }
 
-    // GET: Inventario/Modificar/5
-    public async Task<IActionResult> Modificar(int? id)
-    {
-        if (id == null)
-            return NotFound();
-
-        var inventario = await _context.Inventario.FindAsync(id);
-        if (inventario == null)
-            return NotFound();
-
-        return View(inventario);
-    }
-
-    // POST: Inventario/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Modificar(int id, [Bind("Cantidad_Actual")] InventarioModel inventario)
-    {
-        var inventarioDb = await _context.Inventario.FindAsync(id);
-        if (inventarioDb == null)
-            return NotFound();
-
-        if (ModelState.IsValid)
+        // GET: Inventario
+        public ActionResult Inventario()
         {
-            try
+            var productos = _context.Productos.ToList();
+            return View("Inventario", productos); // Aquí estamos asegurándonos de que se llama a la vista 'Inventario'
+        }
+
+        // GET: Inventario/Details/{id}
+        public ActionResult Detalles(int id)
+        {
+            var producto = _context.Productos.Find(id);
+            if (producto == null)
             {
-                inventarioDb.Cantidad_Actual = inventario.Cantidad_Actual;
-                _context.Update(inventarioDb);
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Inventario.Any(e => e.Id_Inventario == id))
-                    return NotFound();
-                else
-                    throw;
-            }
-            return RedirectToAction(nameof(Inventario));
+            return View("Detalles", producto); // Vista de detalles
         }
-        return View(inventarioDb);
-    }
 
-    // GET: Inventario/Eliminar/5
-    public async Task<IActionResult> Eliminar(int? id)
-    {
-        if (id == null)
-            return NotFound();
-
-        var inventario = await _context.Inventario
-            .Include(i => i.Producto)
-            .FirstOrDefaultAsync(m => m.Id_Inventario == id);
-
-        if (inventario == null)
-            return NotFound();
-
-        return View(inventario);
-    }
-
-    // POST: Inventario/Eliminar/5
-    [HttpPost, ActionName("Eliminar")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
-        var inventario = await _context.Inventario.FindAsync(id);
-        if (inventario != null)
+        public async Task<IActionResult> Editar(int? id)
         {
-            _context.Inventario.Remove(inventario);
-            await _context.SaveChangesAsync();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            return View(producto);
         }
-        return RedirectToAction(nameof(Inventario));
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Stock")] ProductosModel producto)
+        {
+            if (id != producto.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var productoExistente = await _context.Productos.FindAsync(id);
+                    if (productoExistente == null)
+                    {
+                        return NotFound();
+                    }
+
+                    productoExistente.Stock = producto.Stock;
+
+                    _context.Update(productoExistente);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Stock actualizado correctamente."; // Mensaje de éxito
+
+                    return RedirectToAction(nameof(Editar), new { id = producto.Id }); // Redirige a la misma vista "Editar"
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductoExists(producto.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return View(producto);
+        }
+
+        private bool ProductoExists(int id)
+        {
+            return _context.Productos.Any(e => e.Id == id);
+        }
+
+
+        // GET: Inventario/Eliminar/5
+        public ActionResult Eliminar(int id)
+        {
+            var producto = _context.Productos.Find(id);
+            if (producto == null)
+            {
+                return NotFound(); // Si el producto no existe, retornar 404
+            }
+
+            return View(producto); // Regresar la vista con el producto a eliminar
+        }
+
+        // POST: Inventario/Eliminar/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Eliminar(int id, IFormCollection collection)
+        {
+            var producto = _context.Productos.Find(id);
+            if (producto == null)
+            {
+                return NotFound(); // Si el producto no existe, retornar 404
+            }
+
+            // Eliminar el producto de la base de datos
+            _context.Productos.Remove(producto);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "El producto se eliminó correctamente.";
+            return RedirectToAction("Inventario"); // Redirigir al inventario después de eliminar
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<WebApplication1.Models.InventarioModel>
+﻿@model IEnumerable<WebApplication1.Models.ProductosModel>
+
 @{
     ViewData["Title"] = "Gestión de Inventario";
 }
@@ -15,10 +16,6 @@
         </div>
         <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
 
-            <div class="mb-3 text-end">
-                <a asp-controller="Inventario" asp-action="Agregar" class="btn btn-primary" style="background-color: #66b2ff; color: #FFFFFF;">Agregar Inventario</a>
-            </div>
-
             @if (Model == null || !Model.Any())
             {
                 <div class="alert alert-warning" role="alert">
@@ -32,7 +29,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre del producto</th>
-                            <th>Cantidad Actual</th>
+                            <th>Stock</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -40,12 +37,13 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.Id_Inventario</td>
-                                <td>@item.Producto.Nombre</td>
-                                <td>@item.Cantidad_Actual</td>
+                                <td>@item.Id</td>
+                                <td>@item.Nombre</td>
+                                <td>@item.Stock</td>
                                 <td>
-                                    <a asp-controller="Inventario" asp-action="Modificar" asp-route-id="@item.Id_Inventario" class="btn btn-sm edit-btn">Modificar</a>
-                                    <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id_Inventario" class="btn btn-sm delete-btn">Eliminar</a>
+                                    <!-- Asegúrate de que el enlace esté llamando a la acción EditarStock -->
+                                    <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-sm edit-btn">Modificar</a>
+                                    <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-sm delete-btn">Eliminar</a>
                                 </td>
                             </tr>
                         }
