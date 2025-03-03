@@ -62,9 +62,15 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR EDICIÓN DEL PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GuardarProductoEdicion(int id, [Bind("Id,Nombre,Descripcion,Marca,Costo,Stock,UrlImagen")] ProductosModel producto)
+        public async Task<IActionResult> GuardarProductoEdicion(int id, ProductosModel productoEditado)
         {
-            if (id != producto.Id)
+            if (id != productoEditado.Id)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
             {
                 return NotFound();
             }
@@ -73,12 +79,22 @@ namespace WebApplication1.Controllers
             {
                 try
                 {
+                    // Mostrar cambios en consola para debug
+                    Console.WriteLine($"Precio antes: {producto.Precio}, Precio nuevo: {productoEditado.Precio}");
+
+                    producto.Nombre = productoEditado.Nombre;
+                    producto.Descripcion = productoEditado.Descripcion;
+                    producto.Marca = productoEditado.Marca;
+                    producto.Precio = productoEditado.Precio; // Asegurar que realmente se actualiza
+                    producto.Stock = productoEditado.Stock;
+                    producto.UrlImagen = productoEditado.UrlImagen;
+
                     _context.Update(producto);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductoExiste(producto.Id))
+                    if (!ProductoExiste(productoEditado.Id))
                     {
                         return NotFound();
                     }
@@ -89,8 +105,9 @@ namespace WebApplication1.Controllers
                 }
                 return RedirectToAction(nameof(Productos));
             }
-            return View("EditarProducto", producto);
+            return View("EditarProducto", productoEditado);
         }
+
 
         private bool ProductoExiste(int id)
         {

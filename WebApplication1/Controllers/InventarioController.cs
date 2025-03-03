@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
 using WebApplication1.DATA;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApplication1.Controllers
 {
@@ -18,25 +18,98 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // GET: Inventario
-        public ActionResult Inventario()
+        // ✅ LISTAR INVENTARIO
+        public async Task<IActionResult> Inventario()
         {
-            var productos = _context.Productos.ToList();
-            return View("Inventario", productos); // Aquí estamos asegurándonos de que se llama a la vista 'Inventario'
+            var productos = await _context.Productos.ToListAsync();
+            return View("Inventario", productos);
         }
 
-        // GET: Inventario/Details/{id}
-        public ActionResult Detalles(int id)
+        // ✅ VER DETALLES DEL PRODUCTO
+        public async Task<IActionResult> Detalles(int? id)
         {
-            var producto = _context.Productos.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
             if (producto == null)
             {
                 return NotFound();
             }
-            return View("Detalles", producto); // Vista de detalles
+
+            return View("Detalles", producto);
         }
 
+        // ✅ FORMULARIO PARA EDITAR STOCK (GET)
         public async Task<IActionResult> Editar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            return View("Editar", producto);
+        }
+
+        // ✅ PROCESAR EDICIÓN DEL STOCK (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(int id, ProductosModel productoEditado)
+        {
+            if (id != productoEditado.Id)
+            {
+                return NotFound();
+            }
+
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // ✅ Asegurar que solo se actualiza el stock sin perder otros datos
+                    Console.WriteLine($"Stock antes: {producto.Stock}, Stock nuevo: {productoEditado.Stock}");
+
+                    producto.Stock = productoEditado.Stock; // Solo actualiza el stock
+
+                    _context.Update(producto);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Stock actualizado correctamente.";
+                    return RedirectToAction(nameof(Inventario)); // Redirigir al inventario
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductoExiste(producto.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return View("Editar", productoEditado);
+        }
+
+
+
+        // ✅ CONFIRMACIÓN PARA ELIMINAR PRODUCTO (GET)
+        public async Task<IActionResult> Eliminar(int? id)
         {
             if (id == null)
             {
@@ -52,86 +125,27 @@ namespace WebApplication1.Controllers
             return View(producto);
         }
 
-        [HttpPost]
+        // ✅ PROCESAR ELIMINACIÓN DEL PRODUCTO (POST)
+        [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Stock")] ProductosModel producto)
+        public async Task<IActionResult> EliminarConfirmado(int id)
         {
-            if (id != producto.Id)
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var productoExistente = await _context.Productos.FindAsync(id);
-                    if (productoExistente == null)
-                    {
-                        return NotFound();
-                    }
+            _context.Productos.Remove(producto);
+            await _context.SaveChangesAsync();
 
-                    productoExistente.Stock = producto.Stock;
-
-                    _context.Update(productoExistente);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Stock actualizado correctamente."; // Mensaje de éxito
-
-                    return RedirectToAction(nameof(Editar), new { id = producto.Id }); // Redirige a la misma vista "Editar"
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductoExists(producto.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            return View(producto);
+            TempData["SuccessMessage"] = "El producto se eliminó correctamente.";
+            return RedirectToAction(nameof(Inventario));
         }
 
-        private bool ProductoExists(int id)
+        private bool ProductoExiste(int id)
         {
             return _context.Productos.Any(e => e.Id == id);
         }
-
-
-        // GET: Inventario/Eliminar/5
-        public ActionResult Eliminar(int id)
-        {
-            var producto = _context.Productos.Find(id);
-            if (producto == null)
-            {
-                return NotFound(); // Si el producto no existe, retornar 404
-            }
-
-            return View(producto); // Regresar la vista con el producto a eliminar
-        }
-
-        // POST: Inventario/Eliminar/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Eliminar(int id, IFormCollection collection)
-        {
-            var producto = _context.Productos.Find(id);
-            if (producto == null)
-            {
-                return NotFound(); // Si el producto no existe, retornar 404
-            }
-
-            // Eliminar el producto de la base de datos
-            _context.Productos.Remove(producto);
-            _context.SaveChanges();
-
-            TempData["SuccessMessage"] = "El producto se eliminó correctamente.";
-            return RedirectToAction("Inventario"); // Redirigir al inventario después de eliminar
-        }
-
     }
 }

@@ -21,8 +21,9 @@ namespace WebApplication1.Models
         public string Marca { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+        [Column("precio", TypeName = "decimal(10,2)")] // Asegurar que mapea bien
         public decimal Precio { get; set; }
+
 
         public int Stock { get; set; }
 
