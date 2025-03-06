@@ -24,7 +24,7 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR CREACIÓN DE PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Marca,Costo,Stock,UrlImagen")] ProductosModel producto)
+        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Marca,Precio,Stock,UrlImagen")] ProductosModel producto)
         {
             if (ModelState.IsValid)
             {
@@ -34,6 +34,7 @@ namespace WebApplication1.Controllers
             }
             return View(producto);
         }
+
 
         // ✅ LISTAR TODOS LOS PRODUCTOS
         public async Task<IActionResult> Productos()

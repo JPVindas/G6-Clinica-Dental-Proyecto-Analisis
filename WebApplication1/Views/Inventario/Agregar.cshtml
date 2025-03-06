@@ -7,7 +7,7 @@
 <div class="container mt-4">
     <h2 class="text-center text-primary">Agregar Nuevo Producto</h2>
 
-    <form asp-action="AgregarProducto" method="post">
+    <form asp-action="Agregar" method="post">
         <div class="mb-3">
             <label asp-for="Nombre" class="form-label">Nombre del Producto</label>
             <input asp-for="Nombre" class="form-control" required>
@@ -25,7 +25,7 @@
 
         <div class="mb-3">
             <label asp-for="Precio" class="form-label">Precio</label>
-            <input asp-for="Precio" type="number" class="form-control" required>
+            <input asp-for="Precio" type="number" class="form-control"  required>
         </div>
 
         <div class="mb-3">

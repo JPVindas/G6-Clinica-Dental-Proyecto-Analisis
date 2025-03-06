@@ -18,6 +18,27 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
+        // ✅ FORMULARIO PARA AGREGAR PRODUCTO (GET)
+        public IActionResult Agregar()
+        {
+            return View(new ProductosModel()); // Evita que Model sea null
+        }
+
+        // ✅ PROCESAR CREACIÓN DE PRODUCTO (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Agregar([Bind("Nombre,Descripcion,Marca,Precio,Stock,UrlImagen")] ProductosModel producto)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Productos.Add(producto);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Inventario));
+            }
+            return View(producto);
+        }
+
+
         // ✅ LISTAR INVENTARIO
         public async Task<IActionResult> Inventario()
         {
