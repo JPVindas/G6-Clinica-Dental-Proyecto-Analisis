@@ -21,11 +21,10 @@
 </div>
 
 <div class="container mt-4">
-    <!-- Botón para agregar servicio (solo roles 1 y 2) - CENTRADO -->
     @if (userRole == "1" || userRole == "2")
     {
         <div class="mb-4 d-flex justify-content-center">
-            <a asp-action="Agregar" class="btn btn-success btn-lg">
+            <a asp-action="Agregar" class="btn btn-success btn-md w-100">
                 <i class="bi bi-plus-circle"></i> Agregar Servicio
             </a>
         </div>
@@ -35,30 +34,26 @@
         @foreach (var servicio in Model)
         {
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card shadow-lg">
+                <div class="card shadow-lg h-100">
                     <img src="@Url.Content(servicio.UrlImagen)" class="card-img-top" alt="@servicio.Nombre" style="height: 200px; object-fit: cover;">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">@servicio.Nombre</h5>
                         <p class="card-text text-muted">@servicio.Descripcion</p>
                         <p class="fw-bold text-primary">₡@servicio.Costo.ToString("N0")</p>
-
-                        <!-- Botón Agregar al Carrito -->
-                        <button class="btn btn-primary add-to-cart"
+                        <button class="btn btn-primary btn-md w-100 add-to-cart"
                                 data-id="@servicio.Id"
                                 data-name="@servicio.Nombre"
                                 data-price="@servicio.Costo"
                                 data-image="@Url.Content(servicio.UrlImagen)">
                             <i class="bi bi-cart-plus-fill"></i> Agregar al Carrito
                         </button>
-
-                        <!-- Mostrar botones de Editar y Eliminar SOLO para roles 1 o 2 -->
                         @if (userRole == "1" || userRole == "2")
                         {
-                            <div class="mt-2">
-                                <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-sm">
+                            <div class="mt-2 d-flex justify-content-between">
+                                <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-md w-50 me-2">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
-                                <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-sm"
+                                <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-md w-50"
                                    onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </a>
@@ -93,42 +88,28 @@
 
     .btn {
         transition: 0.3s;
+        border-width: 2px;
     }
 
     .btn-primary {
-        background-color: #66b2ff;
-        color: #fff;
+        background-color: #007bff !important;
+        color: white !important;
     }
 
-        .btn-primary:hover {
-            background-color: #003366;
-            transform: scale(1.05);
-        }
+    .btn-warning {
+        background-color: #ffc107 !important;
+        color: white !important;
+    }
 
     .btn-danger {
-        background-color: #dc3545;
-        color: #fff;
+        background-color: #dc3545 !important;
+        color: white !important;
     }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-            transform: scale(1.05);
-        }
 
     .btn-success {
-        background-color: #28a745;
-        color: white;
-    }
-
-        .btn-success:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-        }
-
-    .bi-cart-plus-fill {
-        margin-right: 5px;
+        background-color: #28a745 !important;
+        color: white !important;
     }
 </style>
 
-<!-- Importar Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

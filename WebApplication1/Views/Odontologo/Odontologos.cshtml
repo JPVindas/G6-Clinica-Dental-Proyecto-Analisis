@@ -23,7 +23,7 @@
     <p class="lead">Un equipo de especialistas dedicados a cuidar de tu sonrisa.</p>
 </div>
 
-
+<div class="container mt-4">
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var odontologo in Model.OrderBy(o => o.Apellidos))
         {
@@ -45,29 +45,24 @@
                         <p class="text-muted"><i class="bi bi-briefcase-fill"></i> @odontologo.Especialidad</p>
                         <p class="text-success fw-bold"><i class="bi bi-award-fill"></i> @odontologo.Experiencia años de experiencia</p>
 
-                        <div class="d-flex justify-content-center gap-2 mt-2">
-                            <!-- Botón para Agendar Cita (con texto) -->
+                        <div class="d-flex flex-column align-items-center gap-2 mt-2">
                             <a asp-controller="Citas" asp-action="CrearCita"
                                asp-route-idPaciente="@userId"
                                asp-route-idDoctor="@odontologo.IdEmpleado"
-                               class="btn btn-agendar btn-sm text-white shadow btn-uniform-text">
+                               class="btn btn-primary btn-md w-75">
                                 <i class="bi bi-calendar-check"></i> Agendar Cita
                             </a>
-
-                            @if (userRole == 1 || userRole == 2) // Solo admin y secretario pueden editar y eliminar
+                            @if (userRole == 1 || userRole == 2)
                             {
-                                <!-- Botón Editar (Solo Icono) -->
-                                <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-editar btn-sm text-white shadow btn-uniform">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </a>
-
-                                <!-- Botón Eliminar (Solo Icono) -->
-                                <form asp-action="Eliminar" asp-route-id="@odontologo.IdEmpleado" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-eliminar btn-sm text-white shadow btn-uniform"
-                                            onclick="return confirm('¿Estás seguro de que deseas eliminar este odontólogo?');">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
+                                <div class="d-flex gap-2 w-75">
+                                    <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-warning btn-md w-50">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Eliminar" asp-route-id="@odontologo.IdEmpleado" class="btn btn-danger btn-md w-50"
+                                       onclick="return confirm('¿Estás seguro de que deseas eliminar este odontólogo?');">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             }
                         </div>
                     </div>
@@ -118,7 +113,6 @@
         color: #007bff;
     }
 
-    /* 🔹 Botones uniformes de Editar y Eliminar (Solo icono) */
     .btn-uniform {
         width: 40px;
         height: 40px;
@@ -131,7 +125,6 @@
         transition: 0.3s ease-in-out;
     }
 
-    /* 🔹 Botón Agendar Cita (Con texto) */
     .btn-uniform-text {
         width: auto;
         padding: 6px 14px;
@@ -141,41 +134,20 @@
         transition: 0.3s ease-in-out;
     }
 
-    /* 🔹 Botón Agendar Cita - Verde azulado */
-    .btn-agendar {
-        background-color: #17A589;
-        color: white;
-        border: none;
+    .btn-primary {
+        background-color: #007bff !important;
+        color: white !important;
     }
 
-        .btn-agendar:hover {
-            background-color: #138D75;
-            transform: scale(1.05);
-        }
-
-    /* 🔹 Botón Editar - Azul eléctrico */
-    .btn-editar {
-        background-color: #2E86C1;
-        color: white;
-        border: none;
+    .btn-warning {
+        background-color: #ffc107 !important;
+        color: white !important;
     }
 
-        .btn-editar:hover {
-            background-color: #21618C;
-            transform: scale(1.05);
-        }
-
-    /* 🔹 Botón Eliminar - Rojo intenso */
-    .btn-eliminar {
-        background-color: #E74C3C;
-        color: white;
-        border: none;
+    .btn-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
     }
-
-        .btn-eliminar:hover {
-            background-color: #C0392B;
-            transform: scale(1.05);
-        }
 
     .col {
         display: flex;

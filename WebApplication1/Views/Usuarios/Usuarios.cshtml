@@ -13,14 +13,14 @@
 
 <div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Poppins', sans-serif;">
             Gestión de Usuarios
         </div>
-        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+        <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
 
             <!-- Botón Agregar Usuario -->
             <div class="mb-3 text-center">
-                <a asp-controller="Usuarios" asp-action="AgregarUsuario" class="btn btn-success btn-lg">
+                <a asp-controller="Usuarios" asp-action="AgregarUsuario" class="btn btn-success btn-lg w-100">
                     <i class="bi bi-person-plus-fill"></i> Agregar Usuario
                 </a>
             </div>
@@ -71,10 +71,10 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center">
+                                    <div class="d-flex justify-content-center gap-2">
                                         <!-- Botón Modificar -->
-                                        <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-warning btn-sm mx-1">
-                                            <i class="bi bi-pencil-square"></i> Modificar
+                                        <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-warning btn-md btn-action">
+                                            <i class="bi bi-pencil-square text-white"></i>
                                         </a>
 
                                         @if (item.Archivado)
@@ -83,8 +83,8 @@
                                             <form asp-action="ReactivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas activar este usuario?');">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="btn btn-success btn-sm mx-1">
-                                                    <i class="bi bi-check-circle"></i> Activar
+                                                <button type="submit" class="btn btn-success btn-md btn-action">
+                                                    <i class="bi bi-check-circle"></i>
                                                 </button>
                                             </form>
                                         }
@@ -94,8 +94,8 @@
                                             <form asp-action="ArchivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas archivar este usuario?');">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="btn btn-archivar btn-sm mx-1">
-                                                    <i class="bi bi-archive archive-icon"></i> Archivar
+                                                <button type="submit" class="btn btn-danger btn-md btn-action">
+                                                    <i class="bi bi-archive-fill"></i>
                                                 </button>
                                             </form>
                                         }
@@ -142,87 +142,45 @@
         transition: 0.3s;
     }
 
-    .btn-success {
-        background-color: #28a745;
-        color: white;
+    .btn-action {
+        width: 90px;
+        height: 40px;
     }
 
-        .btn-success:hover {
-            background-color: #218838;
-            transform: scale(1.05);
-        }
+    .btn-success {
+        background-color: #198754 !important;
+        color: white !important;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
 
     .btn-warning {
-        background-color: #ffc107;
-        color: #212529;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-            transform: scale(1.05);
-        }
-
-    .btn-archivar {
-        background-color: #0056b3;
-        color: white;
-    }
-
-        .btn-archivar:hover {
-            background-color: #003366;
-            transform: scale(1.05);
-        }
-
-    .archive-icon {
-        color: white;
+        background-color: #ffc107 !important;
+        color: white !important;
     }
 
     .btn-danger {
-        background-color: #dc3545;
-        color: white;
+        background-color: #dc3545 !important;
+        color: white !important;
     }
 
-        .btn-danger:hover {
-            background-color: #c82333;
-            transform: scale(1.05);
-        }
-
-    .bi {
-        margin-right: 5px;
+    .pagination .page-link {
+        color: #003366 !important;
+        background-color: #fff;
+        border: 1px solid #003366;
+        padding: 8px 12px;
+        font-size: 16px;
+        font-weight: bold;
     }
 
-    .pagination {
-        display: flex;
-        justify-content: center;
-        padding-left: 0;
-        list-style: none;
-        border-radius: 0.25rem;
+    .pagination .active .page-link {
+        background-color: #003366 !important;
+        color: white !important;
+        border: 1px solid #003366;
     }
-
-        .pagination .page-item {
-            margin: 2px;
-        }
-
-        .pagination .page-link {
-            color: #003366 !important;
-            background-color: #fff;
-            border: 1px solid #003366;
-            padding: 8px 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .pagination .active .page-link {
-            background-color: #003366 !important;
-            color: white !important;
-            border: 1px solid #003366;
-        }
-
-        .pagination .page-link:hover {
-            background-color: #66b2ff !important;
-            color: white !important;
-            border: 1px solid #003366;
-        }
 </style>
 
-<!-- Importar Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
