@@ -35,6 +35,7 @@
                     <span class="text-danger" asp-validation-for="IdPaciente"></span>
                 </div>
 
+
                 <div class="mb-3">
                     <label class="form-label">Doctor</label>
                     <input type="text" class="form-control" value="@User.Identity.Name" readonly />
@@ -46,7 +47,7 @@
                     <span class="text-danger" asp-validation-for="Diagnostico"></span>
                 </div>
 
-                <<div class="mb-3">
+                <div class="mb-3">
                     <label class="form-label">Tratamiento</label>
                     <select asp-for="IdTratamiento" class="form-control" asp-items="ViewBag.Tratamientos" required>
                         <option value="">Seleccione un tratamiento</option>

@@ -71,7 +71,6 @@ namespace WebApplication1.Controllers
         [Authorize]
         public IActionResult Crear()
         {
-            // Obtener usuario autenticado
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("UserID");
             if (userIdClaim == null)
             {
@@ -81,7 +80,6 @@ namespace WebApplication1.Controllers
 
             int userId = Convert.ToInt32(userIdClaim.Value);
 
-            // Buscar el doctor autenticado
             var empleado = _context.Empleados.FirstOrDefault(e => e.IdUsuario == userId);
             if (empleado == null)
             {
@@ -89,19 +87,24 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Cargar listas de pacientes y tratamientos
-            ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre");
+            // 🔹 Modificación para mostrar Nombre + Apellidos en el dropdown de pacientes
+            ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new
+            {
+                IdPaciente = p.IdPaciente,
+                NombreCompleto = p.Nombre + " " + p.Apellidos
+            }), "IdPaciente", "NombreCompleto");
+
             ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre");
 
-            // Modelo prellenado con el doctor autenticado
             var nuevoHistorial = new HistorialMedicoModel
             {
-                IdEmpleado = empleado.IdEmpleado, // Asigna automáticamente el doctor autenticado
+                IdEmpleado = empleado.IdEmpleado,
                 FechaActualizacion = DateTime.UtcNow
             };
 
             return View(nuevoHistorial);
         }
+
 
         // 🔹 Guardar nuevo historial médico
         [HttpPost]
@@ -111,7 +114,14 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["ErrorMessage"] = "Hay errores en el formulario.";
-                ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial.IdPaciente);
+
+                // 🔹 Modificación para que el select de pacientes mantenga el nombre completo al recargar la página
+                ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new
+                {
+                    IdPaciente = p.IdPaciente,
+                    NombreCompleto = p.Nombre + " " + p.Apellidos
+                }), "IdPaciente", "NombreCompleto", historial.IdPaciente);
+
                 ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial.IdTratamiento);
                 return View(historial);
             }
@@ -119,13 +129,18 @@ namespace WebApplication1.Controllers
             if (historial.IdTratamiento == 0)
             {
                 TempData["ErrorMessage"] = "Debe seleccionar un tratamiento válido.";
-                ViewBag.Pacientes = new SelectList(_context.Pacientes, "IdPaciente", "Nombre", historial.IdPaciente);
+
+                ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new
+                {
+                    IdPaciente = p.IdPaciente,
+                    NombreCompleto = p.Nombre + " " + p.Apellidos
+                }), "IdPaciente", "NombreCompleto", historial.IdPaciente);
+
                 ViewBag.Tratamientos = new SelectList(_context.Tratamientos, "IdTratamiento", "Nombre", historial.IdTratamiento);
                 return View(historial);
             }
 
             historial.FechaActualizacion = DateTime.Now.Date;
-
             _context.HistorialMedico.Add(historial);
 
             try

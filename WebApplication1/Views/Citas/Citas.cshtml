@@ -151,9 +151,11 @@
 
             @if (rolID == 1 || rolID == 2 || rolID == 3 || rolID == 4)
             {
-                <a asp-action="CrearCita" class="btn btn-primary w-100 mt-3">
+                <a asp-action="CrearCita" class="btn btn-success w-100 mt-3" style="padding: 12px 20px; font-size: 18px;">
                     <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
                 </a>
+
+
             }
         </div>
     </div>
@@ -248,14 +250,55 @@
             background-color: #e0a800;
         }
 
+    .btn-success.w-100 {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 12px 20px !important;
+        font-size: 18px !important;
+    }
+
+
     .btn-success {
-        background-color: #28A745;
-        color: white;
+        background-color: #28A745 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .btn-success {
+        background-color: #28A745 !important;
+        color: white !important;
+        border: none !important;
     }
 
         .btn-success:hover {
-            background-color: #218838;
+            background-color: #28A745 !important;
+            color: white !important;
         }
+
+    .btn-primary:hover {
+        background-color: #003366 !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background-color: #FFC107;
+        color: #212529;
+    }
+
+        .btn-warning:hover {
+            background-color: #FFC107 !important;
+            color: #212529 !important;
+        }
+
+    .btn:hover,
+    .btn-primary:hover,
+    .btn-warning:hover,
+    .btn-danger:hover,
+    .btn-outline-danger:hover {
+        background-color: inherit !important;
+        color: inherit !important;
+    }
 
     .btn-danger {
         background-color: #DC3545;
