@@ -31,5 +31,7 @@ namespace WebApplication1.Models
         [Column("url_imagen")] // Mapea a la columna en la BD
         public string UrlImagen { get; set; } // Nuevo campo para la URL de la imagen
 
+        public bool estado { get; set; } = true; // ⚠️ Activo por defecto
+
     }
 }

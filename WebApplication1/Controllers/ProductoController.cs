@@ -39,7 +39,9 @@ namespace WebApplication1.Controllers
         // ✅ LISTAR TODOS LOS PRODUCTOS
         public async Task<IActionResult> Productos()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var productos = await _context.Productos
+                .Where(p => p.estado) // Solo productos activos
+                .ToListAsync();
             return View("Productos", productos);
         }
 
@@ -140,12 +142,13 @@ namespace WebApplication1.Controllers
             var producto = await _context.Productos.FindAsync(id);
             if (producto != null)
             {
-                _context.Productos.Remove(producto);
+                producto.estado = false; // ⚠️ Cambiar estado en lugar de eliminar
+                _context.Update(producto);
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Productos));
         }
-    }
 
+    }
 }

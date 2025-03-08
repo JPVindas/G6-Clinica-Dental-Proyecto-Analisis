@@ -42,7 +42,9 @@ namespace WebApplication1.Controllers
         // ✅ LISTAR INVENTARIO
         public async Task<IActionResult> Inventario()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var productos = await _context.Productos
+                .Where(p => p.estado) // Solo productos activos
+                .ToListAsync();
             return View("Inventario", productos);
         }
 
@@ -146,7 +148,7 @@ namespace WebApplication1.Controllers
             return View(producto);
         }
 
-        // ✅ PROCESAR ELIMINACIÓN DEL PRODUCTO (POST)
+        // ✅ PROCESAR ELIMINACIÓN DEL PRODUCTO (CAMBIA A INACTIVO)
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarConfirmado(int id)
@@ -157,10 +159,12 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            _context.Productos.Remove(producto);
+            // ⚠️ En lugar de eliminar, cambiamos el estado a inactivo
+            producto.estado = false;
+            _context.Update(producto);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "El producto se eliminó correctamente.";
+            TempData["SuccessMessage"] = "El producto se ha marcado como inactivo.";
             return RedirectToAction(nameof(Inventario));
         }
 
