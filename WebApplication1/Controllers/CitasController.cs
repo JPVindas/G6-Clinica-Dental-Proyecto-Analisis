@@ -23,7 +23,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Citas(int? page)
         {
             int pageNumber = page ?? 1;
-            int pageSize = 8;
+            int pageSize = 5;
 
             string userIdClaim = User.FindFirst("UserID")?.Value;
             string rolIdClaim = User.FindFirst("RolID")?.Value;

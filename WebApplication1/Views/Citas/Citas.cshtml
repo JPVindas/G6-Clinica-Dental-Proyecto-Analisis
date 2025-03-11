@@ -151,9 +151,10 @@
 
             @if (rolID == 1 || rolID == 2 || rolID == 3 || rolID == 4)
             {
-                <a asp-action="CrearCita" class="btn btn-success w-100 mt-3" style="padding: 12px 20px; font-size: 18px;">
+                <a asp-action="CrearCita" class="btn btn-success w-100 mt-3 custom-btn">
                     <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
                 </a>
+
 
 
             }
@@ -164,24 +165,110 @@
 
 
 <style>
-    .container {
-        margin-top: 20px;
+    /* 🔹 Botón "Agendar Nueva Cita" */
+    .custom-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 24px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        background-color: #28A745 !important;
+        color: white !important;
+        border: none !important;
     }
 
-    .card {
-        border-radius: 12px;
-        border: 1px solid #E6E6E6;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        .custom-btn i {
+            font-size: 22px;
+            margin-right: 8px;
+        }
+
+        .custom-btn:hover {
+            background-color: #28A745 !important;
+            color: white !important;
+        }
+
+    /* 🔹 Estilos para los botones dentro de la tabla */
+    .btn-sm {
+        font-size: 13px;
+        width: 75px;
+        height: 30px;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: all 0.2s ease-in-out;
+        text-align: center;
+        border: none;
     }
+
+        /* 🔹 Íconos dentro de los botones */
+        .btn-sm i {
+            font-size: 14px;
+            margin-right: 4px;
+        }
+
+    /* 🔹 Botón Editar (Amarillo) con ícono blanco */
+    .btn-warning {
+        background-color: #FFC107 !important;
+        color: white !important;
+    }
+
+        .btn-warning i {
+            color: white !important; /* Ícono blanco */
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800 !important;
+            color: white !important;
+        }
+
+    /* 🔹 Botón Confirmar (Verde) */
+    .btn-success {
+        background-color: #28A745 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #218838 !important;
+            color: white !important;
+        }
+
+    /* 🔹 Botón Cancelar (Rojo) */
+    .btn-danger {
+        background-color: #DC3545 !important;
+        color: white !important;
+    }
+
+        .btn-danger:hover {
+            background-color: #C82333 !important;
+            color: white !important;
+        }
+
+    /* 🔹 Botón Eliminar (Blanco con Ícono Rojo) */
+    .btn-outline-danger {
+        border: 1.5px solid #DC3545 !important;
+        color: #DC3545 !important;
+        background-color: transparent !important;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: white !important;
+            color: #DC3545 !important;
+        }
+
+            /* 🔹 Ícono del botón de Eliminar en hover */
+            .btn-outline-danger:hover i {
+                color: #DC3545 !important;
+            }
 
     /* 🔹 Tabla */
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
     .table-hover tbody tr:hover {
-        background-color: #e6f2ff !important; /* Azul claro al pasar el mouse */
+        background-color: #e6f2ff !important;
     }
 
     th {
@@ -218,130 +305,11 @@
             color: #FFFFFF;
         }
 
-    /* 🔹 Botones de acción */
-    .btn-sm {
-        font-size: 13px; /* Tamaño de fuente uniforme */
-        width: 75px; /* Ancho compacto */
-        height: 30px; /* Altura más reducida */
-        padding: 4px 8px; /* Padding más ajustado */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        border-radius: 6px;
-        transition: all 0.2s ease-in-out;
-        text-align: center;
-        border: none; /* Eliminar bordes extra */
-    }
-
-        /* Íconos dentro de los botones */
-        .btn-sm i {
-            font-size: 14px;
-            margin-right: 4px;
-        }
-
-    /* 🎨 Botones con colores diferenciados */
-    .btn-warning {
-        background-color: #FFC107;
-        color: #212529;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-    .btn-success.w-100 {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 12px 20px !important;
-        font-size: 18px !important;
-    }
-
-
-    .btn-success {
-        background-color: #28A745 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-    .btn-success {
-        background-color: #28A745 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-        .btn-success:hover {
-            background-color: #28A745 !important;
-            color: white !important;
-        }
-
-    .btn-primary:hover {
-        background-color: #003366 !important;
-        color: white !important;
-    }
-
-    .btn-warning {
-        background-color: #FFC107;
-        color: #212529;
-    }
-
-        .btn-warning:hover {
-            background-color: #FFC107 !important;
-            color: #212529 !important;
-        }
-
-    .btn:hover,
-    .btn-primary:hover,
-    .btn-warning:hover,
-    .btn-danger:hover,
-    .btn-outline-danger:hover {
-        background-color: inherit !important;
-        color: inherit !important;
-    }
-
-    .btn-danger {
-        background-color: #DC3545;
-        color: white;
-    }
-
-        .btn-danger:hover {
-            background-color: #C82333;
-        }
-
-    /* 🔹 Botón Eliminar con borde más pequeño */
-    .btn-outline-danger {
-        border: 1.5px solid #DC3545;
-        color: #DC3545;
-        background-color: transparent;
-    }
-
-        .btn-outline-danger:hover {
-            background-color: #DC3545;
-            color: white;
-        }
-
-    /* 🔹 Botón de Crear Nueva Cita */
-    .btn-primary {
-        background-color: #003366;
-        color: white;
-        border: none;
-    }
-
-        .btn-primary:hover {
-            background-color: #002855;
-        }
-
     /* 🔹 Grupo de Botones */
     .btn-group {
         display: flex;
-        gap: 4px; /* Menos separación entre botones */
+        gap: 4px;
         justify-content: center;
-    }
-
-    /* 🔹 Íconos */
-    .bi {
-        margin-right: 3px; /* Espaciado menor entre icono y texto */
     }
 
     /* 🔹 Paginación */
@@ -370,7 +338,7 @@
         color: white !important;
     }
 
-    /* Uniformidad en los botones */
+    /* 🔹 Uniformidad en los botones */
     .btn-warning,
     .btn-success,
     .btn-danger,
@@ -378,6 +346,9 @@
         min-width: 75px;
         height: 30px;
     }
+
+
+
 </style>
 
 
