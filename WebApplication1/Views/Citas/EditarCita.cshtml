@@ -4,11 +4,13 @@
     ViewData["Title"] = "Editar Cita";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white text-center">
-            <h3>Editar Cita</h3>
-        </div>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Reprogramar Cita</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
         <div class="card-body">
             @if (TempData["SuccessMessage"] != null)
             {
@@ -66,7 +68,8 @@
                     <span asp-validation-for="Estado" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary">Cancelar</a>
             </form>
 
 
@@ -74,12 +77,3 @@
     </div>
 </div>
 
-<style>
-    .container {
-        max-width: 600px;
-    }
-
-    .card {
-        border-radius: 10px;
-    }
-</style>

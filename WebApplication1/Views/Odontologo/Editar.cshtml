@@ -4,8 +4,13 @@
     ViewData["Title"] = "Editar Odontólogo";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center text-primary fw-bold"><i class="bi bi-person-lines-fill"></i> Editar Odontólogo</h2>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Editar Odontologo</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
 
     @if (TempData["ErrorMessage"] != null)
     {
@@ -65,7 +70,7 @@
 
         <div class="d-flex justify-content-center gap-3">
             <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle-fill"></i> Guardar Cambios
+                <i class="bi bi-check-circle-fill"></i> Guardar
             </button>
             <a asp-action="Odontologos" class="btn btn-secondary">
                 <i class="bi bi-arrow-left-circle-fill"></i> Cancelar
@@ -76,18 +81,7 @@
 
 <!-- Estilos personalizados -->
 <style>
-    .container {
-        max-width: 600px;
-    }
 
-    .card {
-        border-radius: 12px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
         }
 
     .btn {
@@ -114,10 +108,6 @@
 
 <!-- Estilos personalizados -->
 <style>
-    .container {
-        max-width: 600px;
-    }
-
     .card {
         border-radius: 12px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;

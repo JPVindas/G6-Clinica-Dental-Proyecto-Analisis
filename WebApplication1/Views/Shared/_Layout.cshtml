@@ -26,10 +26,10 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-custom border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/ClinicaSanRafael.jpg" alt="Logo Clínica San Rafael" style="height: 80px; border-radius: 5px;">
+                    <img src="~/images/imageedit_3_4448582679.png" alt="Logo Clínica San Rafael" style="height: 80px; border-radius: 5px;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Cart">
                                     <i class="bi bi-cart-plus-fill"></i>
-                                    <span class="badge bg-primary text-white">
+                                    <span class="badge bg-danger text-white">
                                         @(ViewBag.CarritoItems != null ? ViewBag.CarritoItems : 0)
                                     </span>
                                 </a>
@@ -62,7 +62,7 @@
 
                             <!-- 🔹 Dropdown "Mi Cuenta" -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     ⚙️ Mi Cuenta
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -80,13 +80,17 @@
                                         <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Usuarios">👥 Usuarios</a></li>
                                         <li><a class="dropdown-item" asp-controller="Inventario" asp-action="Inventario">📝 Inventario</a></li>
                                     }
+                                    @if (userRole == "1" || userRole == "2" || userRole == "3" || userRole == "4") // Administradores y Secretarias
+                                    {
+                                        <!-- 🔹 Botón "Cerrar Sesión" independiente -->
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a>
+                                        </li>
+                                    }
                                 </ul>
                             </li>
 
-                            <!-- 🔹 Botón "Cerrar Sesión" independiente -->
-                            <li class="nav-item">
-                                <a class="nav-link text-danger fw-bold" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a>
-                            </li>
+                            
                         </ul>
                     }
                 </div>
@@ -102,8 +106,8 @@
 
     <footer style="background-color: #003366; color: white; padding: 20px;">
         <div class="container text-center">
-            <p>&copy; 2024 - Clínica San Rafael</p>
-            <p>Calle 123, San Rafael, Costa Rica | Teléfono: <a href="tel:+506 85624198" style="color: #66b2ff;">+506 8562-4198</a></p>
+            <p>&copy; 2025 - Clínica San Rafael</p>
+            <p>C. Impresora Delta, San Rafael, Costa Rica | Teléfono: <a href="tel:+506 85624198" style="color: #66b2ff;">+506 8562-4198</a></p>
             <div class="social-icons mt-3">
                 <a href="https://www.instagram.com" target="_blank" class="text-white mx-2 fs-4">
                     <i class="bi bi-instagram"></i>

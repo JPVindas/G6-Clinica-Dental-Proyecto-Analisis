@@ -40,12 +40,26 @@ namespace WebApplication1.Controllers
 
 
         // ✅ LISTAR INVENTARIO
-        public async Task<IActionResult> Inventario()
+        public async Task<IActionResult> Inventario(string estadoFiltro)
         {
-            var productos = await _context.Productos
-                .Where(p => p.estado) // Solo productos activos
-                .ToListAsync();
-            return View("Inventario", productos);
+            var productos = _context.Productos.AsQueryable();
+
+            // Filtrar por estado si se especifica
+            if (!string.IsNullOrEmpty(estadoFiltro))
+            {
+                if (estadoFiltro == "Activo")
+                {
+                    productos = productos.Where(p => p.estado == true); // Filtra solo productos activos
+                }
+                else if (estadoFiltro == "Inactivo")
+                {
+                    productos = productos.Where(p => p.estado == false); // Filtra solo productos inactivos
+                }
+            }
+
+            // Obtener la lista de productos con el filtro aplicado
+            var productoList = await productos.ToListAsync();
+            return View("Inventario", productoList);
         }
 
         // ✅ VER DETALLES DEL PRODUCTO
@@ -163,14 +177,36 @@ namespace WebApplication1.Controllers
             producto.estado = false;
             _context.Update(producto);
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "El producto se ha marcado como inactivo.";
             return RedirectToAction(nameof(Inventario));
         }
 
         private bool ProductoExiste(int id)
         {
             return _context.Productos.Any(e => e.Id == id);
+        }
+
+        [HttpPost, ActionName("Activar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivarConfirmado(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            // Verificamos si el producto ya está activo
+            if (producto.estado == true)
+            {
+                return RedirectToAction(nameof(Inventario)); // Redirige a Inventario si ya está activo
+            }
+
+            // Cambiamos el estado a activo
+            producto.estado = true;
+            _context.Update(producto);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Inventario)); // Redirige a Inventario después de la activación
         }
     }
 }

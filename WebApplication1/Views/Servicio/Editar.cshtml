@@ -4,10 +4,14 @@
     ViewData["Title"] = "Editar Servicio";
 }
 
-<h2 class="text-center">Editar Servicio</h2>
+<div class="jumbotron text-center">
+    <h1 class="display-4">¡Editar Servicio!</h1>
+</div>
 
-<div class="container">
-    <div class="card shadow-lg p-4">
+<!-- Contenedor del formulario en un grid -->
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
         <form asp-action="GuardarEdicion" method="post">
             <input type="hidden" asp-for="Id" />
 
@@ -32,8 +36,13 @@
                 <img src="@Model.UrlImagen" alt="Imagen del servicio" class="img-thumbnail mt-2" style="max-width: 200px;" />
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-            <a asp-action="Servicios" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Guardar
+                </button>
+
+                <a asp-action="Servicios" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
         </form>
     </div>
 </div>

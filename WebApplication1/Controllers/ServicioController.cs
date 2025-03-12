@@ -122,11 +122,36 @@ namespace WebApplication1.Controllers
             var servicio = await _context.Servicios.FindAsync(id);
             if (servicio != null)
             {
-                _context.Servicios.Remove(servicio);
+                servicio.estado = false; // ⚠️ Cambiar estado en lugar de eliminar
+                _context.Update(servicio);
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Servicios));
+        }
+
+        [HttpPost, ActionName("ActivarServicio")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivarServicioConfirmado(int id)
+        {
+            var servicio = await _context.Servicios.FindAsync(id);
+            if (servicio == null)
+            {
+                return NotFound();
+            }
+
+            // Verificamos si el producto ya está activo
+            if (servicio.estado == true)
+            {
+                return RedirectToAction(nameof(Servicios)); // Redirige a Inventario si ya está activo
+            }
+
+            // Cambiamos el estado a activo
+            servicio.estado = true;
+            _context.Update(servicio);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Servicios)); // Redirige a Inventario después de la activación
         }
     }
 

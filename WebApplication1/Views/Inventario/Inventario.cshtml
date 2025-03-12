@@ -4,6 +4,20 @@
     ViewData["Title"] = "Gestión de Inventario";
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 <div class="jumbotron text-center">
     <h1 class="display-4">📦 Gestión de Inventario</h1>
     <p class="lead">Aquí podrás gestionar el stock de productos de manera eficiente.</p>
@@ -15,14 +29,22 @@
             📋 Listado de Productos
         </div>
         <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
+            <!-- Filtro por Estado -->
             <div class="d-flex justify-content-between mb-3">
-                <a asp-controller="Inventario" asp-action="Agregar" class="btn btn-success btn-md w-50 me-2">
-                    <i class="bi bi-plus-circle"></i> Agregar Producto
-                </a>
-                <a href="#" onclick="location.reload();" class="btn btn-info btn-md w-50">
-                    <i class="bi bi-arrow-clockwise"></i> Refrescar
-                </a>
+                <div class="w-50 me-2">
+                    <select id="estadoFiltro" class="form-control" onchange="filtrarPorEstado()">
+                        <option value="">Filtrar por Estado</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div class="w-50">
+                    <a asp-controller="Inventario" asp-action="Agregar" class="btn btn-primary btn-md w-100">
+                        <i class="bi bi-plus-circle"></i> Agregar Producto
+                    </a>
+                </div>
             </div>
+
             @if (Model == null || !Model.Any())
             {
                 <div class="alert alert-warning text-center" role="alert">
@@ -31,29 +53,53 @@
             }
             else
             {
-                <table class="table table-striped text-center">
+                <table class="table table-striped text-center" id="productosTabla">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre del Producto</th>
                             <th>Stock</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td>@item.Id</td>
+                            <tr data-estado="@item.estado">
                                 <td>@item.Nombre</td>
                                 <td>@item.Stock</td>
-                                <td class="d-flex justify-content-center gap-2">
-                                    <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning btn-sm w-50">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-danger btn-sm w-50">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                <td>
+                                    @if (item.estado)
+                                    {
+                                        <span>Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning btn-sm w-50">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        @if (item.estado)
+                                        {
+                                            <!-- Botón para marcar como inactivo -->
+                                            <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-danger btn-sm w-50">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <!-- Formulario para activar producto -->
+                                            <form asp-controller="Inventario" asp-action="Activar" asp-route-id="@item.Id" method="post" class="w-50">
+                                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -63,6 +109,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function filtrarPorEstado() {
+        var estado = document.getElementById('estadoFiltro').value;
+        var url = '@Url.Action("Inventario", "Inventario")' + (estado ? "?estadoFiltro=" + estado : "?estadoFiltro=Activo");
+        window.location.href = url;
+    }
+</script>
 
 <style>
     .container {
@@ -79,14 +133,13 @@
         text-align: center;
     }
 
+    .btn-sm {
+        width: 100%; /* Establece el mismo tamaño de ancho para todos los botones */
+    }
+
     .btn {
         transition: background-color 0.3s ease, transform 0.2s ease;
         border-width: 2px;
-    }
-
-    .btn-primary {
-        background-color: #007bff !important;
-        color: white !important;
     }
 
     .btn-warning {

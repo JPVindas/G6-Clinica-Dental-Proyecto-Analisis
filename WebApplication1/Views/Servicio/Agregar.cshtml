@@ -4,36 +4,48 @@
     ViewData["Title"] = "Agregar Servicio";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center text-primary">Agregar Nuevo Servicio</h2>
-
-    <form asp-action="Agregar" method="post">
-        <div class="mb-3">
-            <label asp-for="Nombre" class="form-label">Nombre del Servicio</label>
-            <input asp-for="Nombre" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Descripcion" class="form-label">Descripción</label>
-            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Costo" class="form-label">Costo</label>
-            <input asp-for="Costo" type="number" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
-            <input asp-for="UrlImagen" type="url" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-circle"></i> Guardar Servicio
-        </button>
-
-        <a asp-action="Servicios" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
-    </form>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Agregar Servicio</h1>
 </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
+            <form asp-action="Agregar" method="post">
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label">Nombre del Servicio</label>
+                    <input asp-for="Nombre" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Descripcion" class="form-label">Descripción</label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Costo" class="form-label">Costo</label>
+                    <input asp-for="Costo" type="number" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
+                    <input asp-for="UrlImagen" type="url" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Guardar
+                </button>
+
+                <a asp-action="Servicios" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-asy {
+        color: #003366 !important;
+    }
+</style>

@@ -11,12 +11,13 @@
     string nombreDoctor = ViewBag.NombreDoctor ?? "No disponible";
 }
 
-<div class="create-appointment-container mt-5 d-flex justify-content-center align-items-start">
-    <div class="card shadow-lg" style="width: 500px; border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-            Crear Nueva Cita
-        </div>
-        <div class="card-body">
+<div class="jumbotron text-center">
+    <h1 class="display-4">Nueva Cita</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
             <form asp-controller="Citas" asp-action="SaveCita" method="post" id="citaForm">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -83,14 +84,10 @@
                     <input asp-for="Motivo" class="form-control" placeholder="Ingrese el motivo de la cita" required>
                     <span asp-validation-for="Motivo" class="text-danger"></span>
                 </div>
-
-                <button type="submit" class="btn w-100" style="background-color: #003366; color: #FFFFFF;" id="submitButton">
-                    <i class="bi bi-calendar-plus"></i> Guardar Cita
-                </button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary">Cancelar</a>
+                
             </form>
-        </div>
-        <div class="card-footer text-center">
-            <a asp-controller="Citas" asp-action="Citas" style="color: #66b2ff;">Cancelar</a>
         </div>
     </div>
 </div>
@@ -155,7 +152,7 @@
     }
 
     .btn {
-        background-color: #66b2ff;
+        background-color: #003366;
         border: none;
         transition: all 0.2s ease-in-out;
     }

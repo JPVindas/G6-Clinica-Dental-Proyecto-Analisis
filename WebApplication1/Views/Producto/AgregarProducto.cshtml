@@ -4,8 +4,13 @@
     ViewData["Title"] = "Agregar Producto";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center text-primary">Agregar Nuevo Producto</h2>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Agregar Producto</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
 
     <form asp-action="AgregarProducto" method="post">
         <div class="mb-3">
@@ -42,11 +47,11 @@
 
 
         <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-circle"></i> Guardar Producto
+            <i class="bi bi-check-circle"></i> Guardar
         </button>
 
         <a asp-action="Productos" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
+            <i class="bi bi-arrow-left"></i> Cancelar
         </a>
     </form>
 </div>

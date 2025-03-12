@@ -41,7 +41,7 @@
                             }
                         </div>
 
-                        <h5 class="card-title fw-bold text-primary">@odontologo.Nombre @odontologo.Apellidos</h5>
+                        <h5 class="card-title fw-bold text-custom">@odontologo.Nombre @odontologo.Apellidos</h5>
                         <p class="text-muted"><i class="bi bi-briefcase-fill"></i> @odontologo.Especialidad</p>
                         <p class="text-success fw-bold"><i class="bi bi-award-fill"></i> @odontologo.Experiencia años de experiencia</p>
 
@@ -105,12 +105,12 @@
         height: 120px;
         object-fit: cover;
         border-radius: 50%;
-        border: 3px solid #007bff;
+        border: 3px solid #003366 !important;
     }
 
     .default-avatar {
         font-size: 4rem;
-        color: #007bff;
+        color: #003366 !important;
     }
 
     .btn-uniform {
@@ -134,10 +134,6 @@
         transition: 0.3s ease-in-out;
     }
 
-    .btn-primary {
-        background-color: #007bff !important;
-        color: white !important;
-    }
 
     .btn-warning {
         background-color: #ffc107 !important;
@@ -155,6 +151,10 @@
 
     .odontologo-card {
         flex: 1;
+    }
+
+    text-custom{
+        color: #003366 !important;
     }
 </style>
 

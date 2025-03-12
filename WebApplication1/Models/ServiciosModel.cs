@@ -24,6 +24,8 @@ namespace WebApplication1.Models
         [StringLength(500)]
         [Column("url_imagen")] // Mapea a la columna en la BD
         public string UrlImagen { get; set; } // Nuevo campo para la URL de la imagen
+
+        public bool estado { get; set; } = true; // ⚠️ Activo por defecto
         public virtual ICollection<TratamientosModel> Tratamientos { get; set; } = new List<TratamientosModel>();
     }
 }

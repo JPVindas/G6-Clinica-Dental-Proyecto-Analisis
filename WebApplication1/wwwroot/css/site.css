@@ -5,7 +5,9 @@
     box-sizing: border-box;
 }
 
-
+container-fluid {
+    background-color #003366 !important;
+}
 /* Tipografías y Colores Base */
 body {
     font-family: 'Arial', sans-serif;
@@ -65,7 +67,6 @@ button, .btn {
 header {
     background-color: #003366;
     color: #FFFFFF;
-    padding: 15px 20px;
 }
 
     header a {
@@ -73,20 +74,25 @@ header {
         font-weight: bold;
     }
 
+.navbar-custom {
+    background-color: #003366; /* Azul */
+    color: white; /* Letras blancas */
+}
+
 .navbar {
     background-color: #003366;
     padding: 10px;
 }
 
     .navbar a {
-        color: #003366;
+        color: white;
         margin-right: 15px;
         font-family: 'Arial Bold', sans-serif;
         transition: color 0.3s ease;
     }
 
         .navbar a:hover {
-            color: #003366;
+            color: #66b2ff;
         }
 
     .navbar .badge {
@@ -229,3 +235,6 @@ footer {
         color: #66b2ff;
     }
 
+btn-primary {
+    color: #003366 !important;
+}
