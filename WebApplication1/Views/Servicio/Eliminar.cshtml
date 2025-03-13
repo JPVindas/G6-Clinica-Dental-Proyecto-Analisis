@@ -4,11 +4,13 @@
     ViewData["Title"] = "Eliminar Servicio";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-danger">
-        <div class="card-header bg-danger text-white text-center">
-            <h3><i class="bi bi-exclamation-triangle-fill"></i> Confirmar</h3>
-        </div>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Desactivar Servicio</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
         <div class="card-body text-center">
             <p class="lead">¿Estás seguro de que deseas desactivar este servicio?</p>
 
@@ -25,11 +27,11 @@
                 <input type="hidden" name="id" value="@Model.Id" />
 
                 <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Desactivar
+                    <i></i> Desactivar
                 </button>
 
-                <a asp-action="Servicios" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
+                <a asp-action="Servicios" class="btn btn-primary">
+                    <i></i> Cancelar
                 </a>
             </form>
         </div>
@@ -38,10 +40,6 @@
 
 <!-- Estilos personalizados -->
 <style>
-    .container {
-        max-width: 600px;
-    }
-
     .card {
         border-radius: 10px;
     }
@@ -55,7 +53,7 @@
         transform: scale(1.05);
     }
 
-    .btn-secondary:hover {
+    .btn-primary:hover {
         transform: scale(1.05);
     }
 </style>

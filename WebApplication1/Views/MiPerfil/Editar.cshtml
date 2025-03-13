@@ -4,12 +4,13 @@
     ViewData["Title"] = "Editar Perfil";
 }
 
-<div class="container mt-5">
-    <h2 class="text-center text-dark fw-bold">✏️ Editar Perfil</h2>
-    <p class="text-center text-muted">Modifica tu información personal aquí.</p>
+<div class="jumbotron text-center">
+    <h1 class="display-4">Editar Perfil </h1>
+</div>
 
-    <div class="card shadow-lg p-4">
-        <div class="card-body">
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
             <form asp-action="Editar" method="post">
                 @Html.AntiForgeryToken()
 
@@ -39,10 +40,10 @@
                 </div>
 
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-save"></i> Guardar Cambios
+                    <i></i> Guardar
                 </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver
+                <a asp-action="MiPerfil" class="btn btn-secondary">
+                    <i></i> Volver
                 </a>
             </form>
         </div>

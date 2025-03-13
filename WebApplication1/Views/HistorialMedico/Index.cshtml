@@ -60,7 +60,6 @@
                 <table class="table table-bordered table-hover text-center">
                     <thead style="background-color: #004080; color: #FFFFFF;">
                         <tr>
-                            <th>ID</th>
                             <th>Paciente</th>
                             <th>Doctor</th>
                             <th>Diagnóstico</th>
@@ -73,7 +72,6 @@
                         @foreach (var historial in Model)
                         {
                             <tr>
-                                <td>@historial.IdHistorial</td>
                                 <td>@(historial.Paciente != null ? $"{historial.Paciente.Nombre} {historial.Paciente.Apellidos}" : "No asignado")</td>
                                 <td>@(historial.Empleado != null ? $"{historial.Empleado.Nombre} {historial.Empleado.Apellidos}" : "No asignado")</td>
                                 <td>@(historial.Diagnostico != null && historial.Diagnostico.Length > 30 ? historial.Diagnostico.Substring(0, 30) + "..." : historial.Diagnostico ?? "No disponible")</td>
