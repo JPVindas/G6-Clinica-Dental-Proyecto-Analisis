@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication1.Models;
 
 namespace WebApplication1.Models
 {
@@ -47,5 +48,9 @@ namespace WebApplication1.Models
         [ForeignKey("IdUsuario")]
         public int? IdUsuario { get; set; }
         public virtual UsuariosModel? Usuario { get; set; }
+        // Relación con Facturas (1 a muchos)
+
+        public virtual ICollection<FacturasModel> Facturas { get; set; } = new List<FacturasModel>();
+
     }
 }

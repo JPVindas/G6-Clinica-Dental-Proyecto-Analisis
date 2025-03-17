@@ -1,0 +1,158 @@
+﻿@model List<WebApplication1.Models.CarritoModel>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Carrito de Compras";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Carrito de Compras</h1>
+    <p class="lead">Revisa los productos y servicios que has agregado.</p>
+</div>
+
+<div class="cart-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
+            Tus Productos y Servicios
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+            <table class="table table-striped">
+                <thead style="background-color: #003366; color: #FFFFFF;">
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Total</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var imageUrl = !string.IsNullOrEmpty(item.Producto?.UrlImagen)
+                            ? item.Producto.UrlImagen
+                            : !string.IsNullOrEmpty(item.Servicio?.UrlImagen)
+                            ? item.Servicio.UrlImagen
+                            : Url.Content("~/images/default-product.jpg");
+
+                            var precioUnitario = item.PrecioUnitario ?? 0m;
+                            var impuestos = item.Impuestos ?? 0m;
+                            var totalPorProducto = (item.Cantidad * precioUnitario) + impuestos;
+
+                            <tr>
+                                <td>
+                                    <img src="@imageUrl" alt="@item.Nombre" style="width: 80px; height: auto; border-radius: 10px;">
+                                </td>
+                                <td>@item.Nombre</td>
+                                <td>@item.Cantidad</td>
+                                <td>₡@precioUnitario.ToString("N2", new CultureInfo("es-CR"))</td>
+                                <td>₡@totalPorProducto.ToString("N2", new CultureInfo("es-CR"))</td>
+                                <td>
+                                    <form asp-action="EliminarProductoCarrito" asp-controller="Carrito" method="post">
+                                        <input type="hidden" name="idCarrito" value="@item.IdCarrito" />
+                                        <button type="submit" class="btn btn-danger btn-sm remove-item">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center fw-bold text-danger">
+                                No hay productos o servicios en el carrito.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- 🔹 Botón de Vaciar Carrito en rojo -->
+            <div class="text-end mt-3">
+                <button id="clear-cart" class="btn btn-danger">
+                    <i class="bi bi-trash3-fill"></i> Vaciar Carrito
+                </button>
+            </div>
+
+            <div class="text-end mt-3">
+                <h4 class="fw-bold total-text">
+                    Total a Pagar: ₡
+                    <span>
+                        @(Model?.Sum(x => (x.Cantidad * (x.PrecioUnitario ?? 0m)) + (x.Impuestos ?? 0m)).ToString("N2", new CultureInfo("es-CR")))
+                    </span>
+                </h4>
+
+                <form asp-action="Checkout" asp-controller="Carrito" method="post">
+                    <button type="submit" class="btn btn-success mt-3">
+                        <i class="bi bi-credit-card-fill"></i> Proceder al Pago
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ✅ Corrección del color de los botones */
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333 !important;
+            border-color: #bd2130 !important;
+        }
+
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+
+        .btn-success:hover {
+            background-color: #218838 !important;
+            border-color: #1e7e34 !important;
+        }
+
+    /* ✅ Estilos generales */
+    .cart-container {
+        margin-top: 20px;
+        background-color: #F8F9FA;
+        padding: 20px;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E6E6E6;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+
+    img {
+        width: 80px;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .text-end {
+        margin-top: 20px;
+    }
+
+    /* ✅ Color del total a pagar */
+    .total-text {
+        color: #003366 !important;
+        font-size: 1.6rem;
+    }
+</style>
+
+<!-- 🔹 Asegurar que Bootstrap Icons está cargado -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

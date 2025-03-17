@@ -1,0 +1,180 @@
+﻿@model List<WebApplication1.Models.CarritoModel>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Proceso de Pago";
+    var hayProductos = Model != null && Model.Any();
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Proceso de Pago</h1>
+    <p class="lead">Finaliza tu compra proporcionando los detalles necesarios.</p>
+</div>
+
+<div class="container checkout-container mt-5">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem;">
+            Detalles de Pago
+        </div>
+        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+
+            <!-- ✅ Sección de productos y servicios -->
+            <div>
+                <h5>Productos y Servicios:</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            var productosAgrupados = Model
+                            .GroupBy(p => new { p.IdProducto, p.Nombre })
+                            .Select(grupo => new
+                            {
+                                Item = grupo.First(),
+                                CantidadTotal = grupo.Sum(p => p.Cantidad)
+                            }).ToList();
+
+                            foreach (var grupo in productosAgrupados)
+                            {
+                                var item = grupo.Item;
+                                var cantidadTotal = grupo.CantidadTotal;
+                                var imageUrl = !string.IsNullOrEmpty(item.Producto?.UrlImagen)
+                                ? item.Producto.UrlImagen
+                                : !string.IsNullOrEmpty(item.Servicio?.UrlImagen)
+                                ? item.Servicio.UrlImagen
+                                : Url.Content("~/images/default-product.jpg");
+
+                                var precioUnitario = item.PrecioUnitario ?? 0m;
+                                var impuestos = item.Impuestos ?? 0m;
+                                var totalPorProducto = (cantidadTotal * precioUnitario) + impuestos;
+
+                                <tr>
+                                    <td>
+                                        <img src="@imageUrl" alt="@item.Nombre" style="width: 80px; height: auto; border-radius: 10px;">
+                                    </td>
+                                    <td>@item.Nombre</td>
+                                    <td>@cantidadTotal</td>
+                                    <td>₡@precioUnitario.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    <td>₡@totalPorProducto.ToString("N2", new CultureInfo("es-CR"))</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center fw-bold text-danger">
+                                    No hay productos o servicios en el carrito.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- ✅ Resumen de pago -->
+            <div class="mb-4">
+                <h5>Subtotal: ₡<span id="subtotal">0</span></h5>
+                <h5>Impuesto (13%): ₡<span id="tax">0</span></h5>
+                <h5>Descuento: ₡<span id="discount">0</span></h5>
+                <h5><b>Total: ₡<span id="totalWithTax">0</span></b></h5>
+            </div>
+
+            <!-- ✅ Formulario de Pago -->
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="fullName">Nombre Completo</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Ingresa tu nombre completo" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="cedula">Cédula</label>
+                    <input type="text" class="form-control" id="cedula" placeholder="Ingresa tu cédula" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="email">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo electrónico" required>
+                </div>
+
+                <!-- ✅ Método de Pago -->
+                <div class="form-group mt-3">
+                    <label for="paymentMethod">Método de Pago</label>
+                    <select class="form-control" id="paymentMethod" required>
+                        <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="sinpeMovil">Sinpe Móvil</option>
+                        <option value="efectivo">Efectivo</option>
+                    </select>
+                </div>
+
+                <!-- ✅ Campos dinámicos según método de pago -->
+                <div id="paymentDetails"></div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success" id="payButton" @(hayProductos ? "" : "disabled")>
+                        <i class="bi bi-credit-card-fill"></i> Pagar Ahora
+                    </button>
+                    <a href="@ViewBag.ReturnUrl" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Script Mejorado -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const paymentMethod = document.getElementById('paymentMethod');
+        const paymentDetails = document.getElementById('paymentDetails');
+        let subtotal = 0, discount = 0;
+
+        // ✅ Calcular totales
+        let totalWithTax = 0;
+        document.querySelectorAll("tbody tr").forEach(row => {
+            if (!row.classList.contains("text-danger")) {
+                const price = parseFloat(row.cells[2].textContent.replace(/₡|,/g, '')) || 0;
+                const total = parseFloat(row.cells[3].textContent.replace(/₡|,/g, '')) || 0;
+                subtotal += price;
+                totalWithTax += total;
+            }
+        });
+
+        const tax = Math.round(subtotal * 0.13);
+        document.getElementById('subtotal').textContent = subtotal.toLocaleString();
+        document.getElementById('tax').textContent = tax.toLocaleString();
+        document.getElementById('totalWithTax').textContent = totalWithTax.toLocaleString();
+
+        // ✅ Mostrar campos según método de pago
+        paymentMethod.addEventListener('change', () => {
+            const selectedMethod = paymentMethod.value;
+            paymentDetails.innerHTML = '';
+
+            if (selectedMethod === 'tarjeta') {
+                paymentDetails.innerHTML = `
+                        <div class="form-group mt-3">
+                            <label for="cardNumber">Número de Tarjeta</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="Número de tarjeta">
+                        </div>`;
+            } else if (selectedMethod === 'paypal') {
+                paymentDetails.innerHTML = `<div class="form-group mt-3">
+                            <label for="paypalEmail">Cuenta de PayPal</label>
+                            <input type="email" class="form-control" id="paypalEmail" placeholder="Correo de tu cuenta PayPal">
+                        </div>`;
+            }
+        });
+
+        // ✅ Bloquear pago si no hay productos
+        if (subtotal === 0) {
+            document.getElementById("payButton").setAttribute("disabled", "true");
+        }
+    });
+</script>

@@ -43,22 +43,25 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Citas" asp-action="Citas">Citas</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Servicio" asp-action="Servicios">Servicios</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">Odontólogos</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Producto" asp-action="Productos">Productos</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">Odontólogos</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Clinica">Clínica</a></li>
                         </ul>
 
                         <!-- 🔹 Sección derecha: Carrito + Menú de usuario -->
                         <ul class="navbar-nav ms-auto">
-                            <!-- 🔹 Carrito de compras (siempre visible) -->
+                            <!--  Carrito de compras  -->
+
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Cart">
-                                    <i class="bi bi-cart-plus-fill"></i>
-                                    <span class="badge bg-danger text-white">
-                                        @(ViewBag.CarritoItems != null ? ViewBag.CarritoItems : 0)
+                                <a class="nav-link position-relative" asp-controller="Carrito" asp-action="Carrito">
+                                    <i class="bi bi-cart-fill fs-5"></i>
+                                    <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        @(ViewBag.CarritoItems ?? 0)
                                     </span>
                                 </a>
                             </li>
+
+
 
                             <!-- 🔹 Dropdown "Mi Cuenta" -->
                             <li class="nav-item dropdown">
@@ -125,6 +128,41 @@
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cartBadge = document.getElementById("cart-badge");
+
+            async function updateCartBadge() {
+                try {
+                    let response = await fetch("/Carrito/GetCarritoCount");
+                    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+                    const contentType = response.headers.get("content-type");
+
+                    // Verifica que el servidor devuelva JSON
+                    if (!contentType || !contentType.includes("application/json")) {
+                        console.error("❌ Error: El servidor devolvió HTML en lugar de JSON.");
+                        return;
+                    }
+
+                    let data = await response.json();
+                    let cantidadCarrito = data.cantidadCarrito ?? "0";
+
+                    if (cartBadge) {
+                        cartBadge.textContent = cantidadCarrito;
+                    }
+                } catch (error) {
+                    console.error("❌ Error al actualizar el carrito:", error);
+                }
+            }
+
+            updateCartBadge();
+            setInterval(updateCartBadge, 10000); // 🔹 Actualiza cada 10 segundos
+        });
+    </script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

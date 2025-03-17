@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication1.Models;
+
 
 namespace WebApplication1.Models
 {
+    [Table("Pacientes")]
     public class PacientesModel
     {
         [Key]
@@ -39,10 +42,13 @@ namespace WebApplication1.Models
         public int? IdUsuario { get; set; }
         public virtual UsuariosModel? Usuario { get; set; }
 
-        // 🔹 Relación con CitasModel (1 Paciente puede tener muchas citas)
+        // Relación con Citas (1 Paciente puede tener muchas citas)
         public virtual ICollection<CitasModel> Citas { get; set; } = new List<CitasModel>();
 
-        // 🔹 Relación con HistorialMedicoModel (1 Paciente puede tener múltiples historiales)
+        // Relación con Historial Médico (1 Paciente puede tener múltiples historiales)
         public virtual ICollection<HistorialMedicoModel> HistorialMedico { get; set; } = new List<HistorialMedicoModel>();
+
+        // Relación con Facturas (1 Paciente puede tener múltiples facturas)
+        public virtual ICollection<FacturasModel> Facturas { get; set; } = new List<FacturasModel>();
     }
 }

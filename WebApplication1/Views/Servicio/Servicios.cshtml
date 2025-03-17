@@ -13,8 +13,6 @@
     var userRole = userRoleClaim != null ? userRoleClaim.Value.ToString() : "0"; // Si no tiene rol, asignar "0"
 }
 
-<script src="~/js/site.js"></script>
-
 <div class="jumbotron text-center">
     <h1 class="display-4">¡Bienvenido a los Servicios!</h1>
     <p class="lead">Aquí podrás encontrar nuestros servicios disponibles.</p>
@@ -24,8 +22,8 @@
     @if (userRole == "1" || userRole == "2")
     {
         <div class="mb-4 d-flex justify-content-center">
-            <a asp-action="Agregar" class="btn btn-primary btn-md w-100">
-                <i class="bi bi-plus-circle"></i>   <i></i>Agregar Servicio
+            <a asp-action="Agregar" class="btn btn-primary btn-lg w-100 fw-bold">
+                <i class="bi bi-plus-circle"></i> Agregar Servicio
             </a>
         </div>
     }
@@ -33,39 +31,45 @@
     <div class="row">
         @foreach (var servicio in Model.Where(s => s.estado == true || userRole == "1" || userRole == "2"))
         {
+            var imageUrl = string.IsNullOrEmpty(servicio.UrlImagen) ? "/images/default-product.jpg" : Url.Content(servicio.UrlImagen);
+
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card shadow-lg h-100">
-                    <img src="@Url.Content(servicio.UrlImagen)" class="card-img-top" alt="@servicio.Nombre" style="height: 200px; object-fit: cover;">
+                    <img src="@imageUrl" class="card-img-top" alt="@servicio.Nombre" style="height: 200px; object-fit: cover;">
                     <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">@servicio.Nombre</h5>
                         <p class="card-text text-muted">@servicio.Descripcion</p>
                         <p class="fw-bold text-primary">₡@servicio.Costo.ToString("N0")</p>
-                        <button class="btn btn-primary btn-md w-100 add-to-cart"
+
+                        <button class="btn btn-primary btn-lg w-100 fw-bold add-to-cart"
                                 data-id="@servicio.Id"
+                                data-tipo="servicio"
                                 data-name="@servicio.Nombre"
                                 data-price="@servicio.Costo"
-                                data-image="@Url.Content(servicio.UrlImagen)">
+                                data-image="@imageUrl">
                             <i class="bi bi-cart-plus-fill"></i> Agregar al Carrito
                         </button>
+
                         @if (userRole == "1" || userRole == "2")
                         {
                             <div class="mt-2 d-flex justify-content-between">
-                                <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-md w-50 me-2">
-                                    <i class="bi bi-pencil-square"></i> 
+                                <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-md w-50 me-2 fw-bold">
+                                    <i class="bi bi-pencil-square"></i> Editar
                                 </a>
-                                @if (servicio.estado){
-                                <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-md w-50"
-                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
-                                    <i class="bi bi-trash"></i> 
-                                </a>
+                                @if (servicio.estado)
+                                {
+                                    <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-md w-50 fw-bold"
+                                       onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
                                 }
                                 else
                                 {
-                                <form asp-controller="Servicio" asp-action="ActivarServicio" asp-route-id="@servicio.Id" method="post" class="w-50">
-                                    <button type="submit" class="btn btn-success btn-sm w-100">
-                                        <i class="bi bi-check-circle"></i>
-                                    </button>
-                                </form>
+                                    <form asp-controller="Servicio" asp-action="ActivarServicio" asp-route-id="@servicio.Id" method="post" class="w-50">
+                                        <button type="submit" class="btn btn-success btn-md w-100 fw-bold">
+                                            <i class="bi bi-check-circle"></i> Activar
+                                        </button>
+                                    </form>
                                 }
                             </div>
                         }
@@ -77,26 +81,12 @@
 </div>
 
 <style>
-    
-
-    .card {
-        border-radius: 10px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-    .card-img-top {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-
     .btn {
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
         transition: 0.3s;
         border-width: 2px;
+        padding: 13px 10px;
     }
 
     .btn-primary {
@@ -118,6 +108,115 @@
         background-color: #28a745 !important;
         color: white !important;
     }
+
+    .card {
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+    .card-img-top {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<!-- ✅ Script para agregar servicios al carrito -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const cartBadge = document.getElementById("cart-badge");
+        let isAddingToCart = false;
+
+        async function updateCartBadge() {
+            if (!cartBadge) return;
+
+            try {
+                let response = await fetch("/Carrito/Carrito");
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+                let contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    console.error("❌ Error: El servidor devolvió HTML en lugar de JSON.");
+                    return;
+                }
+
+                let data = await response.json();
+                cartBadge.textContent = data.cantidadCarrito ?? "0";
+            } catch (error) {
+                console.error("❌ Error al actualizar el carrito:", error);
+            }
+        }
+
+        updateCartBadge();
+
+        document.body.addEventListener("click", async function (event) {
+            const addBtn = event.target.closest(".add-to-cart");
+            if (addBtn) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (isAddingToCart) return;
+                isAddingToCart = true;
+                addBtn.setAttribute("disabled", "true");
+
+                await handleAddToCart(addBtn);
+
+                addBtn.removeAttribute("disabled");
+                isAddingToCart = false;
+            }
+        });
+
+        async function addToCart(id, tipo, nombre, precio, imagen) {
+            id = parseInt(id);
+            precio = parseFloat(precio);
+
+            if (!id || !nombre || isNaN(precio)) {
+                console.warn("⚠️ Datos inválidos al intentar agregar al carrito:", { id, nombre, precio });
+                alert("⚠️ Datos inválidos. No se pudo agregar al carrito.");
+                return;
+            }
+
+            try {
+                console.log(`🛒 Enviando solicitud para agregar: ${nombre}`);
+                let response = await fetch("/Carrito/AgregarServ", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        IdServicio: id,
+                        Tipo: tipo,
+                        Nombre: nombre,
+                        Cantidad: 1
+                    }),
+                });
+
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+                const data = await response.json();
+                await updateCartBadge();
+
+                alert(`✅ ${nombre} agregado al carrito.`);
+            } catch (error) {
+                console.error("❌ Error de red:", error);
+                alert("❌ Hubo un problema al agregar el servicio. Inténtalo nuevamente.");
+            }
+        }
+
+        async function handleAddToCart(button) {
+            console.log(`🛒 Intentando agregar: ${button.dataset.name}`);
+
+            await addToCart(
+                button.dataset.id,
+                button.dataset.tipo,
+                button.dataset.name,
+                button.dataset.price,
+                button.dataset.image
+            );
+        }
+    });
+</script>
