@@ -6,14 +6,14 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success text-center fw-bold">
         @TempData["SuccessMessage"]
     </div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="alert alert-danger text-center fw-bold">
         @TempData["ErrorMessage"]
     </div>
 }
@@ -23,13 +23,13 @@
     <p class="lead">Aquí podrás gestionar el stock de productos de manera eficiente.</p>
 </div>
 
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Poppins', sans-serif;">
             📋 Listado de Productos
         </div>
         <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
-            <!-- Filtro por Estado -->
+            <!-- Filtro por Estado y botón Agregar -->
             <div class="d-flex justify-content-between mb-3">
                 <div class="w-50 me-2">
                     <select id="estadoFiltro" class="form-control" onchange="filtrarPorEstado()">
@@ -47,14 +47,14 @@
 
             @if (Model == null || !Model.Any())
             {
-                <div class="alert alert-warning text-center" role="alert">
+                <div class="alert alert-warning text-center fw-bold">
                     ❌ No hay productos en el inventario.
                 </div>
             }
             else
             {
-                <table class="table table-striped text-center" id="productosTabla">
-                    <thead>
+                <table class="table table-striped table-hover text-center" id="productosTabla">
+                    <thead style="background-color: #003366; color: white;">
                         <tr>
                             <th>Nombre del Producto</th>
                             <th>Stock</th>
@@ -71,30 +71,35 @@
                                 <td>
                                     @if (item.estado)
                                     {
-                                        <span>Activo</span>
+                                        <span class="text-success fw-bold">Activo</span>
                                     }
                                     else
                                     {
-                                        <span>Inactivo</span>
+                                        <span class="text-danger fw-bold">Inactivo</span>
                                     }
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning btn-sm w-50">
-                                            <i class="bi bi-pencil-square"></i>
+                                        <!-- Editar -->
+                                        <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning btn-md btn-action">
+                                            <i class="bi bi-pencil-square text-white"></i>
                                         </a>
+
                                         @if (item.estado)
                                         {
-                                            <!-- Botón para marcar como inactivo -->
-                                            <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-danger btn-sm w-50">
+                                            <!-- Marcar como inactivo -->
+                                            <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-danger btn-md btn-action"
+                                               onclick="return confirm('¿Estás seguro de que deseas archivar este producto?');">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         }
                                         else
                                         {
-                                            <!-- Formulario para activar producto -->
-                                            <form asp-controller="Inventario" asp-action="Activar" asp-route-id="@item.Id" method="post" class="w-50">
-                                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                            <!-- Reactivar -->
+                                            <form asp-controller="Inventario" asp-action="Activar" asp-route-id="@item.Id" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-success btn-md btn-action"
+                                                        onclick="return confirm('¿Estás seguro de que deseas activar este producto?');">
                                                     <i class="bi bi-check-circle"></i>
                                                 </button>
                                             </form>
@@ -118,28 +123,31 @@
     }
 </script>
 
+<!-- Iconos y estilo -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
 <style>
-    .container {
-        max-width: 1000px;
+    .card {
+        border-radius: 10px;
+        border: 1px solid #E6E6E6;
     }
 
-    .table th {
-        background-color: #003366;
-        color: white;
-        text-align: center;
-    }
-
-    .table td {
-        text-align: center;
-    }
-
-    .btn-sm {
-        width: 100%; /* Establece el mismo tamaño de ancho para todos los botones */
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
     }
 
     .btn {
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        border-width: 2px;
+        transition: 0.3s;
+    }
+
+    .btn-action {
+        width: 90px;
+        height: 40px;
+    }
+
+    .btn-success {
+        background-color: #28a745 !important;
+        color: white !important;
     }
 
     .btn-warning {
@@ -152,19 +160,28 @@
         color: white !important;
     }
 
-    .btn-success {
-        background-color: #28a745 !important;
+    .pagination .page-item {
+        margin: 2px;
+    }
+
+    .pagination .page-link {
+        color: #003366 !important;
+        background-color: #fff;
+        border: 1px solid #003366;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+    }
+
+    .pagination .active .page-link {
+        background-color: #003366 !important;
         color: white !important;
     }
 
-    .btn-info {
-        background-color: #17a2b8 !important;
+    .pagination .page-link:hover {
+        background-color: #66b2ff !important;
         color: white !important;
-    }
-
-    .btn:hover {
-        transform: scale(1.05);
     }
 </style>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

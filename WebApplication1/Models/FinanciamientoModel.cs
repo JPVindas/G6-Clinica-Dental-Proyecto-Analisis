@@ -15,9 +15,9 @@ namespace WebApplication1.Models
         [Column("id_paciente")]
         public int IdPaciente { get; set; }
 
-        [Required]
+
         [Column("id_tratamiento")]
-        public int IdTratamiento { get; set; }
+        public int? IdTratamiento { get; set; } // 🔹 Ahora permite NULL
 
         [Required]
         [Column("monto_total", TypeName = "decimal(10,2)")]
@@ -49,9 +49,11 @@ namespace WebApplication1.Models
 
         // Relaciones
         [ForeignKey("IdPaciente")]
-        public virtual PacientesModel Paciente { get; set; }
+        public PacientesModel Paciente { get; set; }
+
+
 
         [ForeignKey("IdTratamiento")]
-        public virtual TratamientosModel Tratamiento { get; set; }
+        public virtual TratamientosModel? Tratamiento { get; set; } // 🔹 Ahora permite NULL
     }
 }

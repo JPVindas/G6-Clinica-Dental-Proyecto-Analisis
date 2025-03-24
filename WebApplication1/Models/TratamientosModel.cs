@@ -33,5 +33,7 @@ namespace WebApplication1.Models
         public virtual ServiciosModel? Servicio { get; set; }
 
         public virtual ICollection<HistorialMedicoModel> HistorialesMedicos { get; set; } = new List<HistorialMedicoModel>();
+        public virtual ICollection<FinanciamientoModel> Financiamientos { get; set; }
+
     }
 }

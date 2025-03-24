@@ -21,6 +21,7 @@ namespace WebApplication1.Controllers
             return View(new ProductosModel()); // Evita que Model sea null
         }
 
+
         // ✅ PROCESAR CREACIÓN DE PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -37,13 +38,30 @@ namespace WebApplication1.Controllers
 
 
         // ✅ LISTAR TODOS LOS PRODUCTOS
+        [HttpGet]
         public async Task<IActionResult> Productos()
         {
+            // 🔹 Obtener el ID del usuario autenticado
+            string userIdClaim = User.FindFirst("UserID")?.Value;
+            int userId = int.TryParse(userIdClaim, out var id) ? id : 0;
+
+            // 🔹 Buscar si el usuario tiene un paciente asociado
+            var pacienteId = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
+
+            ViewBag.IdPaciente = pacienteId > 0 ? (int?)pacienteId : null;
+            // 🔹 Enviar `null` si no tiene paciente
+
+            // 🔹 Obtener los productos activos
             var productos = await _context.Productos
                 .Where(p => p.estado) // Solo productos activos
                 .ToListAsync();
+
             return View("Productos", productos);
         }
+
 
         // ✅ FORMULARIO PARA EDITAR PRODUCTO (GET)
         public async Task<IActionResult> EditarProducto(int? id)

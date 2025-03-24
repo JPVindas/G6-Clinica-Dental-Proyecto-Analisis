@@ -1,28 +1,26 @@
 ﻿@model List<WebApplication1.Models.ServiciosModel>
 @using System.Security.Claims
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Servicios";
-    var userClaims = User.Claims.ToList();
-    var userRoleClaim = userClaims.FirstOrDefault(c =>
-        c.Type == "rol_id" ||
+    var userRole = User.Claims.FirstOrDefault(c =>
         c.Type == ClaimTypes.Role ||
-        c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" ||
-        c.Type == "RolID" ||
-        c.Type == "UserRole");
-    var userRole = userRoleClaim != null ? userRoleClaim.Value.ToString() : "0"; // Si no tiene rol, asignar "0"
+        c.Type.Contains("rol", StringComparison.OrdinalIgnoreCase))?.Value ?? "0";
 }
 
 <div class="jumbotron text-center">
-    <h1 class="display-4">¡Bienvenido a los Servicios!</h1>
-    <p class="lead">Aquí podrás encontrar nuestros servicios disponibles.</p>
+    <h1 class="display-4">Nuestros Servicios</h1>
+    <p class="lead">Encuentra el servicio que necesitas y agrégalo a tu carrito.</p>
 </div>
+<!-- 🔹 ID del paciente oculto (para uso en JavaScript) -->
+<input type="hidden" id="user-id" value="@ViewBag.IdPaciente" />
 
 <div class="container mt-4">
     @if (userRole == "1" || userRole == "2")
     {
         <div class="mb-4 d-flex justify-content-center">
-            <a asp-action="Agregar" class="btn btn-primary btn-lg w-100 fw-bold">
+            <a asp-action="Agregar" class="btn btn-primary btn-lg fw-bold">
                 <i class="bi bi-plus-circle"></i> Agregar Servicio
             </a>
         </div>
@@ -31,7 +29,9 @@
     <div class="row">
         @foreach (var servicio in Model.Where(s => s.estado == true || userRole == "1" || userRole == "2"))
         {
-            var imageUrl = string.IsNullOrEmpty(servicio.UrlImagen) ? "/images/default-product.jpg" : Url.Content(servicio.UrlImagen);
+            var imageUrl = string.IsNullOrEmpty(servicio.UrlImagen)
+            ? Url.Content("~/images/default-service.jpg")
+            : Url.Content(servicio.UrlImagen);
 
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card shadow-lg h-100">
@@ -39,14 +39,15 @@
                     <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">@servicio.Nombre</h5>
                         <p class="card-text text-muted">@servicio.Descripcion</p>
-                        <p class="fw-bold text-primary">₡@servicio.Costo.ToString("N0")</p>
+                        <p class="fw-bold text-primary">₡@servicio.Costo.ToString("N0", CultureInfo.InvariantCulture)</p>
 
-                        <button class="btn btn-primary btn-lg w-100 fw-bold add-to-cart"
+                        <button class="btn btn-primary btn-md w-100 fw-bold add-to-cart"
                                 data-id="@servicio.Id"
                                 data-tipo="servicio"
                                 data-name="@servicio.Nombre"
                                 data-price="@servicio.Costo"
-                                data-image="@imageUrl">
+                                data-image="@imageUrl"
+                                aria-label="Agregar @servicio.Nombre al carrito">
                             <i class="bi bi-cart-plus-fill"></i> Agregar al Carrito
                         </button>
 
@@ -84,9 +85,11 @@
     .btn {
         font-family: 'Arial', sans-serif;
         font-weight: bold;
-        transition: 0.3s;
+        transition: 0.3s ease;
         border-width: 2px;
-        padding: 13px 10px;
+        width: 10000px;
+        /* Ajustamos el padding para que coincida con la vista de Productos */
+        padding: 15px 16px;
     }
 
     .btn-primary {
@@ -125,98 +128,58 @@
     }
 </style>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
-<!-- ✅ Script para agregar servicios al carrito -->
+<!-- Script para agregar servicios al carrito -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const cartBadge = document.getElementById("cart-badge");
-        let isAddingToCart = false;
-
-        async function updateCartBadge() {
-            if (!cartBadge) return;
-
-            try {
-                let response = await fetch("/Carrito/Carrito");
-                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-                let contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    console.error("❌ Error: El servidor devolvió HTML en lugar de JSON.");
-                    return;
-                }
-
-                let data = await response.json();
-                cartBadge.textContent = data.cantidadCarrito ?? "0";
-            } catch (error) {
-                console.error("❌ Error al actualizar el carrito:", error);
-            }
+        const userIdElement = document.getElementById("user-id");
+        let idPaciente = userIdElement && userIdElement.value.trim() ? parseInt(userIdElement.value.trim()) : 0;
+        if (!idPaciente) {
+            console.warn("⚠️ ID del paciente no encontrado. No se podrá agregar al carrito.");
+            return;
         }
 
-        updateCartBadge();
-
-        document.body.addEventListener("click", async function (event) {
-            const addBtn = event.target.closest(".add-to-cart");
-            if (addBtn) {
+        document.querySelectorAll(".add-to-cart").forEach(button => {
+            button.addEventListener("click", async function (event) {
                 event.preventDefault();
-                event.stopPropagation();
-
-                if (isAddingToCart) return;
-                isAddingToCart = true;
-                addBtn.setAttribute("disabled", "true");
-
-                await handleAddToCart(addBtn);
-
-                addBtn.removeAttribute("disabled");
-                isAddingToCart = false;
-            }
+                await handleAddServiceToCart(this);
+            });
         });
 
-        async function addToCart(id, tipo, nombre, precio, imagen) {
-            id = parseInt(id);
-            precio = parseFloat(precio);
+        async function handleAddServiceToCart(button) {
+            if (button.disabled) return;
+            button.disabled = true;
 
-            if (!id || !nombre || isNaN(precio)) {
-                console.warn("⚠️ Datos inválidos al intentar agregar al carrito:", { id, nombre, precio });
-                alert("⚠️ Datos inválidos. No se pudo agregar al carrito.");
+            let idServicio = parseInt(button.dataset.id);
+            let nombre = button.dataset.name;
+            let cantidad = 1; // Se agrega de a 1 unidad
+
+            if (!idServicio) {
+                console.warn(`⚠️ Datos inválidos al agregar el servicio: { idServicio: ${idServicio}, nombre: '${nombre}', idPaciente: ${idPaciente} }`);
+                alert("⚠️ No se pudo agregar el servicio. Datos inválidos.");
+                button.disabled = false;
                 return;
             }
 
             try {
-                console.log(`🛒 Enviando solicitud para agregar: ${nombre}`);
-                let response = await fetch("/Carrito/AgregarServ", {
+                let response = await fetch("/Carrito/AgregarItem", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        IdServicio: id,
-                        Tipo: tipo,
-                        Nombre: nombre,
-                        Cantidad: 1
-                    }),
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        idPaciente: idPaciente,
+                        idServicio: idServicio,
+                        cantidad: cantidad.toString()
+                    })
                 });
-
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-                const data = await response.json();
-                await updateCartBadge();
-
                 alert(`✅ ${nombre} agregado al carrito.`);
             } catch (error) {
-                console.error("❌ Error de red:", error);
-                alert("❌ Hubo un problema al agregar el servicio. Inténtalo nuevamente.");
+                console.error("❌ Error al agregar el servicio:", error);
+                alert("❌ Hubo un problema al agregar el servicio.");
+            } finally {
+                button.disabled = false;
             }
-        }
-
-        async function handleAddToCart(button) {
-            console.log(`🛒 Intentando agregar: ${button.dataset.name}`);
-
-            await addToCart(
-                button.dataset.id,
-                button.dataset.tipo,
-                button.dataset.name,
-                button.dataset.price,
-                button.dataset.image
-            );
         }
     });
 </script>

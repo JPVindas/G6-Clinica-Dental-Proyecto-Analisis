@@ -1,24 +1,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using WebApplication1.Models;
+using WebApplication1.DATA;
 
 namespace WebApplication1.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly MinombredeconexionDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(MinombredeconexionDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
         [HttpGet]
         public IActionResult Checkout()
         {
             return View(); 
         }
+
         
         public IActionResult Factura()
         {
@@ -33,16 +36,52 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-        public IActionResult Clinica()
+        public async Task<IActionResult> Clinica()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                var rolId = User.FindFirst("RolID")?.Value;
+                if (rolId == "3")
+                {
+                    int userId = 0;
+                    int.TryParse(User.FindFirst("UserID")?.Value, out userId);
+                    if (userId > 0)
+                    {
+                        var pacienteId = await _context.Pacientes
+                            .Where(p => p.IdUsuario == userId)
+                            .Select(p => p.IdPaciente)
+                            .FirstOrDefaultAsync();
+                        ViewBag.IdPaciente = pacienteId;
+                    }
+                }
+            }
             return View();
         }
 
 
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                var rolId = User.FindFirst("RolID")?.Value;
+                if (rolId == "3")
+                {
+                    int userId = 0;
+                    int.TryParse(User.FindFirst("UserID")?.Value, out userId);
+                    if (userId > 0)
+                    {
+                        var pacienteId = await _context.Pacientes
+                            .Where(p => p.IdUsuario == userId)
+                            .Select(p => p.IdPaciente)
+                            .FirstOrDefaultAsync();
+                        ViewBag.IdPaciente = pacienteId;
+                    }
+                }
+            }
             return View();
         }
+
 
         public IActionResult PortalExpediente()
         {

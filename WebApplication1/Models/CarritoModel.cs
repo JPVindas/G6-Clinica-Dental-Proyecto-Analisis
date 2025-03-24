@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models
 {
-    [Table("Carrito")]
+    [Table("carrito")]
     public class CarritoModel
     {
         [Key]
@@ -11,45 +11,24 @@ namespace WebApplication1.Models
         public int IdCarrito { get; set; }
 
         [Required]
-        [Column("tipo")]
-        public  string Tipo { get; set; }  // ✅ `required` obliga a asignar un valor
-
-
-        [Column("id_producto")]
-        public int? IdProducto { get; set; }
-
-        [Column("id_servicio")]
-        public int? IdServicio { get; set; }
-
-        [Column("imagen")]
-        public string? Imagen { get; set; }
-
-        [Column("nombre")]
-        public required string Nombre { get; set; }
+        [Column("id_paciente")]
+        public int IdPaciente { get; set; }
 
         [Required]
-        [Column("cantidad")]
-        public int Cantidad { get; set; }
+        [Column("fecha_creacion")]
+        public DateTime FechaCreacion { get; set; }
 
         [Required]
-        [Column("precio_unitario", TypeName = "decimal(10,2)")]
-        public decimal? PrecioUnitario { get; set; }
+        [Column("estado")]
+        [StringLength(8)] // "abierto" o "cerrado"
+        public string Estado { get; set; }
 
-        [Required]
-        [Column("impuestos", TypeName = "decimal(10,2)")]
-        public decimal? Impuestos { get; set; }
+        // Relación con la tabla de pacientes
+        [ForeignKey("IdPaciente")]
+        public virtual PacientesModel Paciente { get; set; }
 
-        [NotMapped] // Esto evita que Entity Framework intente guardar 'Total'
-        public decimal Total => (Cantidad * (PrecioUnitario ?? 0m)) + (Impuestos ?? 0m);
-
-        // 🔹 Relación con Productos
-        [ForeignKey("IdProducto")]
-        public virtual ProductosModel? Producto { get; set; }
-
-        // 🔹 Relación con Servicios
-        [ForeignKey("IdServicio")]
-        public virtual ServiciosModel? Servicio { get; set; }
- 
+        // Relación con CarritoItem (1 a muchos)
+        public virtual ICollection<CarritoItemModel> Items { get; set; }
 
     }
 }

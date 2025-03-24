@@ -1,105 +1,87 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
+    // Obtiene el badge del carrito y el input oculto con el id del paciente
     const cartBadge = document.getElementById("cart-badge");
-    let isRemovingFromCart = false;
+    const userIdElement = document.getElementById("user-id");
+    let idPaciente = userIdElement ? userIdElement.value.trim() : "";
 
-    // ✅ Función para actualizar el contador del carrito en el navbar
+    if (!idPaciente) {
+        console.warn("⚠️ No se pudo detectar el ID del paciente.");
+        return;
+    }
+
+    // Función para actualizar el badge del carrito
     async function updateCartBadge() {
-        if (!cartBadge) return;
-
+        if (!cartBadge || !idPaciente) {
+            console.warn("⚠️ No se puede actualizar el carrito: ID de paciente no disponible.");
+            return;
+        }
         try {
-            let response = await fetch("/Carrito/Carrito");
-            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-            let contentType = response.headers.get("content-type");
+            let response = await fetch(`/Carrito/GetCarritoCount?idPaciente=${idPaciente}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                console.error("❌ Error: El servidor devolvió HTML en lugar de JSON.");
+                console.error("❌ Error: El servidor no devolvió JSON.");
                 return;
             }
-
             let data = await response.json();
             cartBadge.textContent = data.cantidadCarrito ?? "0";
+            console.log(`🛒 Carrito actualizado: ${data.cantidadCarrito} ítems.`);
         } catch (error) {
             console.error("❌ Error al actualizar el carrito:", error);
         }
     }
 
+    // Función opcional para actualizar un contenedor de ítems (si existe)
+    async function updateCartItemsContainer() {
+        const cartItemsContainer = document.getElementById("cart-items-container");
+        if (!cartItemsContainer) return;
+        try {
+            let response = await fetch(`/Carrito/GetCartItems?idPaciente=${idPaciente}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                console.error("❌ Error: El servidor no devolvió JSON en GetCartItems.");
+                return;
+            }
+            let data = await response.json();
+            const items = data.items || [];
+            // Limpiar contenedor
+            cartItemsContainer.innerHTML = "";
+            // Recorrer y agregar cada ítem
+            items.forEach(item => {
+                const subtotal = item.precioUnitario * item.cantidad;
+                const totalLinea = subtotal + item.impuestos;
+                const itemHtml = `
+                    <div class="cart-item d-flex align-items-center mb-2">
+                        <img src="${item.imagenUrl ? item.imagenUrl : '/images/default-product.jpg'}" 
+                             alt="${item.nombre}" 
+                             style="width:50px; height:auto; margin-right:10px;">
+                        <div>
+                            <strong>${item.nombre}</strong><br />
+                            Cantidad: ${item.cantidad} - Total: ₡${totalLinea.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+                cartItemsContainer.innerHTML += itemHtml;
+            });
+        } catch (error) {
+            console.error("❌ Error al actualizar los ítems del carrito:", error);
+        }
+    }
+
+    // Llamamos inicialmente a actualizar el badge y el contenedor (si existe)
     updateCartBadge();
-
-    // ✅ Evento delegado para eliminar productos del carrito
-    document.body.addEventListener("click", async function (event) {
-        const removeBtn = event.target.closest(".remove-from-cart");
-        if (removeBtn) {
-            event.preventDefault();
-            event.stopPropagation();
-            await handleRemoveFromCart(removeBtn);
-        }
-    });
-
-    // ✅ Función eliminar ítem del carrito con animación
-    async function removeFromCart(idCarrito, button) {
-        if (isRemovingFromCart) return;
-        isRemovingFromCart = true;
-
-        button.setAttribute("disabled", "true"); // 🔹 Deshabilitar botón para evitar doble clic
-
-        try {
-            let response = await fetch("/Carrito/EliminarItem", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ idCarrito: idCarrito })
-            });
-
-            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-            await updateCartBadge();
-
-            // 🔹 Animación de eliminación del ítem antes de quitarlo del DOM
-            let row = button.closest("tr");
-            if (row) {
-                row.style.opacity = "0";
-                setTimeout(() => row.remove(), 300); // 🔹 Se borra después de la animación
-            }
-        } catch (error) {
-            console.error("❌ Error de conexión al eliminar el producto:", error);
-            alert("❌ Hubo un problema al eliminar el producto.");
-        } finally {
-            isRemovingFromCart = false;
-            button.removeAttribute("disabled");
-        }
+    if (document.getElementById("cart-items-container")) {
+        updateCartItemsContainer();
     }
 
-    async function handleRemoveFromCart(button) {
-        const idCarrito = button.dataset.id;
-        await removeFromCart(idCarrito, button);
-    }
-
-    // ✅ Evento único para limpiar carrito sin salir de la vista
-    const clearCartButton = document.getElementById("clear-cart");
-    if (clearCartButton) {
-        clearCartButton.addEventListener("click", clearCart);
-    }
-
-    async function clearCart() {
-        if (!confirm("🗑️ ¿Estás seguro de vaciar el carrito?")) return;
-
-        try {
-            let response = await fetch("/Carrito/VaciarCarrito", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            });
-
-            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-            await updateCartBadge();
-
-            // 🔹 Elimina todos los elementos visualmente sin salir de la página
-            let tbody = document.querySelector("tbody");
-            if (tbody) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center fw-bold text-danger">No hay productos en el carrito.</td></tr>`;
-            }
-        } catch (error) {
-            console.error("❌ Hubo un problema al vaciar el carrito:", error);
-            alert("❌ Hubo un problema al vaciar el carrito.");
-        }
+    // Actualizar cada 10 segundos (10000 ms)
+    setInterval(updateCartBadge, 10000);
+    if (document.getElementById("cart-items-container")) {
+        setInterval(updateCartItemsContainer, 10000);
     }
 });

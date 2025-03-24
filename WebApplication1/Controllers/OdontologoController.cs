@@ -31,8 +31,28 @@ namespace WebApplication1.Controllers
                 .Where(e => e.Usuario != null && e.Usuario.RolId == 4)
                 .ToListAsync();
 
+            // Si el usuario está autenticado y es paciente (rol 3), asignar el ID del paciente
+            if (User.Identity.IsAuthenticated)
+            {
+                var rolIdClaim = User.FindFirst("RolID")?.Value;
+                if (rolIdClaim == "3")
+                {
+                    int userId;
+                    int.TryParse(User.FindFirst("UserID")?.Value, out userId);
+                    if (userId > 0)
+                    {
+                        var pacienteId = await _context.Pacientes
+                            .Where(p => p.IdUsuario == userId)
+                            .Select(p => p.IdPaciente)
+                            .FirstOrDefaultAsync();
+                        ViewBag.IdPaciente = pacienteId;
+                    }
+                }
+            }
+
             return View("Odontologos", odontologos);
         }
+
 
         // ✅ FORMULARIO PARA AGENDAR CITA CON UN ODONTÓLOGO
         [HttpGet]

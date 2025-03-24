@@ -38,7 +38,20 @@ namespace WebApplication1.Controllers
         // ✅ LISTAR TODOS LOS SERVICIOS
         public async Task<IActionResult> Servicios()
         {
-            var servicios = await _context.Servicios.ToListAsync();
+            string userIdClaim = User.FindFirst("UserID")?.Value;
+            int userId = int.TryParse(userIdClaim, out var id) ? id : 0;
+
+            var pacienteId = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
+
+            ViewBag.IdPaciente = pacienteId > 0 ? (int?)pacienteId : null;
+
+            var servicios = await _context.Servicios
+                .Where(s => s.estado) // Filtra solo servicios activos
+                .ToListAsync();
+
             return View("Servicios", servicios);
         }
 

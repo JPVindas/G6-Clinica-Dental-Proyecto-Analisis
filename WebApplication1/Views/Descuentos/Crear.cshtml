@@ -1,0 +1,45 @@
+﻿@model WebApplication1.Models.DescuentoModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Crear Descuento";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Crear Descuento</h1>
+    <p class="lead">Ingrese los datos para crear un nuevo descuento.</p>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem;">
+            Nuevo Descuento
+        </div>
+        <div class="card-body" style="color: #003366;">
+
+            @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+            <form asp-action="Crear" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Codigo" class="form-label"></label>
+                    <input asp-for="Codigo" class="form-control" />
+                    <span asp-validation-for="Codigo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PorcentajeDescuentoString" class="form-label"></label>
+                    <input asp-for="PorcentajeDescuentoString" class="form-control" />
+                    <span asp-validation-for="PorcentajeDescuentoString" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Crear Descuento</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

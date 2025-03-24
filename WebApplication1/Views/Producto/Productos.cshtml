@@ -13,11 +13,15 @@
     <p class="lead">Aquí podrás encontrar nuestros productos disponibles.</p>
 </div>
 
+<!-- 🔹 ID del paciente oculto (para uso en JavaScript) -->
+<input type="hidden" id="user-id" value="@ViewBag.IdPaciente" />
+
+
 <div class="container mt-4">
     @if (userRole == "1" || userRole == "2")
     {
         <div class="mb-4 d-flex justify-content-center">
-            <a asp-action="AgregarProducto" class="btn btn-primary btn-lg w-100">
+            <a asp-action="AgregarProducto" class="btn btn-primary btn-lg w-100 fw-bold">
                 <i class="bi bi-plus-circle"></i> Agregar Producto
             </a>
         </div>
@@ -34,15 +38,18 @@
                     <div class="card-body text-center d-flex flex-column justify-content-between">
                         <h5 class="card-title">@producto.Nombre</h5>
                         <p class="card-text text-muted">@producto.Descripcion</p>
+                        <p class="fw-bold text-primary"><strong>Marca:</strong> @producto.Marca</p>
+
                         <p class="fw-bold text-primary">₡@producto.Precio.ToString("N0", CultureInfo.InvariantCulture)</p>
 
-                        <button class="btn btn-primary btn-md w-100 add-to-cart"
+                        <button class="btn btn-primary btn-md w-100 add-to-cart fw-bold"
                                 data-id="@producto.Id"
                                 data-name="@producto.Nombre"
                                 data-price="@producto.Precio"
                                 data-image="@imageUrl"
                                 aria-label="Agregar @producto.Nombre al carrito">
-                            <i class="bi bi-cart-plus-fill"></i> Agregar al Carrito
+                            <i class="bi bi-cart-plus-fill"></i>
+                            Agregar al Carrito
                         </button>
 
                         @if (userRole == "1" || userRole == "2")
@@ -83,8 +90,13 @@
     }
 
     .btn {
-        transition: 0.3s ease-in-out;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+        transition: 0.3s ease;
         border-width: 2px;
+        width: 10000px;
+        /* Ajustamos el padding para que coincida con la vista de Productos */
+        padding: 15px 16px;
     }
 
     .btn-primary {
@@ -113,93 +125,54 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const cartBadge = document.getElementById("cart-badge");
-        let isAddingToCart = false;
-
-        async function updateCartBadge() {
-            if (!cartBadge) return;
-
-            try {
-                let response = await fetch("/Carrito/Carrito");
-                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-                let contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    console.error("❌ Error: El servidor devolvió HTML en lugar de JSON.");
-                    return;
-                }
-
-                let data = await response.json();
-                cartBadge.textContent = data.cantidadCarrito ?? "0"; 
-            } catch (error) {
-                console.error("❌ Error al actualizar el carrito:", error);
-            }
+        const userIdElement = document.getElementById("user-id");
+        let idPaciente = userIdElement ? parseInt(userIdElement.value.trim()) : 0;
+        if (!idPaciente) {
+            console.warn("⚠️ ID del paciente no encontrado. No se podrá agregar al carrito.");
+            return;
         }
 
-        updateCartBadge();
-
-        document.body.addEventListener("click", async function (event) {
-            const addBtn = event.target.closest(".add-to-cart");
-            if (addBtn) {
+        document.querySelectorAll(".add-to-cart").forEach(button => {
+            button.addEventListener("click", async function (event) {
                 event.preventDefault();
-                event.stopPropagation();
-
-                if (isAddingToCart) return; 
-
-                isAddingToCart = true;
-                addBtn.setAttribute("disabled", "true"); 
-
-                await handleAddToCart(addBtn);
-
-                addBtn.removeAttribute("disabled"); 
-                isAddingToCart = false;
-            }
+                await handleAddProductToCart(this);
+            });
         });
 
-        async function addToCart(id, nombre, precio, imagen) {
-            id = parseInt(id);
-            precio = parseFloat(precio);
+        async function handleAddProductToCart(button) {
+            if (button.disabled) return;
+            button.disabled = true;
 
-            if (!id || !nombre || isNaN(precio)) {
-                console.warn("⚠️ Datos inválidos al intentar agregar al carrito:", { id, nombre, precio });
-                alert("⚠️ Datos inválidos. No se pudo agregar al carrito.");
+            let idProducto = parseInt(button.dataset.id);
+            let nombre = button.dataset.name;
+            let precio = parseFloat(button.dataset.price);
+
+            if (!idProducto || isNaN(precio)) {
+                console.warn("⚠️ Datos inválidos al agregar el producto:", { idProducto, nombre, precio, idPaciente });
+                alert("⚠️ No se pudo agregar el producto. Datos inválidos.");
+                button.disabled = false;
                 return;
             }
 
             try {
-                console.log(`🛒 Enviando solicitud para agregar: ${nombre}`);
-                let response = await fetch("/Carrito/AgregarProdu", {
+                let response = await fetch("/Carrito/AgregarItem", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        IdProducto: id,
-                        Tipo: "producto",
-                        Nombre: nombre,
-                        Cantidad: 1
-                    }),
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        idPaciente: idPaciente,
+                        idProducto: idProducto,
+                        cantidad: "1"
+                    })
                 });
-
                 if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-                const data = await response.json();
-                await updateCartBadge();
-
                 alert(`✅ ${nombre} agregado al carrito.`);
             } catch (error) {
-                console.error("❌ Error de red:", error);
-                alert("❌ Hubo un problema al agregar el producto. Inténtalo nuevamente.");
+                console.error("❌ Error al agregar el producto:", error);
+                alert("❌ Hubo un problema al agregar el producto.");
+            } finally {
+                button.disabled = false;
             }
         }
-
-        async function handleAddToCart(button) {
-            console.log(`🛒 Intentando agregar: ${button.dataset.name}`);
-
-            await addToCart(
-                button.dataset.id,
-                button.dataset.name,
-                button.dataset.price,
-                button.dataset.image
-            );
-        }
     });
+
 </script>

@@ -1,180 +1,242 @@
-﻿@model List<WebApplication1.Models.CarritoModel>
+﻿@model List<WebApplication1.Models.CarritoItemModel>
 @using System.Globalization
 
 @{
     ViewData["Title"] = "Proceso de Pago";
-    var hayProductos = Model != null && Model.Any();
+
+    bool hayItems = Model != null && Model.Any();
+    decimal subtotal = hayItems ? Model.Sum(i => i.PrecioUnitario * i.Cantidad) : 0m;
+    decimal impuesto = subtotal * 0.13m;
+    decimal total = subtotal + impuesto;
+
+    decimal porcentajeDescuento = ViewBag.PorcentajeDescuento != null ? (decimal)ViewBag.PorcentajeDescuento : 0m;
+    bool descuentoAplicado = porcentajeDescuento > 0;
+
+    decimal montoDescuento = descuentoAplicado ? total * porcentajeDescuento / 100 : 0;
+    decimal totalConDescuento = total - montoDescuento;
 }
+
+<!-- Validaciones de descuento -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center fw-bold">
+        @TempData["ErrorMessage"]
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center fw-bold">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 
 <div class="jumbotron text-center">
     <h1 class="display-4">Proceso de Pago</h1>
     <p class="lead">Finaliza tu compra proporcionando los detalles necesarios.</p>
 </div>
 
+<input type="hidden" id="user-id" value="@ViewBag.IdPaciente" />
+
 <div class="container checkout-container mt-5">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem;">
             Detalles de Pago
         </div>
-        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+        <div class="card-body" style="color: #003366;">
 
-            <!-- ✅ Sección de productos y servicios -->
+            <!-- Datos del Paciente -->
             <div>
+                <h5>Datos del Paciente:</h5>
+                <p><strong>Nombre Completo:</strong> @ViewBag.Paciente?.Nombre @ViewBag.Paciente?.Apellidos</p>
+                <p><strong>Cédula:</strong> @ViewBag.Paciente?.Usuario?.Cedula</p>
+                <p><strong>Correo:</strong> @ViewBag.Paciente?.Usuario?.CorreoElectronico</p>
+                <p><strong>Fecha de Registro:</strong> @ViewBag.Paciente?.FechaRegistro?.ToString("d")</p>
+            </div>
+
+            <!-- Listado de ítems -->
+            <div class="mt-4">
                 <h5>Productos y Servicios:</h5>
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Imagen</th>
                             <th>Nombre</th>
+                            <th>Tipo</th>
                             <th>Cantidad</th>
                             <th>Precio Unitario</th>
                             <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null && Model.Any())
+                        @if (hayItems)
                         {
-                            var productosAgrupados = Model
-                            .GroupBy(p => new { p.IdProducto, p.Nombre })
-                            .Select(grupo => new
+                            foreach (var item in Model)
                             {
-                                Item = grupo.First(),
-                                CantidadTotal = grupo.Sum(p => p.Cantidad)
-                            }).ToList();
+                                string itemName = item.Tipo == "producto"
+                                    ? item.Producto?.Nombre
+                                    : item.Servicio?.Nombre;
 
-                            foreach (var grupo in productosAgrupados)
-                            {
-                                var item = grupo.Item;
-                                var cantidadTotal = grupo.CantidadTotal;
-                                var imageUrl = !string.IsNullOrEmpty(item.Producto?.UrlImagen)
-                                ? item.Producto.UrlImagen
-                                : !string.IsNullOrEmpty(item.Servicio?.UrlImagen)
-                                ? item.Servicio.UrlImagen
-                                : Url.Content("~/images/default-product.jpg");
+                                string imageUrl = "~/images/default-product.jpg";
+                                if (item.Tipo == "producto" && !string.IsNullOrEmpty(item.Producto?.UrlImagen))
+                                    imageUrl = item.Producto.UrlImagen;
+                                else if (item.Tipo == "servicio" && !string.IsNullOrEmpty(item.Servicio?.UrlImagen))
+                                    imageUrl = item.Servicio.UrlImagen;
 
-                                var precioUnitario = item.PrecioUnitario ?? 0m;
-                                var impuestos = item.Impuestos ?? 0m;
-                                var totalPorProducto = (cantidadTotal * precioUnitario) + impuestos;
+                                decimal totalPorLinea = item.PrecioUnitario * item.Cantidad;
 
                                 <tr>
-                                    <td>
-                                        <img src="@imageUrl" alt="@item.Nombre" style="width: 80px; height: auto; border-radius: 10px;">
-                                    </td>
-                                    <td>@item.Nombre</td>
-                                    <td>@cantidadTotal</td>
-                                    <td>₡@precioUnitario.ToString("N2", new CultureInfo("es-CR"))</td>
-                                    <td>₡@totalPorProducto.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    <td><img src="@Url.Content(imageUrl)" alt="@itemName" style="width: 80px; height: auto; border-radius: 8px;"></td>
+                                    <td>@(itemName ?? "Sin Nombre")</td>
+                                    <td>@item.Tipo</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>₡@item.PrecioUnitario.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    <td>₡@totalPorLinea.ToString("N2", new CultureInfo("es-CR"))</td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="5" class="text-center fw-bold text-danger">
-                                    No hay productos o servicios en el carrito.
-                                </td>
+                                <td colspan="6" class="text-center fw-bold text-danger">No hay ítems en el carrito.</td>
                             </tr>
                         }
                     </tbody>
                 </table>
-
             </div>
 
-            <!-- ✅ Resumen de pago -->
-            <div class="mb-4">
-                <h5>Subtotal: ₡<span id="subtotal">0</span></h5>
-                <h5>Impuesto (13%): ₡<span id="tax">0</span></h5>
-                <h5>Descuento: ₡<span id="discount">0</span></h5>
-                <h5><b>Total: ₡<span id="totalWithTax">0</span></b></h5>
-            </div>
 
-            <!-- ✅ Formulario de Pago -->
-            <form id="paymentForm">
+<!-- Totales -->
+<div class="mb-4">
+    <h5>Subtotal: ₡<span id="subtotal">@subtotal.ToString("N2", new CultureInfo("es-CR"))</span></h5>
+    <h5>Impuesto (13%): ₡<span id="tax">@impuesto.ToString("N2", new CultureInfo("es-CR"))</span></h5>
+    <h5>Descuento (@porcentajeDescuento%): -₡<span id="descuentoMonto">@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</span></h5>
+
+    @if (descuentoAplicado)
+    {
+        <h5 class="text-muted">
+            Total antes del descuento: ₡<span id="totalWithTax">@total.ToString("N2", new CultureInfo("es-CR"))</span>
+        </h5>
+        <h5>Total con descuento: <b>₡<span id="totalConDescuento">@totalConDescuento.ToString("N2", new CultureInfo("es-CR"))</span></b></h5>
+    }
+    else
+    {
+        <h5>Total: ₡<span id="totalWithTax">@total.ToString("N2", new CultureInfo("es-CR"))</span></h5>
+    }
+</div>
+
+
+            <!-- ✅ Formulario de código de descuento -->
+            <form id="form-descuento" method="post" asp-controller="Carrito" asp-action="AplicarDescuento" class="mb-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="codigoInput" name="codigoDescuento" placeholder="Código de descuento" required>
+                    <button type="submit" class="btn btn-outline-success fw-bold">Aplicar</button>
+                </div>
+                <small class="form-text text-muted">Ejemplo: CLINICA10, PROMO25</small>
+            </form>
+
+            <!-- Formulario de Pago -->
+            <form asp-action="RegistrarCompra" asp-controller="Carrito" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="FechaCompra" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="Estado" value="pendiente" />
+                <input type="hidden" name="MontoTotal" value="@(descuentoAplicado ? totalConDescuento : total)" />
+                <input type="hidden" name="DescuentoAplicado" value="@porcentajeDescuento" />
+
                 <div class="form-group">
                     <label for="fullName">Nombre Completo</label>
-                    <input type="text" class="form-control" id="fullName" placeholder="Ingresa tu nombre completo" required>
-                </div>
-                <div class="form-group mt-3">
-                    <label for="cedula">Cédula</label>
-                    <input type="text" class="form-control" id="cedula" placeholder="Ingresa tu cédula" required>
-                </div>
-                <div class="form-group mt-3">
-                    <label for="email">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="email" placeholder="Ingresa tu correo electrónico" required>
+                    <input type="text" class="form-control" id="fullName" name="Nombre"
+                           value="@ViewBag.Paciente?.Nombre @ViewBag.Paciente?.Apellidos" required />
                 </div>
 
-                <!-- ✅ Método de Pago -->
                 <div class="form-group mt-3">
                     <label for="paymentMethod">Método de Pago</label>
-                    <select class="form-control" id="paymentMethod" required>
-                        <option value="tarjeta">Tarjeta de Crédito/Débito</option>
-                        <option value="paypal">PayPal</option>
-                        <option value="sinpeMovil">Sinpe Móvil</option>
-                        <option value="efectivo">Efectivo</option>
+                    <select class="form-control" id="paymentMethod" name="IdMetodoDePago" required>
+                        <option value="" disabled selected>Seleccione un método de pago</option>
+                        @foreach (var metodo in ViewBag.MetodosDePago as List<WebApplication1.Models.MetodoPagoModel>)
+                        {
+                            <option value="@metodo.IdMetodoPago">@metodo.Nombre</option>
+                        }
                     </select>
                 </div>
 
-                <!-- ✅ Campos dinámicos según método de pago -->
-                <div id="paymentDetails"></div>
+                <div class="form-group mt-3">
+                    <input type="checkbox" id="financiamientoCheck" name="SolicitaFinanciamiento" />
+                    <label for="financiamientoCheck">Solicitar financiamiento</label>
+                </div>
 
-                <div class="text-end mt-4">
-                    <button type="submit" class="btn btn-success" id="payButton" @(hayProductos ? "" : "disabled")>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="javascript:history.back()" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver Atrás
+                    </a>
+                    <button type="submit" class="btn btn-success" @(hayItems ? "" : "disabled")>
                         <i class="bi bi-credit-card-fill"></i> Pagar Ahora
                     </button>
-                    <a href="@ViewBag.ReturnUrl" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Volver
-                    </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ✅ Script Mejorado -->
+<!-- Estilos -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+<style>
+    .checkout-container {
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+
+    .card-header {
+        background-color: #003366;
+        color: #FFFFFF;
+        font-size: 1.5rem;
+    }
+</style>
+
+<!-- JS -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const paymentMethod = document.getElementById('paymentMethod');
-        const paymentDetails = document.getElementById('paymentDetails');
-        let subtotal = 0, discount = 0;
+    document.addEventListener("DOMContentLoaded", function () {
+        const descuentoStr = '@ViewBag.PorcentajeDescuento';
+        const codigo = '@ViewBag.CodigoAplicado';
 
-        // ✅ Calcular totales
-        let totalWithTax = 0;
-        document.querySelectorAll("tbody tr").forEach(row => {
-            if (!row.classList.contains("text-danger")) {
-                const price = parseFloat(row.cells[2].textContent.replace(/₡|,/g, '')) || 0;
-                const total = parseFloat(row.cells[3].textContent.replace(/₡|,/g, '')) || 0;
-                subtotal += price;
-                totalWithTax += total;
-            }
-        });
+        const totalOriginalElement = document.getElementById("totalWithTax");
+        const descuentoElement = document.getElementById("descuentoMonto");
+        const totalConDescuentoElement = document.getElementById("totalConDescuento");
 
-        const tax = Math.round(subtotal * 0.13);
-        document.getElementById('subtotal').textContent = subtotal.toLocaleString();
-        document.getElementById('tax').textContent = tax.toLocaleString();
-        document.getElementById('totalWithTax').textContent = totalWithTax.toLocaleString();
+        if (!totalOriginalElement || !descuentoStr || !codigo) return;
 
-        // ✅ Mostrar campos según método de pago
-        paymentMethod.addEventListener('change', () => {
-            const selectedMethod = paymentMethod.value;
-            paymentDetails.innerHTML = '';
+        const porcentaje = parseFloat(descuentoStr);
+        if (isNaN(porcentaje) || porcentaje <= 0) return;
 
-            if (selectedMethod === 'tarjeta') {
-                paymentDetails.innerHTML = `
-                        <div class="form-group mt-3">
-                            <label for="cardNumber">Número de Tarjeta</label>
-                            <input type="text" class="form-control" id="cardNumber" placeholder="Número de tarjeta">
-                        </div>`;
-            } else if (selectedMethod === 'paypal') {
-                paymentDetails.innerHTML = `<div class="form-group mt-3">
-                            <label for="paypalEmail">Cuenta de PayPal</label>
-                            <input type="email" class="form-control" id="paypalEmail" placeholder="Correo de tu cuenta PayPal">
-                        </div>`;
-            }
-        });
+        // Obtener total original desde el contenido visual (formato es-CR)
+        const totalOriginalRaw = totalOriginalElement.innerText.replace(/[₡\s]/g, "").replace(/\./g, "").replace(",", ".");
+        const totalOriginal = parseFloat(totalOriginalRaw);
 
-        // ✅ Bloquear pago si no hay productos
-        if (subtotal === 0) {
-            document.getElementById("payButton").setAttribute("disabled", "true");
+        if (isNaN(totalOriginal)) return;
+
+        const montoDescuento = totalOriginal * porcentaje / 100;
+        const totalFinal = totalOriginal - montoDescuento;
+
+        // Actualizar visualmente los montos
+        if (descuentoElement) {
+            descuentoElement.textContent = montoDescuento.toLocaleString("es-CR", { minimumFractionDigits: 2 });
         }
+
+        if (totalConDescuentoElement) {
+            totalConDescuentoElement.textContent = totalFinal.toLocaleString("es-CR", { minimumFractionDigits: 2 });
+        }
+
+        // Mostrar mensaje informativo
+        const infoBox = document.createElement("div");
+        infoBox.className = "alert alert-success mt-3";
+        infoBox.innerHTML = `
+            <strong>¡Descuento aplicado!</strong> Código: <b>${codigo}</b><br/>
+            Porcentaje: <b>${porcentaje}%</b><br/>
+            Descuento aplicado: ₡<b>${montoDescuento.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b><br/>
+            <h5 class="mt-2">Total con descuento: <b>₡${totalFinal.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b></h5>
+        `;
+
+        document.querySelector(".mb-4")?.appendChild(infoBox);
     });
 </script>
+

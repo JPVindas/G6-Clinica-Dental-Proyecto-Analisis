@@ -1,0 +1,90 @@
+﻿@model WebApplication1.Models.CompraModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Compra Completada";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-success text-center shadow-sm">
+        <h2 class="display-5">¡Compra realizada con éxito!</h2>
+        <p class="lead">Gracias por confiar en nosotros. Aquí tienes los detalles de tu compra.</p>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Resumen de la Compra</h4>
+        </div>
+        <div class="card-body">
+
+            <p><strong>Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
+            <p><strong>Estado:</strong> @Model.Estado</p>
+            <p><strong>Monto Total:</strong> ₡@Model.MontoTotal.ToString("N2", new CultureInfo("es-CR"))</p>
+
+            <hr />
+
+            <h5>Datos del Cliente:</h5>
+            <p><strong>Nombre:</strong> @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</p>
+            <p><strong>Correo:</strong> @Model.Paciente?.Usuario?.CorreoElectronico</p>
+            <p><strong>Cédula:</strong> @Model.Paciente?.Usuario?.Cedula</p>
+
+            @{
+                var factura = Model.Facturas?.FirstOrDefault();
+            }
+
+            @if (factura != null)
+            {
+                <hr />
+                <h5>Factura Asociada:</h5>
+                
+                <p><strong>Método de Pago:</strong> @(factura.MetodoPago?.Nombre ?? "No especificado")</p>
+
+
+                @if (factura.Descuento != null)
+                {
+                    <p><strong>Descuento aplicado:</strong> @factura.Descuento.PorcentajeDescuento% (@factura.Descuento.Codigo)</p>
+                }
+
+                @if (factura.DetallesFactura?.Any() == true)
+                {
+                    <div class="mt-4">
+                        <h5>Productos y Servicios:</h5>
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                    <th>Impuestos</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in factura.DetallesFactura)
+                                {
+                                    var nombre = detalle.Tipo == "producto"
+                                    ? detalle.Producto?.Nombre
+                                    : detalle.Servicio?.Nombre;
+
+                                    <tr>
+                                        <td>@detalle.Tipo</td>
+                                        <td>@(nombre ?? "Sin nombre")</td>
+                                        <td>@detalle.Cantidad</td>
+                                        <td>₡@detalle.Subtotal.ToString("N2", new CultureInfo("es-CR"))</td>
+                                        <td>₡@detalle.Impuestos.ToString("N2", new CultureInfo("es-CR"))</td>
+                                        <td>₡@detalle.Total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+
+            <div class="text-end mt-4">
+                <a class="btn btn-primary" href="@Url.Action("Index", "Home")">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>

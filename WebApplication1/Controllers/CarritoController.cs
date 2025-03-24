@@ -1,347 +1,613 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.DATA;
-using WebApplication1.Models;
+using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using System.Collections.Generic;
+using System.Security.Claims;
+using WebApplication1.DATA; // Ajusta a tu namespace real
+using WebApplication1.Models;
+using System.Globalization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize] // Requiere usuario autenticado
     public class CarritoController : Controller
     {
         private readonly MinombredeconexionDbContext _context;
+        private const decimal TAX_RATE = 0.13m; // 13% de impuesto en Costa Rica
 
         public CarritoController(MinombredeconexionDbContext context)
         {
             _context = context;
         }
 
-        // ✅ Mostrar el carrito con productos y servicios correctamente cargados
+        // ===============================================
+        // 2) Conteo De PRODUCTOS O SERVICIOS AGREGADOS AL CARRITO
+        // ===============================================
+        [HttpGet]
+        public IActionResult GetCarritoCount(int idPaciente)
+        {
+            int count = _context.CarritoItems
+                .Where(ci => ci.Carrito.IdPaciente == idPaciente && ci.Carrito.Estado == "abierto")
+                .Sum(ci => ci.Cantidad);
+            return Json(new { cantidadCarrito = count });
+        }
+
+
+
+
+        // ===============================================
+        // 2) Mostrar Carrito (GET /Carrito/Carrito)
+        // ===============================================
         [HttpGet]
         public async Task<IActionResult> Carrito()
         {
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0)
+            {
+                TempData["ErrorMessage"] = "No se pudo autenticar correctamente. Inicia sesión.";
+                return RedirectToAction("Login", "Login");
+            }
+
+            if (rolId != 3)
+            {
+                TempData["ErrorMessage"] = "Solo usuarios con rol=3 (paciente) pueden usar el carrito.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Buscar el paciente asociado a este userId
+            var pacienteId = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
+
+            if (pacienteId == 0)
+            {
+                TempData["ErrorMessage"] = "No existe un paciente vinculado a este usuario.";
+                return RedirectToAction("Login", "Login");
+            }
+
+            // Asignar el ID del paciente al ViewBag para el layout
+            ViewBag.IdPaciente = pacienteId;
+
+            // Buscar o crear carrito abierto
             var carrito = await _context.Carrito
-                .Include(c => c.Producto)
-                .Include(c => c.Servicio)
+                .FirstOrDefaultAsync(c => c.IdPaciente == pacienteId && c.Estado == "abierto");
+
+            if (carrito == null)
+            {
+                carrito = new CarritoModel
+                {
+                    IdPaciente = pacienteId,
+                    FechaCreacion = DateTime.Now,
+                    Estado = "abierto"
+                };
+                _context.Carrito.Add(carrito);
+                await _context.SaveChangesAsync();
+            }
+
+            // Obtener los ítems del carrito
+            var itemsCarrito = await _context.CarritoItems
+                .Include(ci => ci.Producto)
+                .Include(ci => ci.Servicio)
+                .Where(ci => ci.IdCarrito == carrito.IdCarrito)
                 .ToListAsync();
 
-            ViewBag.CarritoItems = carrito.Sum(c => c.Cantidad);
-            return View(carrito);
+            return View("Carrito", itemsCarrito);
         }
+
+
         [HttpPost]
-        public async Task<IActionResult> AgregarProdu([FromBody] CarritoModel model)
+        public async Task<IActionResult> AgregarItem(int? idProducto, int? idServicio, int cantidad = 1)
         {
-            if (model == null || model.Cantidad <= 0 || model.Tipo != "producto" || !model.IdProducto.HasValue)
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0)
             {
-                return BadRequest(new { mensaje = "Datos inválidos para agregar un producto." });
+                TempData["ErrorMessage"] = "No se pudo autenticar correctamente.";
+                return RedirectToAction("Login", "Login");
             }
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            if (rolId != 3)
             {
-                decimal precioUnitario = 0m;
-                decimal impuestos = 0m;
-                string nombreProducto = "Producto sin nombre";
+                TempData["ErrorMessage"] = "Solo rol=3 (paciente) puede agregar ítems.";
+                return RedirectToAction("Index", "Home");
+            }
 
-                // 🔹 Buscar el producto en la base de datos
-                var producto = await _context.Productos
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Id == model.IdProducto);
+            // Buscar paciente asociado al usuario
+            var pacienteId = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
 
-                if (producto == null) return NotFound(new { mensaje = "Producto no encontrado." });
+            if (pacienteId == 0)
+            {
+                TempData["ErrorMessage"] = "No se encontró un paciente vinculado a este usuario.";
+                return RedirectToAction("Login", "Login");
+            }
 
-                nombreProducto = producto.Nombre ?? nombreProducto;
+            // Buscar carrito abierto del paciente o crearlo si no existe
+            var carrito = await _context.Carrito
+                .FirstOrDefaultAsync(c => c.IdPaciente == pacienteId && c.Estado == "abierto");
+
+            if (carrito == null)
+            {
+                carrito = new CarritoModel
+                {
+                    IdPaciente = pacienteId,
+                    FechaCreacion = DateTime.Now,
+                    Estado = "abierto"
+                };
+                _context.Carrito.Add(carrito);
+                await _context.SaveChangesAsync();
+            }
+
+            // Determinar si es producto o servicio
+            string tipo = (idProducto.HasValue) ? "producto" : "servicio";
+
+            // Obtener precio unitario (y en este ejemplo, el nombre se obtiene en la vista)
+            decimal precioUnitario = 0;
+            if (idProducto.HasValue)
+            {
+                var producto = await _context.Productos.FindAsync(idProducto.Value);
+                if (producto == null) return NotFound("Producto no encontrado.");
                 precioUnitario = producto.Precio;
-                impuestos = precioUnitario * 0.10m;
-
-                // 🔹 Buscar si el producto ya está en el carrito
-                var itemExistente = await _context.Carrito
-                    .FirstOrDefaultAsync(c => c.IdProducto == model.IdProducto && c.Tipo == "producto");
-
-                if (itemExistente != null)
-                {
-                    // 🔹 Si ya existe, aumentar la cantidad
-                    itemExistente.Cantidad += model.Cantidad;
-                    _context.Carrito.Update(itemExistente);
-                }
-                else
-                {
-                    // 🔹 Si no existe, agregarlo correctamente
-                    var nuevoItem = new CarritoModel
-                    {
-                        Tipo = "producto",
-                        IdProducto = model.IdProducto,
-                        Nombre = nombreProducto,
-                        Cantidad = model.Cantidad,
-                        PrecioUnitario = precioUnitario,
-                        Impuestos = impuestos,
-                        Imagen = model.Imagen ?? "/images/default-product.jpg"
-                    };
-
-                    _context.Carrito.Add(nuevoItem);
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                int totalItems = await _context.Carrito.SumAsync(c => c.Cantidad);
-                return Ok(new { cantidadCarrito = totalItems });
             }
-            catch (Exception ex)
+            else if (idServicio.HasValue)
             {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new { mensaje = "Error al agregar el producto al carrito.", error = ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AgregarServ([FromBody] CarritoModel model)
-        {
-            if (model == null || model.Cantidad <= 0 || model.Tipo != "servicio" || !model.IdServicio.HasValue)
-            {
-                return BadRequest(new { mensaje = "Datos inválidos para agregar un servicio." });
-            }
-
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                decimal precioUnitario = 0m;
-                decimal impuestos = 0m;
-                string nombreServicio = "Servicio sin nombre";
-
-                // 🔹 Buscar el servicio en la base de datos
-                var servicio = await _context.Servicios
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(s => s.Id == model.IdServicio);
-
-                if (servicio == null) return NotFound(new { mensaje = "Servicio no encontrado." });
-
-                nombreServicio = servicio.Nombre ?? nombreServicio;
+                var servicio = await _context.Servicios.FindAsync(idServicio.Value);
+                if (servicio == null) return NotFound("Servicio no encontrado.");
                 precioUnitario = servicio.Costo;
-                impuestos = precioUnitario * 0.10m;
-
-                // 🔹 Buscar si el servicio ya está en el carrito
-                var itemExistente = await _context.Carrito
-                    .FirstOrDefaultAsync(c => c.IdServicio == model.IdServicio && c.Tipo == "servicio");
-
-                if (itemExistente != null)
-                {
-                    // 🔹 Si ya existe, aumentar la cantidad
-                    itemExistente.Cantidad += model.Cantidad;
-                    _context.Carrito.Update(itemExistente);
-                }
-                else
-                {
-                    // 🔹 Si no existe, agregarlo correctamente
-                    var nuevoItem = new CarritoModel
-                    {
-                        Tipo = "servicio",
-                        IdServicio = model.IdServicio,
-                        Nombre = nombreServicio,
-                        Cantidad = model.Cantidad,
-                        PrecioUnitario = precioUnitario,
-                        Impuestos = impuestos,
-                        Imagen = model.Imagen ?? "/images/default-service.jpg"
-                    };
-
-                    _context.Carrito.Add(nuevoItem);
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                int totalItems = await _context.Carrito.SumAsync(c => c.Cantidad);
-                return Ok(new { cantidadCarrito = totalItems });
             }
-            catch (Exception ex)
+
+            // Buscar si ya existe ese ítem en el carrito:
+            // Se compara correctamente: para producto, idProducto debe coincidir y idServicio debe ser null; para servicio, viceversa.
+            var existingItem = await _context.CarritoItems
+                .FirstOrDefaultAsync(ci =>
+                    ci.IdCarrito == carrito.IdCarrito &&
+                    ci.Tipo == tipo &&
+                    ((idProducto.HasValue && ci.IdProducto == idProducto.Value) || (!idProducto.HasValue && ci.IdProducto == null)) &&
+                    ((idServicio.HasValue && ci.IdServicio == idServicio.Value) || (!idServicio.HasValue && ci.IdServicio == null))
+                );
+
+            if (existingItem != null)
             {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new { mensaje = "Error al agregar el servicio al carrito.", error = ex.Message });
+                // Sumar la cantidad y recalcular impuestos
+                existingItem.Cantidad += cantidad;
+                decimal subtotal = existingItem.Cantidad * existingItem.PrecioUnitario;
+                existingItem.Impuestos = subtotal * TAX_RATE; // Calcula el 13%
+                _context.CarritoItems.Update(existingItem);
             }
+            else
+            {
+                // Crear un nuevo ítem en el carrito
+                decimal subtotal = precioUnitario * cantidad;
+                decimal impuestos = subtotal * TAX_RATE;
+
+                var newItem = new CarritoItemModel
+                {
+                    IdCarrito = carrito.IdCarrito,
+                    Tipo = tipo,
+                    IdProducto = idProducto,
+                    IdServicio = idServicio,
+                    Cantidad = cantidad,
+                    PrecioUnitario = precioUnitario,
+                    Impuestos = impuestos
+                };
+
+                _context.CarritoItems.Add(newItem);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Carrito");
         }
 
-
-
-
-
-        [HttpGet]
-        public async Task<IActionResult> GetCarritoCount()
-        {
-            int totalItems = await _context.Carrito.SumAsync(c => c.Cantidad);
-            return Json(new { cantidadCarrito = totalItems });
-        }
-
-
-
-
+        // ===============================================
+        // 3) Eliminar ítem (POST /Carrito/EliminarItem)
+        // ===============================================
         [HttpPost]
-        public async Task<IActionResult> EliminarItem([FromForm] int idCarrito)
+        public async Task<IActionResult> EliminarItem(int idCarritoItem)
         {
-            try
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0 || rolId != 3)
             {
-                if (idCarrito <= 0)
-                {
-                    return BadRequest(new { mensaje = "ID de carrito no válido." });
-                }
-
-                var item = await _context.Carrito.FindAsync(idCarrito);
-                if (item == null)
-                {
-                    return NotFound(new { mensaje = "El ítem no existe en el carrito." });
-                }
-
-                // ✅ Si la cantidad es mayor a 1, solo restar 1
-                if (item.Cantidad > 1)
-                {
-                    item.Cantidad -= 1;
-                    _context.Carrito.Update(item);
-                }
-                else
-                {
-                    // ✅ Si la cantidad es 1, eliminar completamente
-                    _context.Carrito.Remove(item);
-                }
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Carrito"); // 🔹 Redirige a la vista del carrito
+                TempData["ErrorMessage"] = "No autorizado para eliminar ítems.";
+                return RedirectToAction("Index", "Home");
             }
-            catch (Exception ex)
+
+            var item = await _context.CarritoItems.FindAsync(idCarritoItem);
+            if (item == null)
+                return NotFound("Ítem no encontrado.");
+
+            if (item.Cantidad > 1)
             {
-                return BadRequest(new { mensaje = "Hubo un problema al eliminar el ítem.", error = ex.Message });
+                // Si hay más de 1, restamos 1
+                item.Cantidad -= 1;
+                decimal subtotal = item.Cantidad * item.PrecioUnitario;
+                item.Impuestos = subtotal * TAX_RATE; // recalcular el impuesto
+                _context.CarritoItems.Update(item);
             }
+            else
+            {
+                // Si la cantidad es 1, se elimina la fila
+                _context.CarritoItems.Remove(item);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Carrito");
         }
 
 
-        // ✅ Vaciar los ítems del carrito
+
+        // ===============================================
+        // 5) AplicarDescuento => POST
+        // ===============================================
         [HttpPost]
-        public async Task<IActionResult> VaciarCarrito()
+        [Authorize]
+        public async Task<IActionResult> AplicarDescuento(string codigoDescuento)
         {
-            try
+            if (string.IsNullOrWhiteSpace(codigoDescuento))
             {
-                var carrito = await _context.Carrito.ToListAsync();
-
-                if (!carrito.Any())
-                {
-                    return Ok(new { mensaje = "El carrito ya está vacío." });
-                }
-
-                _context.Carrito.RemoveRange(carrito);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { mensaje = "El carrito ha sido vaciado correctamente." });
+                TempData["ErrorMessage"] = "Debe ingresar un código de descuento.";
+                return RedirectToAction("Checkout");
             }
-            catch (Exception ex)
+
+            int userId = GetUserId();
+
+            // Obtener el paciente asociado al usuario
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.IdUsuario == userId);
+
+            if (paciente == null)
             {
-                return StatusCode(500, new { mensaje = "Error interno al vaciar el carrito.", error = ex.Message });
+                TempData["ErrorMessage"] = "No se pudo identificar al paciente.";
+                return RedirectToAction("Checkout");
             }
+
+            string codigo = codigoDescuento.Trim().ToLower();
+
+            // Buscar si existe el código de descuento y está activo
+            var descuento = await _context.Descuentos
+                .FirstOrDefaultAsync(d =>
+                    d.Codigo.ToLower() == codigo &&
+                    d.Estado == true);
+
+            if (descuento == null)
+            {
+                TempData["ErrorMessage"] = "El código ingresado no es válido o ya no está activo.";
+                TempData.Remove("CodigoAplicado");
+                TempData.Remove("PorcentajeDescuento");
+                return RedirectToAction("Checkout");
+            }
+
+            // Verificar si el paciente ya ha usado este descuento anteriormente en una factura
+            bool yaUsado = await _context.Facturas
+                .AnyAsync(f => f.IdDescuento == descuento.IdDescuento && f.Compra.IdPaciente == paciente.IdPaciente);
+
+            if (yaUsado)
+            {
+                TempData["ErrorMessage"] = "Ya has utilizado este código de descuento anteriormente.";
+                TempData.Remove("CodigoAplicado");
+                TempData.Remove("PorcentajeDescuento");
+            }
+            else
+            {
+                // Código válido y aún no utilizado por el paciente
+                TempData["CodigoAplicado"] = descuento.Codigo;
+                TempData["PorcentajeDescuento"] = descuento.PorcentajeDescuento.ToString("F2", CultureInfo.InvariantCulture);
+                TempData["SuccessMessage"] = "¡Código aplicado correctamente!";
+            }
+
+            return RedirectToAction("Checkout");
         }
 
-        // ✅ Vaciar carrito (Checkout)
-        [HttpPost]
+
+
+
+
+        // ===============================================
+        // 5.1) Checkout => vista de pago
+        // ===============================================
+
+        [Authorize]
         public async Task<IActionResult> Checkout()
         {
-            var carrito = await _context.Carrito.ToListAsync();
-            if (!carrito.Any())
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0 || rolId != 3)
             {
-                return BadRequest(new { mensaje = "El carrito está vacío." });
+                TempData["ErrorMessage"] = "No autorizado para Checkout.";
+                return RedirectToAction("Index", "Home");
             }
 
-            _context.Carrito.RemoveRange(carrito);
+            var pacienteId = await _context.Pacientes
+                .Where(p => p.IdUsuario == userId)
+                .Select(p => p.IdPaciente)
+                .FirstOrDefaultAsync();
+
+            var carrito = await _context.Carrito
+                .FirstOrDefaultAsync(c => c.IdPaciente == pacienteId && c.Estado == "abierto");
+
+            if (carrito == null)
+            {
+                TempData["ErrorMessage"] = "No hay un carrito abierto para continuar con el pago.";
+                return RedirectToAction("Carrito");
+            }
+
+            var items = await _context.CarritoItems
+                .Include(ci => ci.Producto)
+                .Include(ci => ci.Servicio)
+                .Where(ci => ci.IdCarrito == carrito.IdCarrito)
+                .ToListAsync();
+
+            // ================================
+            // 🔍 Aplicación del Descuento
+            // ================================
+            string codigoDescuento = TempData["CodigoAplicado"] as string;
+            string porcentajeDescuentoString = TempData["PorcentajeDescuento"] as string;
+
+            if (!string.IsNullOrWhiteSpace(codigoDescuento))
+            {
+                var descuento = await _context.Descuentos
+                    .FirstOrDefaultAsync(d => d.Codigo.ToLower() == codigoDescuento.ToLower() && d.Estado == true);
+
+                if (descuento != null)
+                {
+                    ViewBag.CodigoAplicado = descuento.Codigo;
+                    ViewBag.PorcentajeDescuento = descuento.PorcentajeDescuento;
+
+                    // Guardar en TempData como string para evitar error de serialización
+                    TempData["CodigoAplicado"] = descuento.Codigo;
+                    TempData["PorcentajeDescuento"] = descuento.PorcentajeDescuento.ToString("F2", CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "El código ingresado no es válido o está inactivo.";
+                    TempData.Remove("CodigoAplicado");
+                    TempData.Remove("PorcentajeDescuento");
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(porcentajeDescuentoString))
+            {
+                if (decimal.TryParse(porcentajeDescuentoString, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal porcentaje))
+                {
+                    ViewBag.PorcentajeDescuento = porcentaje;
+                }
+
+                ViewBag.CodigoAplicado = codigoDescuento;
+
+                // Reasignamos para mantenerlo tras reloads
+                TempData["CodigoAplicado"] = codigoDescuento;
+                TempData["PorcentajeDescuento"] = porcentajeDescuentoString;
+            }
+
+            // ================================
+            // Datos del paciente y métodos de pago
+            // ================================
+            var paciente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.IdPaciente == pacienteId);
+
+            ViewBag.Paciente = paciente;
+
+            var metodos = await _context.MetodoDePago.ToListAsync();
+            ViewBag.MetodosDePago = metodos;
+            ViewBag.IdPaciente = pacienteId;
+
+            return View("Checkout", items);
+        }
+
+
+
+
+        // ===============================================
+        // 6) RegistrarCompra => POST
+        // ===============================================
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> RegistrarCompra(
+            DateTime FechaCompra,
+            string Estado,
+            decimal MontoTotal,
+            int IdMetodoDePago,
+            bool SolicitaFinanciamiento,
+            string Nombre
+        )
+        {
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0 || rolId != 3)
+            {
+                TempData["ErrorMessage"] = "No autorizado para registrar compras.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var paciente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.IdUsuario == userId);
+
+            if (paciente == null)
+            {
+                TempData["ErrorMessage"] = "Paciente no encontrado.";
+                return RedirectToAction("Carrito");
+            }
+
+            var carrito = await _context.Carrito
+                .FirstOrDefaultAsync(c => c.IdPaciente == paciente.IdPaciente && c.Estado == "abierto");
+
+            if (carrito == null)
+            {
+                TempData["ErrorMessage"] = "No hay un carrito abierto para continuar.";
+                return RedirectToAction("Carrito");
+            }
+
+            var items = await _context.CarritoItems
+                .Where(ci => ci.IdCarrito == carrito.IdCarrito)
+                .ToListAsync();
+
+            if (!items.Any())
+            {
+                TempData["ErrorMessage"] = "El carrito está vacío.";
+                return RedirectToAction("Carrito");
+            }
+
+            // ✅ Validar stock antes de procesar la compra
+            foreach (var item in items)
+            {
+                if (item.Tipo == "producto" && item.IdProducto.HasValue)
+                {
+                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == item.IdProducto.Value);
+                    if (producto == null || producto.Stock < item.Cantidad)
+                    {
+                        TempData["ErrorMessage"] = $"El producto '{producto?.Nombre ?? "Desconocido"}' no tiene suficiente stock.";
+                        return RedirectToAction("Carrito");
+                    }
+                }
+            }
+
+            // Crear compra
+            var compra = new CompraModel
+            {
+                IdPaciente = paciente.IdPaciente,
+                FechaCompra = FechaCompra,
+                Estado = Estado,
+                MontoTotal = MontoTotal
+            };
+            _context.Compras.Add(compra);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensaje = "Compra realizada con éxito." });
-            // ✅ Procesar pago y generar factura
-            [HttpPost("ProcesarPago")]
-             async Task<IActionResult> ProcesarPago([FromBody] FinanciamientoModel financiamiento)
+            // Detalles de compra y actualización de stock
+            foreach (var item in items)
             {
-                if (financiamiento == null || financiamiento.IdPaciente <= 0 || financiamiento.MontoTotal <= 0)
+                var detalle = new DetalleCompraModel
                 {
-                    return BadRequest(new { mensaje = "Datos de financiamiento inválidos." });
-                }
+                    IdCompra = compra.IdCompra,
+                    Tipo = item.Tipo,
+                    IdProducto = item.IdProducto,
+                    IdServicio = item.IdServicio,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.PrecioUnitario,
+                    Impuestos = item.Impuestos
+                };
+                _context.DetallesCompra.Add(detalle);
 
-                try
+                // ✅ Disminuir stock si es producto
+                if (item.Tipo == "producto" && item.IdProducto.HasValue)
                 {
-                    // ✅ Obtener los productos en el carrito
-                    var carritoItems = await _context.Carrito.Include(c => c.Producto).ToListAsync();
-                    if (carritoItems == null || !carritoItems.Any())
+                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == item.IdProducto.Value);
+                    if (producto != null)
                     {
-                        return BadRequest(new { mensaje = "No hay productos en el carrito." });
+                        producto.Stock -= item.Cantidad;
+                        if (producto.Stock < 0) producto.Stock = 0; // protección extra
+                        _context.Productos.Update(producto);
                     }
-
-                    // ✅ Calcular el subtotal
-                    decimal subtotal = carritoItems.Sum(item => (item.Cantidad * (item.PrecioUnitario ?? 0m)));
-
-                    // ✅ Aplicar impuestos (13%)
-                    decimal impuestos = Math.Round(subtotal * 0.13m, 2);
-
-                    // ✅ Calcular el total final
-                    decimal totalConImpuestos = subtotal + impuestos;
-
-                    // ✅ Crear un nuevo registro de factura
-                    var nuevaFactura = new FacturasModel
-                    {
-                        IdPaciente = financiamiento.IdPaciente,
-                        IdEmpleado = null,
-                        MetodoPago = "Financiamiento",
-                        Total = totalConImpuestos,
-                        Fecha = DateTime.UtcNow
-                    };
-
-                    _context.Facturas.Add(nuevaFactura);
-                    await _context.SaveChangesAsync();
-
-                    // ✅ Asociar los productos de la factura
-                    foreach (var item in carritoItems)
-                    {
-                        var detalle = new FacturaDetalleModel
-                        {
-                            IdFactura = nuevaFactura.IdFactura,
-                            IdProducto = item.IdProducto ?? 0,
-                            Cantidad = item.Cantidad,
-                            Subtotal = (item.Cantidad * (item.PrecioUnitario ?? 0m))
-                        };
-
-                        _context.FacturaDetalles.Add(detalle);
-                    }
-
-                    await _context.SaveChangesAsync();
-
-                    // ✅ Generar un registro de financiamiento
-                    var nuevoFinanciamiento = new FinanciamientoModel
-                    {
-                        IdPaciente = financiamiento.IdPaciente,
-                        IdTratamiento = financiamiento.IdTratamiento,
-                        MontoTotal = totalConImpuestos,
-                        TasaInteres = financiamiento.TasaInteres,
-                        Cuotas = financiamiento.Cuotas,
-                        FechaInicio = DateTime.UtcNow,
-                        Estado = "Activo"
-                    };
-
-                    _context.Financiamientos.Add(nuevoFinanciamiento);
-                    await _context.SaveChangesAsync();
-
-                    // ✅ Vaciar el carrito después de procesar el pago
-                    _context.Carrito.RemoveRange(carritoItems);
-                    await _context.SaveChangesAsync();
-
-                    return Ok(new
-                    {
-                        mensaje = "Pago procesado exitosamente con financiamiento.",
-                        facturaId = nuevaFactura.IdFactura,
-                        subtotal,
-                        impuestos,
-                        totalConImpuestos
-                    });
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { mensaje = "Hubo un error al procesar el financiamiento.", error = ex.Message });
                 }
             }
+            await _context.SaveChangesAsync();
+
+            // Aplicar descuento si hay
+            string codigo = TempData["CodigoAplicado"] as string;
+            DescuentoModel descuento = null;
+
+            if (!string.IsNullOrWhiteSpace(codigo))
+            {
+                descuento = await _context.Descuentos
+                    .FirstOrDefaultAsync(d => d.Codigo == codigo && d.Estado);
+            }
+
+            // Crear factura
+            var factura = new FacturaModel
+            {
+                IdCompra = compra.IdCompra,
+                NombreCliente = paciente.Nombre,
+                ApellidosCliente = paciente.Apellidos,
+                CedulaCliente = paciente.Usuario?.Cedula,
+                CorreoCliente = paciente.Usuario?.CorreoElectronico,
+                Fecha = DateTime.Now,
+                IdMetodoPago = IdMetodoDePago,
+                IdDescuento = descuento?.IdDescuento
+            };
+            _context.Facturas.Add(factura);
+            await _context.SaveChangesAsync();
+
+            // Detalles de factura
+            foreach (var item in items)
+            {
+                decimal subtotal = item.PrecioUnitario * item.Cantidad;
+                var df = new DetalleFacturaModel
+                {
+                    IdFactura = factura.IdFactura,
+                    Tipo = item.Tipo,
+                    IdProducto = item.IdProducto,
+                    IdServicio = item.IdServicio,
+                    Cantidad = item.Cantidad,
+                    Subtotal = subtotal,
+                    Impuestos = item.Impuestos,
+                    Total = subtotal + item.Impuestos
+                };
+                _context.DetallesFactura.Add(df);
+            }
+            await _context.SaveChangesAsync();
+
+            // Cerrar carrito
+            carrito.Estado = "cerrado";
+            _context.Carrito.Update(carrito);
+            _context.CarritoItems.RemoveRange(items);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("CompraCompletada", new { idCompra = compra.IdCompra });
+        }
+
+
+
+        // ===============================================
+        // 7) Confirmación final
+        // ===============================================
+        [Authorize]
+        public async Task<IActionResult> CompraCompletada(int idCompra)
+        {
+            var compra = await _context.Compras
+                .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
+                .Include(c => c.Facturas)
+                    .ThenInclude(f => f.MetodoPago)
+                .Include(c => c.Facturas)
+                    .ThenInclude(f => f.Descuento)
+                .Include(c => c.Facturas)
+                    .ThenInclude(f => f.DetallesFactura)
+                        .ThenInclude(df => df.Producto)
+                .Include(c => c.Facturas)
+                    .ThenInclude(f => f.DetallesFactura)
+                        .ThenInclude(df => df.Servicio)
+                .FirstOrDefaultAsync(c => c.IdCompra == idCompra);
+
+            if (compra == null)
+                return NotFound("Compra no encontrada.");
+
+            return View(compra);
+        }
+
+
+        // ========== Métodos auxiliares =================
+        private int GetUserId()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            int.TryParse(userIdClaim, out int userId);
+            return userId;
+        }
+        private int GetRolId()
+        {
+            var rolIdClaim = User.FindFirst("RolID")?.Value;
+            int.TryParse(rolIdClaim, out int rolId);
+            return rolId;
         }
     }
 }

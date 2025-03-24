@@ -45,10 +45,18 @@ namespace WebApplication1.Models
         // Relación con Citas (1 Paciente puede tener muchas citas)
         public virtual ICollection<CitasModel> Citas { get; set; } = new List<CitasModel>();
 
-        // Relación con Historial Médico (1 Paciente puede tener múltiples historiales)
-        public virtual ICollection<HistorialMedicoModel> HistorialMedico { get; set; } = new List<HistorialMedicoModel>();
+        public virtual ICollection<HistorialMedicoModel> HistorialesMedicos { get; set; } = new List<HistorialMedicoModel>();
 
-        // Relación con Facturas (1 Paciente puede tener múltiples facturas)
-        public virtual ICollection<FacturasModel> Facturas { get; set; } = new List<FacturasModel>();
+
+        // Relación con Compras (1 Paciente puede tener múltiples compras)
+        public virtual ICollection<CompraModel> Compras { get; set; } = new List<CompraModel>();
+
+        // Relación con Financiamientos (1 Paciente puede tener múltiples)
+        public virtual ICollection<FinanciamientoModel> Financiamientos { get; set; } = new List<FinanciamientoModel>();
+
+        // Relación con HistorialCompras (1 Paciente puede tener múltiples registros)
+        public virtual ICollection<HistorialComprasModel> HistorialCompras { get; set; } = new List<HistorialComprasModel>();
+
+
     }
 }

@@ -47,13 +47,17 @@ namespace WebApplication1.Controllers
 
             if (rolID == 3) // Cliente solo ve sus propias citas
             {
-                var paciente = await _context.Pacientes
+                // Buscar el ID del paciente asociado a este usuario
+                var pacienteId = await _context.Pacientes
                     .Where(p => p.IdUsuario == userId)
                     .Select(p => p.IdPaciente)
                     .FirstOrDefaultAsync();
 
-                citasQuery = citasQuery.Where(c => c.IdPaciente == paciente);
-                Console.WriteLine($"🎯 Filtrando citas del paciente ID={paciente}");
+                citasQuery = citasQuery.Where(c => c.IdPaciente == pacienteId);
+                Console.WriteLine($"🎯 Filtrando citas del paciente ID={pacienteId}");
+
+                // Asignar el ID del paciente al ViewBag para que el layout lo pueda usar
+                ViewBag.IdPaciente = pacienteId;
             }
             else if (rolID == 4) // Doctor solo ve sus citas asignadas
             {
@@ -77,10 +81,10 @@ namespace WebApplication1.Controllers
                 ViewBag.UserEmpleadoId = empleadoId;
             }
 
-            // 🔹 Ordenar las citas por estado y fecha:
+            // Ordenar las citas por estado y fecha
             var citasList = await citasQuery
-                .OrderBy(c => c.Estado == "Pendiente" ? 1 : c.Estado == "Confirmada" ? 2 : 3) // 1: Pendiente, 2: Confirmada, 3: Cancelada
-                .ThenBy(c => c.FechaHora) // Ordenar por fecha dentro de cada estado
+                .OrderBy(c => c.Estado == "Pendiente" ? 1 : c.Estado == "Confirmada" ? 2 : 3)
+                .ThenBy(c => c.FechaHora)
                 .ToListAsync();
 
             var citas = citasList.ToPagedList(pageNumber, pageSize);
@@ -95,6 +99,7 @@ namespace WebApplication1.Controllers
             ViewBag.UserId = userId;
             return View(citas);
         }
+
 
 
         [HttpGet]

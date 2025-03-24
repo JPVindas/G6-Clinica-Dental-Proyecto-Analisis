@@ -1,0 +1,70 @@
+﻿@model WebApplication1.Models.DescuentoModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Archivar Descuento";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Archivar Descuento</h1>
+    <p class="lead">Confirme la acción para archivar este descuento.</p>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem;">
+            Archivar Descuento
+        </div>
+        <div class="card-body" style="color: #003366;">
+            <div class="mb-3">
+                <label class="form-label"><strong>Código:</strong></label>
+                <p>@Model.Codigo</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"><strong>Porcentaje de Descuento:</strong></label>
+                <p>@Model.PorcentajeDescuento.ToString("N2", CultureInfo.InvariantCulture)%</p>
+            </div>
+            <div class="mb-3">
+                <strong>Estado Actual:</strong>
+                @if (Model.Estado)
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Archivado</span>
+                }
+            </div>
+            <form asp-action="ArchivarDescuento" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdDescuento" />
+                <button type="submit" class="btn btn-danger w-100 fw-bold" onclick="return confirm('¿Estás seguro de archivar este descuento?');">
+                    <i class="bi bi-archive-fill"></i> Archivar Descuento
+                </button>
+            </form>
+            <!-- Botón para volver a la vista Descuentos -->
+            <div class="mt-3">
+                <a asp-action="Descuentos" class="btn btn-secondary w-100 fw-bold">
+                    <i class="bi bi-arrow-left-circle"></i> Volver a Descuentos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos personalizados para el botón de Archivar Descuento */
+    button.btn.btn-danger {
+        background-color: #dc3545 !important; /* Rojo Bootstrap */
+        border-color: #dc3545 !important;
+        color: #ffffff !important;
+    }
+
+        button.btn.btn-danger:hover {
+            background-color: #c82333 !important;
+            border-color: #bd2130 !important;
+            color: #ffffff !important;
+        }
+
+
+</style>
