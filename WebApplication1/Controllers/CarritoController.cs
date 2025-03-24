@@ -463,13 +463,12 @@ namespace WebApplication1.Controllers
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> RegistrarCompra(
-            DateTime FechaCompra,
-            string Estado,
-            decimal MontoTotal,
-            int IdMetodoDePago,
-            bool SolicitaFinanciamiento,
-            string Nombre
-        )
+     DateTime FechaCompra,
+     string Estado,
+     decimal MontoTotal,
+     int IdMetodoDePago,
+     bool SolicitaFinanciamiento,
+     string Nombre)
         {
             int userId = GetUserId();
             int rolId = GetRolId();
@@ -500,7 +499,8 @@ namespace WebApplication1.Controllers
             }
 
             var items = await _context.CarritoItems
-                .Where(ci => ci.IdCarrito == carrito.IdCarrito)
+                .Include(i => i.Servicio)
+                .Where(i => i.IdCarrito == carrito.IdCarrito)
                 .ToListAsync();
 
             if (!items.Any())
@@ -509,32 +509,49 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Carrito");
             }
 
-            // ✅ Validar stock antes de procesar la compra
-            foreach (var item in items)
+            // Financiamiento solo para servicios
+            int? idFinanciamiento = null;
+            if (SolicitaFinanciamiento)
             {
-                if (item.Tipo == "producto" && item.IdProducto.HasValue)
+                var itemServicio = items.FirstOrDefault(i => i.Tipo == "servicio" && i.IdServicio.HasValue);
+                if (itemServicio != null)
                 {
-                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == item.IdProducto.Value);
-                    if (producto == null || producto.Stock < item.Cantidad)
+                    var tratamiento = await _context.Tratamientos
+                        .FirstOrDefaultAsync(t => t.IdServicio == itemServicio.IdServicio);
+
+                    if (tratamiento != null)
                     {
-                        TempData["ErrorMessage"] = $"El producto '{producto?.Nombre ?? "Desconocido"}' no tiene suficiente stock.";
-                        return RedirectToAction("Carrito");
+                        var nuevoFinanciamiento = new FinanciamientoModel
+                        {
+                            IdPaciente = paciente.IdPaciente,
+                            IdTratamiento = tratamiento.IdTratamiento,
+                            MontoTotal = tratamiento.Costo,
+                            MontoPagado = 0m,
+                            TasaInteres = 3.5m,
+                            Cuotas = 12,
+                            FechaInicio = DateTime.Today,
+                            FechaFinal = DateTime.Today.AddMonths(12)
+                        };
+
+                        _context.Financiamientos.Add(nuevoFinanciamiento);
+                        await _context.SaveChangesAsync();
+
+                        idFinanciamiento = nuevoFinanciamiento.IdFinanciamiento;
                     }
                 }
             }
 
-            // Crear compra
             var compra = new CompraModel
             {
                 IdPaciente = paciente.IdPaciente,
                 FechaCompra = FechaCompra,
                 Estado = Estado,
-                MontoTotal = MontoTotal
+                MontoTotal = MontoTotal,
+                IdFinanciamiento = idFinanciamiento
             };
             _context.Compras.Add(compra);
             await _context.SaveChangesAsync();
 
-            // Detalles de compra y actualización de stock
             foreach (var item in items)
             {
                 var detalle = new DetalleCompraModel
@@ -549,31 +566,23 @@ namespace WebApplication1.Controllers
                 };
                 _context.DetallesCompra.Add(detalle);
 
-                // ✅ Disminuir stock si es producto
                 if (item.Tipo == "producto" && item.IdProducto.HasValue)
                 {
-                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Id == item.IdProducto.Value);
+                    var producto = await _context.Productos.FindAsync(item.IdProducto);
                     if (producto != null)
                     {
                         producto.Stock -= item.Cantidad;
-                        if (producto.Stock < 0) producto.Stock = 0; // protección extra
                         _context.Productos.Update(producto);
                     }
                 }
             }
             await _context.SaveChangesAsync();
 
-            // Aplicar descuento si hay
-            string codigo = TempData["CodigoAplicado"] as string;
-            DescuentoModel descuento = null;
+            var codigo = TempData["CodigoAplicado"] as string;
+            var descuento = !string.IsNullOrWhiteSpace(codigo)
+                ? await _context.Descuentos.FirstOrDefaultAsync(d => d.Codigo == codigo && d.Estado == true)
+                : null;
 
-            if (!string.IsNullOrWhiteSpace(codigo))
-            {
-                descuento = await _context.Descuentos
-                    .FirstOrDefaultAsync(d => d.Codigo == codigo && d.Estado);
-            }
-
-            // Crear factura
             var factura = new FacturaModel
             {
                 IdCompra = compra.IdCompra,
@@ -583,16 +592,16 @@ namespace WebApplication1.Controllers
                 CorreoCliente = paciente.Usuario?.CorreoElectronico,
                 Fecha = DateTime.Now,
                 IdMetodoPago = IdMetodoDePago,
-                IdDescuento = descuento?.IdDescuento
+                IdDescuento = descuento?.IdDescuento,
+                IdFinanciamiento = idFinanciamiento
             };
             _context.Facturas.Add(factura);
             await _context.SaveChangesAsync();
 
-            // Detalles de factura
             foreach (var item in items)
             {
-                decimal subtotal = item.PrecioUnitario * item.Cantidad;
-                var df = new DetalleFacturaModel
+                var subtotal = item.PrecioUnitario * item.Cantidad;
+                var detalleFactura = new DetalleFacturaModel
                 {
                     IdFactura = factura.IdFactura,
                     Tipo = item.Tipo,
@@ -603,11 +612,22 @@ namespace WebApplication1.Controllers
                     Impuestos = item.Impuestos,
                     Total = subtotal + item.Impuestos
                 };
-                _context.DetallesFactura.Add(df);
+                _context.DetallesFactura.Add(detalleFactura);
             }
             await _context.SaveChangesAsync();
 
-            // Cerrar carrito
+            var historial = new HistorialComprasModel
+            {
+                IdPaciente = paciente.IdPaciente,
+                FechaCompra = DateTime.Now,
+                IdFactura = factura.IdFactura,
+                IdFinanciamiento = idFinanciamiento,
+                Tipo = "compra",
+                MontoTotal = compra.MontoTotal
+            };
+            _context.HistorialCompras.Add(historial);
+            await _context.SaveChangesAsync();
+
             carrito.Estado = "cerrado";
             _context.Carrito.Update(carrito);
             _context.CarritoItems.RemoveRange(items);
@@ -615,7 +635,6 @@ namespace WebApplication1.Controllers
 
             return RedirectToAction("CompraCompletada", new { idCompra = compra.IdCompra });
         }
-
 
 
         // ===============================================

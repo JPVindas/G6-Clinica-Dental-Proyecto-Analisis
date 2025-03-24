@@ -290,6 +290,35 @@ namespace WebApplication1.DATA
             // HISTORIAL_COMPRAS, CONTABILIDAD, etc.
             // (Configura si necesitas relaciones extras)
 
+            // ---------------------------------------------------
+            // HISTORIAL COMPRAS
+            // ---------------------------------------------------
+            // Relación entre HistorialCompras y Pacientes
+            modelBuilder.Entity<HistorialComprasModel>()
+                .HasOne(h => h.Paciente)
+                .WithMany(p => p.HistorialCompras)
+                .HasForeignKey(h => h.IdPaciente)
+                .HasConstraintName("FK_HistorialCompras_Pacientes") // cambia aquí a plural si la tabla real se llama "Pacientes"
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación con Factura
+            modelBuilder.Entity<HistorialComprasModel>()
+                .HasOne(h => h.Factura)
+                .WithMany() // sin navegación inversa
+                .HasForeignKey(h => h.IdFactura)
+                .HasConstraintName("FK_HistorialCompras_Factura")
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Relación con Financiamiento
+            modelBuilder.Entity<HistorialComprasModel>()
+                .HasOne(h => h.Financiamiento)
+                .WithMany() // sin navegación inversa
+                .HasForeignKey(h => h.IdFinanciamiento)
+                .HasConstraintName("FK_HistorialCompras_Financiamiento")
+                .OnDelete(DeleteBehavior.SetNull);
+
+
+
             base.OnModelCreating(modelBuilder);
         }
     }

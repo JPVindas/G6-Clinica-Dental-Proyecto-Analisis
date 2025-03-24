@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.Models
 {
-    
+
     [Table("historial_compras")]
     public class HistorialComprasModel
     {
@@ -33,16 +33,16 @@ namespace WebApplication1.Models
         [Column("monto_total", TypeName = "decimal(10,2)")]
         public decimal? MontoTotal { get; set; }
 
-        // Relación con Pacientes
-        [ForeignKey("IdPaciente")]
-        public PacientesModel Paciente { get; set; }
+        // Relación correcta con Paciente
+        [ForeignKey(nameof(IdPaciente))]
+        public virtual PacientesModel Paciente { get; set; }
 
-        // Relación con Financiamiento
-        [ForeignKey("IdFinanciamiento")]
+        [ForeignKey(nameof(IdFinanciamiento))]
         public virtual FinanciamientoModel Financiamiento { get; set; }
 
-        // Relación con Factura
-        [ForeignKey("IdFactura")]
+        [ForeignKey(nameof(IdFactura))]
         public virtual FacturaModel Factura { get; set; }
     }
+
+
 }
