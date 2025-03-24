@@ -102,9 +102,12 @@
 
                 <div class="mt-4 d-flex justify-content-between align-items-center">
                     <!-- Botón para vaciar carrito -->
-                    <button id="clear-cart" class="btn btn-danger fw-bold">
-                        <i class="bi bi-trash3-fill"></i> Vaciar Carrito
-                    </button>
+                    <form asp-action="VaciarCarrito" asp-controller="Carrito" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger fw-bold">
+                            <i class="bi bi-trash3-fill"></i> Vaciar Carrito
+                        </button>
+                    </form>
+
 
                     <!-- Totales globales -->
                     <div class="text-end fw-bold">

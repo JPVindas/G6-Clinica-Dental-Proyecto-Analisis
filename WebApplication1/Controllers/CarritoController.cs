@@ -244,6 +244,55 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Carrito");
         }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> VaciarCarrito()
+        {
+            int userId = GetUserId();
+            int rolId = GetRolId();
+
+            if (userId == 0 || rolId != 3)
+            {
+                TempData["ErrorMessage"] = "No autorizado para vaciar el carrito.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.IdUsuario == userId);
+
+            if (paciente == null)
+            {
+                TempData["ErrorMessage"] = "Paciente no encontrado.";
+                return RedirectToAction("Carrito");
+            }
+
+            var carrito = await _context.Carrito
+                .FirstOrDefaultAsync(c => c.IdPaciente == paciente.IdPaciente && c.Estado == "abierto");
+
+            if (carrito == null)
+            {
+                TempData["ErrorMessage"] = "No se encontró un carrito activo.";
+                return RedirectToAction("Carrito");
+            }
+
+            var items = await _context.CarritoItems
+                .Where(ci => ci.IdCarrito == carrito.IdCarrito)
+                .ToListAsync();
+
+            if (items.Any())
+            {
+                _context.CarritoItems.RemoveRange(items);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Todos los ítems han sido eliminados del carrito.";
+            }
+            else
+            {
+                TempData["InfoMessage"] = "El carrito ya está vacío.";
+            }
+
+            return RedirectToAction("Carrito");
+        }
+
 
 
         // ===============================================
