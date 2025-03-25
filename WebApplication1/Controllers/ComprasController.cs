@@ -19,6 +19,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Compras
+
         public async Task<IActionResult> Index(int? page)
         {
             int pageNumber = page ?? 1;

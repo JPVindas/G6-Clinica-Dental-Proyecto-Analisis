@@ -1,5 +1,4 @@
-﻿
-* {
+﻿* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -8,6 +7,7 @@
 container-fluid {
     background-color #003366 !important;
 }
+
 /* Tipografías y Colores Base */
 body {
     font-family: 'Arial', sans-serif;
@@ -46,7 +46,6 @@ a {
         color: #FFFFFF;
     }
 
-
 button, .btn {
     font-family: 'Arial Bold', sans-serif;
     background-color: #003366;
@@ -75,8 +74,8 @@ header {
     }
 
 .navbar-custom {
-    background-color: #003366; /* Azul */
-    color: white; /* Letras blancas */
+    background-color: #003366;
+    color: white;
 }
 
 .navbar {
@@ -141,7 +140,6 @@ header {
     margin-right: 5px;
 }
 
-
 .jumbotron {
     background-color: #E6E6E6;
     color: #003366;
@@ -189,7 +187,6 @@ header {
         transform: scale(1.05);
     }
 
-
 footer {
     background-color: #003366;
     color: #FFFFFF;
@@ -217,6 +214,7 @@ footer {
             color: #66b2ff;
             text-decoration: underline;
         }
+
 .blockquote-footer {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -237,4 +235,82 @@ footer {
 
 btn-primary {
     color: #003366 !important;
+}
+
+/* PAGINACIÓN RESPONSIVA X.PagedList */
+.pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+    padding-left: 0;
+    margin-top: 30px;
+}
+
+.pagination li {
+    margin: 5px;
+}
+
+.pagination li a,
+.pagination li span {
+    display: block;
+    padding: 10px 16px;
+    color: #003366;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+}
+
+.pagination li.active span {
+    background-color: #003366;
+    color: white;
+    border-color: #003366;
+}
+
+.pagination li.disabled span {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #f8f9fa;
+}
+
+.pagination li a:hover {
+    background-color: #003366;
+    color: white;
+    border-color: #003366;
+}
+
+@media (max-width: 576px) {
+    .pagination li a,
+    .pagination li span {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+        border-radius: 10px;
+    }
+
+    /* Opcional: mejora visual en pantallas pequeñas */
+    @media (max-width: 768px) {
+        .table th, .table td {
+            white-space: nowrap;
+            font-size: 14px;
+            padding: 8px 10px;
+        }
+    }
+    .navbar-toggler {
+        color: white !important;
+
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+    }
+
+
 }
