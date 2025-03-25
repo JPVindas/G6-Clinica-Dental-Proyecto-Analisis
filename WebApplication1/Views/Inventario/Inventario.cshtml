@@ -1,7 +1,10 @@
-﻿@model IEnumerable<WebApplication1.Models.ProductosModel>
+﻿@model X.PagedList.IPagedList<WebApplication1.Models.ProductosModel>
+@using X.PagedList.Mvc.Core
+
 
 @{
     ViewData["Title"] = "Gestión de Inventario";
+    var estadoActual = Context.Request.Query["estadoFiltro"].ToString();
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -29,13 +32,15 @@
             📋 Listado de Productos
         </div>
         <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
-            <!-- Filtro por Estado y botón Agregar -->
             <div class="d-flex justify-content-between mb-3">
                 <div class="w-50 me-2">
                     <select id="estadoFiltro" class="form-control" onchange="filtrarPorEstado()">
                         <option value="">Filtrar por Estado</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
+                        <option value="Activo" selected="@(estadoActual == "Activo")">Activo</option>
+                        <option value="Inactivo" selected="@(estadoActual == "Inactivo")">Inactivo</option>
+
+
+
                     </select>
                 </div>
                 <div class="w-50">
@@ -45,7 +50,7 @@
                 </div>
             </div>
 
-            @if (Model == null || !Model.Any())
+            @if (!Model.Any())
             {
                 <div class="alert alert-warning text-center fw-bold">
                     ❌ No hay productos en el inventario.
@@ -65,7 +70,7 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr data-estado="@item.estado">
+                            <tr>
                                 <td>@item.Nombre</td>
                                 <td>@item.Stock</td>
                                 <td>
@@ -80,14 +85,11 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <!-- Editar -->
                                         <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning btn-md btn-action">
                                             <i class="bi bi-pencil-square text-white"></i>
                                         </a>
-
                                         @if (item.estado)
                                         {
-                                            <!-- Marcar como inactivo -->
                                             <a asp-controller="Inventario" asp-action="Eliminar" asp-route-id="@item.Id" class="btn btn-danger btn-md btn-action"
                                                onclick="return confirm('¿Estás seguro de que deseas archivar este producto?');">
                                                 <i class="bi bi-trash"></i>
@@ -95,7 +97,6 @@
                                         }
                                         else
                                         {
-                                            <!-- Reactivar -->
                                             <form asp-controller="Inventario" asp-action="Activar" asp-route-id="@item.Id" method="post">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="btn btn-success btn-md btn-action"
@@ -110,6 +111,22 @@
                         }
                     </tbody>
                 </table>
+
+                <!-- ✅ Paginación -->
+                <div class="d-flex justify-content-center mt-4">
+                    @Html.PagedListPager(Model, page => Url.Action("Inventario", new { page, estadoFiltro = estadoActual }),
+                        new PagedListRenderOptions
+                        {
+                            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            MaximumPageNumbersToDisplay = 5,
+                            UlElementClasses = new[] { "pagination" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" }
+                        })
+                </div>
             }
         </div>
     </div>
@@ -118,12 +135,21 @@
 <script>
     function filtrarPorEstado() {
         var estado = document.getElementById('estadoFiltro').value;
-        var url = '@Url.Action("Inventario", "Inventario")' + (estado ? "?estadoFiltro=" + estado : "?estadoFiltro=Activo");
+        var url = '@Url.Action("Inventario", "Inventario")' + (estado ? "?estadoFiltro=" + estado : "");
         window.location.href = url;
     }
 </script>
 
-<!-- Iconos y estilo -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
+<script>
+    function filtrarPorEstado() {
+        var estado = document.getElementById('estadoFiltro').value;
+        var url = '@Url.Action("Inventario", "Inventario")' + (estado ? "?estadoFiltro=" + estado : "");
+        window.location.href = url;
+    }
+</script>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
 <style>

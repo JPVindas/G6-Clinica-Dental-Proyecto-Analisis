@@ -44,12 +44,14 @@ namespace WebApplication1.Models
         public DateTime? FechaFinal { get; set; }
 
         [Column("estado")]
-        [StringLength(50)]
-        public string Estado { get; set; } = "Activo";
+        public string Estado { get; set; } // solo si existe la columna
+
 
         // Relaciones
         [ForeignKey("IdPaciente")]
-        public PacientesModel Paciente { get; set; }
+        public virtual PacientesModel Paciente { get; set; }
+
+
 
 
 

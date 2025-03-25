@@ -73,5 +73,15 @@ namespace WebApplication1.Models
         [InverseProperty("Factura")]
         public virtual ICollection<DetalleFacturaModel> DetallesFactura { get; set; }
 
-    }
+        // Propiedad calculada del total de la factura
+        [NotMapped]
+        public decimal MontoTotal
+        {
+            get
+            {
+                return DetallesFactura?.Sum(d => d.Total) ?? 0;
+            }
+        }
+
+        }
 }

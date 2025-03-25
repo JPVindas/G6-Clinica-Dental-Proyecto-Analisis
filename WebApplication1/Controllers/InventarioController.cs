@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
 using WebApplication1.DATA;
+using X.PagedList;
+using X.PagedList.Extensions;
+
 
 namespace WebApplication1.Controllers
 {
@@ -40,27 +43,32 @@ namespace WebApplication1.Controllers
 
 
         // ✅ LISTAR INVENTARIO
-        public async Task<IActionResult> Inventario(string estadoFiltro)
+        public IActionResult Inventario(string estadoFiltro, int? page)
         {
             var productos = _context.Productos.AsQueryable();
 
-            // Filtrar por estado si se especifica
             if (!string.IsNullOrEmpty(estadoFiltro))
             {
                 if (estadoFiltro == "Activo")
                 {
-                    productos = productos.Where(p => p.estado == true); // Filtra solo productos activos
+                    productos = productos.Where(p => p.estado == true);
                 }
                 else if (estadoFiltro == "Inactivo")
                 {
-                    productos = productos.Where(p => p.estado == false); // Filtra solo productos inactivos
+                    productos = productos.Where(p => p.estado == false);
                 }
             }
 
-            // Obtener la lista de productos con el filtro aplicado
-            var productoList = await productos.ToListAsync();
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
+            var productoList = productos
+                .OrderByDescending(p => p.Id)
+                .ToPagedList(pageNumber, pageSize);
+
             return View("Inventario", productoList);
         }
+
 
         // ✅ VER DETALLES DEL PRODUCTO
         public async Task<IActionResult> Detalles(int? id)

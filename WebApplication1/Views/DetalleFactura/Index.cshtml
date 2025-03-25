@@ -1,0 +1,108 @@
+﻿@model IPagedList<WebApplication1.Models.DetalleFacturaModel>
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Detalle de Facturas";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">📑 Detalles de Facturas</h1>
+    <p class="lead">Consulta detallada de productos y servicios facturados.</p>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-lg" style="border-radius: 10px;">
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Poppins', sans-serif;">
+            🧾 Listado de Detalles de Factura
+        </div>
+        <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-warning text-center fw-bold">
+                    ❌ No hay detalles registrados.
+                </div>
+            }
+            else
+            {
+                <table class="table table-striped table-hover text-center">
+                    <thead style="background-color: #003366; color: white;">
+                        <tr>
+                            <th>ID Detalle</th>
+                            <th>ID Factura</th>
+                            <th>Tipo</th>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Impuestos</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var nombre = item.Tipo == "producto" ? item.Producto?.Nombre : item.Servicio?.Nombre;
+
+                            <tr>
+                                <td>@item.IdDetalleFactura</td>
+                                <td>@item.IdFactura</td>
+                                <td>@item.Tipo</td>
+                                <td>@(nombre ?? "N/A")</td>
+                                <td>@item.Cantidad</td>
+                                <td>₡@item.Subtotal.ToString("N2")</td>
+                                <td>₡@item.Impuestos.ToString("N2")</td>
+                                <td>₡@item.Total.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="text-center mt-4">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new PagedListRenderOptions
+           {
+               LiElementClasses = new[] { "page-item" },
+               PageClasses = new[] { "page-link" },
+               UlElementClasses = new[] { "pagination", "justify-content-center" }
+           })
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+<style>
+    .card {
+        border-radius: 10px;
+        border: 1px solid #E6E6E6;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .pagination .page-item {
+        margin: 2px;
+    }
+
+    .pagination .page-link {
+        color: #003366 !important;
+        background-color: #fff;
+        border: 1px solid #003366;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+    }
+
+    .pagination .active .page-link {
+        background-color: #003366 !important;
+        color: white !important;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #66b2ff !important;
+        color: white !important;
+    }
+</style>

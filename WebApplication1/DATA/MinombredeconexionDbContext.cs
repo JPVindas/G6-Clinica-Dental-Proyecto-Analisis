@@ -317,6 +317,12 @@ namespace WebApplication1.DATA
                 .HasConstraintName("FK_HistorialCompras_Financiamiento")
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<FinanciamientoModel>()
+     .HasOne(f => f.Paciente)
+     .WithMany(p => p.Financiamientos)
+     .HasForeignKey(f => f.IdPaciente)
+     .OnDelete(DeleteBehavior.Restrict); // o .Cascade si preferís
+
 
 
             base.OnModelCreating(modelBuilder);

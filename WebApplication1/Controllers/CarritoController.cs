@@ -9,6 +9,7 @@ using System.Security.Claims;
 using WebApplication1.DATA; // Ajusta a tu namespace real
 using WebApplication1.Models;
 using System.Globalization;
+using System.Text;
 
 namespace WebApplication1.Controllers
 {
@@ -662,6 +663,30 @@ namespace WebApplication1.Controllers
 
             return View(compra);
         }
+
+        // ========== Generar Factura =================
+        [Authorize]
+        public async Task<IActionResult> GenerarFacturaPDF(int idCompra)
+        {
+            var compra = await _context.Compras
+                .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
+                .Include(c => c.Facturas).ThenInclude(f => f.MetodoPago)
+                .Include(c => c.Facturas).ThenInclude(f => f.Descuento)
+                .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Producto)
+                .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Servicio)
+                .FirstOrDefaultAsync(c => c.IdCompra == idCompra);
+
+            if (compra == null)
+                return NotFound("Compra no encontrada.");
+
+            // ⚙️ Generar el PDF usando QuestPDF
+            var pdfBytes = FacturaPDFGenerator.GenerarFactura(compra);
+
+            return File(pdfBytes, "application/pdf", $"Factura_{compra.IdCompra}.pdf");
+        }
+
+
+
 
 
         // ========== Métodos auxiliares =================

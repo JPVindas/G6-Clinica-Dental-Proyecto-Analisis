@@ -1,12 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.DATA;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Configuration;
 using WebApplication1.Models;
 using System.Globalization;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using QuestPDF.Infrastructure; // 👈 Requerido para configurar la licencia de QuestPDF
+
+// 🧾 Configurar licencia de QuestPDF (obligatorio)
+QuestPDF.Settings.License = LicenseType.Community;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 🔌 Conexión a la base de datos
 var connectionString = builder.Configuration.GetConnectionString("Minombredeconexion");
 
 builder.Services.AddDbContext<MinombredeconexionDbContext>(options =>
@@ -15,8 +22,10 @@ builder.Services.AddDbContext<MinombredeconexionDbContext>(options =>
         ServerVersion.AutoDetect(connectionString)
     ));
 
+// 💾 Inyección de dependencias
 builder.Services.AddControllersWithViews();
 
+// 🔐 Autenticación y autorización
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -31,37 +40,42 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Paciente", policy => policy.RequireRole("Paciente"));
 });
 
+// ✉️ Configuración del correo
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-// ✅ Configurar la cultura para toda la aplicación
+// 🌐 Cultura general de la app
 var cultureInfo = new CultureInfo("es-CR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-var app = builder.Build();
-
-// Aplicar la configuración de cultura en las solicitudes HTTP
-app.UseRequestLocalization(new RequestLocalizationOptions
+// 🌍 Aplicar la configuración cultural
+builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(cultureInfo),
-    SupportedCultures = new List<CultureInfo> { cultureInfo },
-    SupportedUICultures = new List<CultureInfo> { cultureInfo }
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(cultureInfo);
+    options.SupportedCultures = new List<CultureInfo> { cultureInfo };
+    options.SupportedUICultures = new List<CultureInfo> { cultureInfo };
 });
 
+var app = builder.Build();
+
+// 🌐 Middleware de localización
+app.UseRequestLocalization();
+
+// 🛡️ Seguridad y errores
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+// 🚀 Middleware pipeline
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 🧭 Ruta por defecto
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -57,5 +57,8 @@ namespace WebApplication1.Models
 
         [ForeignKey("IdServicio")]
         public virtual ServiciosModel Servicio { get; set; }
+
+
+
     }
 }
