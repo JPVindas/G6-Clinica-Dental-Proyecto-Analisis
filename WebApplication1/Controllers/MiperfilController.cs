@@ -32,10 +32,12 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            ViewBag.IdPaciente = paciente.IdPaciente;
+
             return View(paciente);
         }
 
-        // ✅ Formulario para editar el perfil del paciente
+        // ✅ Formulario GET
         [HttpGet]
         public async Task<IActionResult> Editar()
         {
@@ -47,52 +49,53 @@ namespace WebApplication1.Controllers
             if (paciente == null)
             {
                 TempData["ErrorMessage"] = "No se encontró tu perfil.";
-                return RedirectToAction(nameof(MiPerfil)); // 🔹 Corrección aquí
+                return RedirectToAction(nameof(MiPerfil));
             }
 
             return View(paciente);
         }
 
-        // ✅ Guardar cambios en el perfil
+        // ✅ Guardar cambios
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(PacientesModel model)
         {
             int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
 
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.IdUsuario == userId);
-
-            if (paciente == null)
-            {
-                TempData["ErrorMessage"] = "No se encontró tu perfil.";
-                return RedirectToAction(nameof(MiPerfil)); // 🔹 Corrección aquí
-            }
-
             if (!ModelState.IsValid)
             {
+                TempData["ErrorMessage"] = "Hay errores en el formulario.";
                 return View(model);
             }
 
             try
             {
-                // ✅ Actualizar datos del paciente
-                paciente.Nombre = model.Nombre;
-                paciente.Apellidos = model.Apellidos;
-                paciente.Telefono = model.Telefono;
-                paciente.Direccion = model.Direccion;
-                paciente.Correo = model.Correo;
+                var pacienteExistente = await _context.Pacientes
+                    .FirstOrDefaultAsync(p => p.IdUsuario == userId);
 
-                _context.Entry(paciente).State = EntityState.Modified;
+                if (pacienteExistente == null)
+                {
+                    TempData["ErrorMessage"] = "No se encontró tu perfil.";
+                    return RedirectToAction(nameof(MiPerfil));
+                }
+
+                // ✅ Actualizar campos permitidos
+                pacienteExistente.Nombre = model.Nombre;
+                pacienteExistente.Apellidos = model.Apellidos;
+                pacienteExistente.Correo = model.Correo;
+                pacienteExistente.Telefono = model.Telefono;
+                pacienteExistente.Direccion = model.Direccion;
+
+                _context.Update(pacienteExistente);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Tu perfil ha sido actualizado correctamente.";
-                return RedirectToAction(nameof(MiPerfil)); // 🔹 Corrección aquí
+                return RedirectToAction(nameof(MiPerfil));
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ Error al actualizar perfil: {ex.Message}");
                 TempData["ErrorMessage"] = "Ocurrió un error inesperado al actualizar tu perfil.";
-                Console.WriteLine($"❌ Error: {ex.Message}");
                 return View(model);
             }
         }

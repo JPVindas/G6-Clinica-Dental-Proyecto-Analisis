@@ -5,7 +5,8 @@
 }
 
 <div class="jumbotron text-center">
-    <h1 class="display-4">Editar Perfil </h1>
+    <h1 class="display-4">✏️ Editar Perfil</h1>
+    <p class="lead">Modificá tus datos personales.</p>
 </div>
 
 <div class="row justify-content-center">
@@ -14,38 +15,61 @@
             <form asp-action="Editar" method="post">
                 @Html.AntiForgeryToken()
 
+                <!-- Mostrar resumen de validación -->
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <!-- Campo oculto con ID del paciente -->
+                <input type="hidden" asp-for="IdPaciente" />
+
                 <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input asp-for="Nombre" class="form-control" required>
+                    <label asp-for="Nombre" class="form-label"></label>
+                    <input asp-for="Nombre" class="form-control" maxlength="100" required />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Apellidos</label>
-                    <input asp-for="Apellidos" class="form-control" required>
+                    <label asp-for="Apellidos" class="form-label"></label>
+                    <input asp-for="Apellidos" class="form-control" maxlength="100" required />
+                    <span asp-validation-for="Apellidos" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Correo Electrónico</label>
-                    <input asp-for="Correo" type="email" class="form-control" required>
+                    <label asp-for="Correo" class="form-label"></label>
+                    <input asp-for="Correo" type="email" class="form-control" maxlength="150" required />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Teléfono</label>
-                    <input asp-for="Telefono" class="form-control">
+                    <label asp-for="Telefono" class="form-label"></label>
+                    <input asp-for="Telefono" class="form-control" maxlength="15" />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Dirección</label>
-                    <textarea asp-for="Direccion" class="form-control"></textarea>
+                    <label asp-for="Direccion" class="form-label"></label>
+                    <textarea asp-for="Direccion" class="form-control" maxlength="255" rows="3"></textarea>
+                    <span asp-validation-for="Direccion" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-success">
-                    <i></i> Guardar
-                </button>
-                <a asp-action="MiPerfil" class="btn btn-secondary">
-                    <i></i> Volver
-                </a>
+                <!-- Solo mostrar la fecha de registro (no editable) -->
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Registro</label>
+                    <input value="@Model.FechaRegistro.ToString("yyyy-MM-dd")" class="form-control" disabled />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="MiPerfil" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

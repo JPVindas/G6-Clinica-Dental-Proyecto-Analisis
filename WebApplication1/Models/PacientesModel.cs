@@ -53,10 +53,10 @@ namespace WebApplication1.Models
         public virtual ICollection<CompraModel> Compras { get; set; } = new List<CompraModel>();
 
         // Relación con Financiamientos (1 Paciente puede tener múltiples)
-        public virtual ICollection<FinanciamientoModel> Financiamientos { get; set; }
+        public virtual ICollection<FinanciamientoModel> Financiamientos { get; set; } = new List<FinanciamientoModel>();
 
-        // Relación con HistorialCompras (1 Paciente puede tener múltiples registros)
-        public virtual ICollection<HistorialComprasModel> HistorialCompras { get; set; }
+        public virtual ICollection<HistorialComprasModel> HistorialCompras { get; set; } = new List<HistorialComprasModel>();
+
 
 
 
