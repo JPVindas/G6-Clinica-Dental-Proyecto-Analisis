@@ -47,14 +47,16 @@
                                 <td>@(item.MetodoPago?.Nombre ?? "No especificado")</td>
                                 <td>@item.CorreoCliente</td>
                                 <td>
-                                    <a class="btn btn-outline-danger btn-sm fw-bold"
+                                    <a class="btn btn-outline-primary btn-sm fw-bold"
                                        asp-controller="Carrito"
                                        asp-action="GenerarFacturaPDF"
                                        asp-route-idCompra="@item.IdCompra"
-                                       target="_blank">
-                                        <i class="bi bi-filetype-pdf"></i> PDF
+                                       target="_blank"
+                                       title="Ver factura en PDF">
+                                        <i class="bi bi-receipt"></i> Ver Factura
                                     </a>
                                 </td>
+
                             </tr>
                         }
                     </tbody>

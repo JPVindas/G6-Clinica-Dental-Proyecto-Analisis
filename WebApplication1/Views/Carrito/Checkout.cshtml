@@ -107,23 +107,47 @@
 
 
 <!-- Totales -->
-<div class="mb-4">
-    <h5>Subtotal: ₡<span id="subtotal">@subtotal.ToString("N2", new CultureInfo("es-CR"))</span></h5>
-    <h5>Impuesto (13%): ₡<span id="tax">@impuesto.ToString("N2", new CultureInfo("es-CR"))</span></h5>
-    <h5>Descuento (@porcentajeDescuento%): -₡<span id="descuentoMonto">@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</span></h5>
+            <!-- Totales -->
+            <div class="mt-5">
+                <h4 class="mb-3">Resumen de Pago:</h4>
+                <div class="table-responsive">
+                    <table class="table table-borderless" style="max-width: 400px;">
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold text-end">Subtotal:</td>
+                                <td class="text-end">₡@subtotal.ToString("N2", new CultureInfo("es-CR"))</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold text-end">Impuesto (13%):</td>
+                                <td class="text-end">₡@impuesto.ToString("N2", new CultureInfo("es-CR"))</td>
+                            </tr>
+                            @if (descuentoAplicado)
+                            {
+                                <tr>
+                                    <td class="fw-semibold text-end">Descuento (@porcentajeDescuento%):</td>
+                                    <td class="text-end text-danger">-₡@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold text-end text-muted">Total antes del descuento:</td>
+                                    <td class="text-end text-muted">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td class="fw-bold text-end">Total con descuento:</td>
+                                    <td class="fw-bold text-end">₡@totalConDescuento.ToString("N2", new CultureInfo("es-CR"))</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr class="table-success">
+                                    <td class="fw-bold text-end">Total:</td>
+                                    <td class="fw-bold text-end">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    @if (descuentoAplicado)
-    {
-        <h5 class="text-muted">
-            Total antes del descuento: ₡<span id="totalWithTax">@total.ToString("N2", new CultureInfo("es-CR"))</span>
-        </h5>
-        <h5>Total con descuento: <b>₡<span id="totalConDescuento">@totalConDescuento.ToString("N2", new CultureInfo("es-CR"))</span></b></h5>
-    }
-    else
-    {
-        <h5>Total: ₡<span id="totalWithTax">@total.ToString("N2", new CultureInfo("es-CR"))</span></h5>
-    }
-</div>
 
 
             <!-- ✅ Formulario de código de descuento -->

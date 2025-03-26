@@ -28,7 +28,7 @@
                 <table class="table table-striped table-hover text-center">
                     <thead style="background-color: #003366; color: white;">
                         <tr>
-                            <th>ID</th>
+                            <!-- <th>ID</th> Eliminado -->
                             <th>Cliente</th>
                             <th>Fecha</th>
                             <th>Estado</th>
@@ -41,7 +41,9 @@
                         @foreach (var compra in Model)
                         {
                             <tr>
-                                <td>@compra.IdCompra</td>
+                                <!-- ID oculto -->
+                                <input type="hidden" value="@compra.IdCompra" name="IdCompra" />
+
                                 <td>@(compra.Paciente?.Nombre + " " + compra.Paciente?.Apellidos)</td>
                                 <td>@compra.FechaCompra.ToString("dd/MM/yyyy")</td>
                                 <td>
@@ -69,12 +71,6 @@
                                            title="Ver factura de esta compra">
                                             <i class="bi bi-receipt"></i> Ver Factura
                                         </a>
-
-
-
-
-
-
                                     }
                                     else
                                     {
@@ -101,6 +97,7 @@
                             </tr>
                         }
                     </tbody>
+
                 </table>
 
                 <!-- 🔽 Paginación -->

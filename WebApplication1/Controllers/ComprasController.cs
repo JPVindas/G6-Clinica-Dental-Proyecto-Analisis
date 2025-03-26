@@ -27,8 +27,12 @@ namespace WebApplication1.Controllers
             var comprasQuery = _context.Compras
                 .Include(c => c.Paciente)
                 .Include(c => c.Facturas)
-                .OrderBy(c => c.Estado == "pendiente" ? 0 : c.Estado == "completada" ? 1 : 2)
-                .ThenByDescending(c => c.FechaCompra);
+                .OrderBy(c =>
+    c.Estado == "pendiente" ? 0 :
+    c.Estado == "completada" ? 1 : 2)
+.ThenByDescending(c => c.IdCompra);
+
+
 
             var comprasList = await comprasQuery
                 .Skip((pageNumber - 1) * PageSize)

@@ -3,6 +3,9 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using WebApplication1.Models;
 using System.Globalization;
+using System.Net.Mail;
+using System.Net;
+using System.IO;
 
 public static class FacturaPDFGenerator
 {
@@ -63,7 +66,7 @@ public static class FacturaPDFGenerator
                 // Pie de página
                 page.Footer().AlignCenter().Text(x =>
                 {
-                    x.Span($"Clínica Dental San Rafael © {DateTime.Now.Year} -Gracias por su compra, por favor venga a nuestra clínica y presente su factura.")
+                    x.Span($"Clínica Dental San Rafael © {DateTime.Now.Year} - Gracias por su compra, por favor venga a nuestra clínica y presente su factura.")
                      .FontSize(10).FontColor(Colors.Grey.Darken1);
                 });
             });
@@ -117,5 +120,39 @@ public static class FacturaPDFGenerator
                 }
             });
         };
+    }
+
+    public static void EnviarFacturaPorCorreo(CompraModel compra, byte[] pdfFactura, EmailSettings emailSettings)
+    {
+        try
+        {
+            var paciente = compra.Paciente;
+            var correoDestino = paciente?.Usuario?.CorreoElectronico;
+
+            if (string.IsNullOrWhiteSpace(correoDestino))
+                throw new ArgumentException("El correo del paciente no está definido.");
+
+            using var message = new MailMessage();
+            message.From = new MailAddress(emailSettings.From, "Clínica Dental San Rafael");
+            message.To.Add(correoDestino);
+            message.Subject = "Factura electrónica de tu compra";
+            message.Body = $"Hola {paciente.Nombre},\n\nAdjunto encontrarás la factura de tu compra realizada en la Clínica Dental San Rafael.\n\n¡Gracias por tu preferencia!";
+
+            // Adjuntar el PDF
+            message.Attachments.Add(new Attachment(new MemoryStream(pdfFactura), $"Factura_{compra.IdCompra}.pdf", "application/pdf"));
+
+            using var smtpClient = new SmtpClient(emailSettings.SmtpServer)
+            {
+                Port = int.Parse(emailSettings.Port),
+                Credentials = new NetworkCredential(emailSettings.Username, emailSettings.Password),
+                EnableSsl = true
+            };
+
+            smtpClient.Send(message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error al enviar la factura por correo: {ex.Message}");
+        }
     }
 }

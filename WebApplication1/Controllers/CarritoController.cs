@@ -10,6 +10,11 @@ using WebApplication1.DATA; // Ajusta a tu namespace real
 using WebApplication1.Models;
 using System.Globalization;
 using System.Text;
+using System.Net;
+using System.Net.Mail;
+using System.IO;
+using Microsoft.Extensions.Options;
+
 
 namespace WebApplication1.Controllers
 {
@@ -17,11 +22,14 @@ namespace WebApplication1.Controllers
     public class CarritoController : Controller
     {
         private readonly MinombredeconexionDbContext _context;
+        private readonly EmailSettings _emailSettings;
         private const decimal TAX_RATE = 0.13m; // 13% de impuesto en Costa Rica
+        
 
-        public CarritoController(MinombredeconexionDbContext context)
+        public CarritoController(MinombredeconexionDbContext context, IOptions<EmailSettings> emailSettings)
         {
             _context = context;
+            _emailSettings = emailSettings.Value;
         }
 
         // ===============================================
@@ -457,10 +465,6 @@ namespace WebApplication1.Controllers
 
 
 
-
-        // ===============================================
-        // 6) RegistrarCompra => POST
-        // ===============================================
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> RegistrarCompra(
@@ -510,8 +514,8 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Carrito");
             }
 
-            // Financiamiento solo para servicios
             int? idFinanciamiento = null;
+
             if (SolicitaFinanciamiento)
             {
                 var itemServicio = items.FirstOrDefault(i => i.Tipo == "servicio" && i.IdServicio.HasValue);
@@ -634,8 +638,29 @@ namespace WebApplication1.Controllers
             _context.CarritoItems.RemoveRange(items);
             await _context.SaveChangesAsync();
 
+            // ✅ Enviar factura
+            try
+            {
+                var compraConDetalles = await _context.Compras
+                    .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
+                    .Include(c => c.Facturas).ThenInclude(f => f.MetodoPago)
+                    .Include(c => c.Facturas).ThenInclude(f => f.Descuento)
+                    .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Producto)
+                    .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Servicio)
+                    .FirstOrDefaultAsync(c => c.IdCompra == compra.IdCompra);
+
+                EnviarFacturaPorCorreo(compraConDetalles);
+                TempData["SuccessMessage"] = "Compra registrada y factura enviada al correo.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"La compra fue registrada, pero ocurrió un error al enviar la factura por correo: {ex.Message}";
+            }
+
             return RedirectToAction("CompraCompletada", new { idCompra = compra.IdCompra });
         }
+
+
 
 
         // ===============================================
@@ -702,5 +727,46 @@ namespace WebApplication1.Controllers
             int.TryParse(rolIdClaim, out int rolId);
             return rolId;
         }
+        // ========== Enviar Factura por Correo =================
+        private void EnviarFacturaPorCorreo(CompraModel compra)
+        {
+            try
+            {
+                var paciente = compra.Paciente;
+                var correoDestino = paciente?.Usuario?.CorreoElectronico;
+
+                if (string.IsNullOrWhiteSpace(correoDestino))
+                {
+                    Console.WriteLine("⚠️ El correo del paciente no está definido.");
+                    return;
+                }
+
+                var pdf = FacturaPDFGenerator.GenerarFactura(compra);
+
+                using var mensaje = new MailMessage();
+                mensaje.From = new MailAddress(_emailSettings.From, "Clínica Dental San Rafael");
+                mensaje.To.Add(correoDestino);
+                mensaje.Subject = "Factura electrónica de tu compra";
+                mensaje.Body = $"Hola {paciente.Nombre},\n\nAdjunto encontrarás la factura de tu compra realizada en la Clínica Dental San Rafael.\n\n¡Gracias por tu preferencia!";
+
+                // Adjuntar la factura PDF
+                mensaje.Attachments.Add(new Attachment(new MemoryStream(pdf), $"Factura_{compra.IdCompra}.pdf", "application/pdf"));
+
+                using var smtpClient = new SmtpClient(_emailSettings.SmtpServer)
+                {
+                    Port = int.Parse(_emailSettings.Port),
+                    Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password),
+                    EnableSsl = true
+                };
+
+                smtpClient.Send(mensaje);
+                Console.WriteLine("✅ Factura enviada correctamente por correo.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al enviar la factura: {ex.Message}");
+            }
+        }
+
     }
 }
