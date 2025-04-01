@@ -87,31 +87,34 @@
             💊 Historial de Tratamientos
         </div>
         <div class="card-body">
-            <table class="table table-striped text-center">
-                <thead style="background-color: #004080; color: #FFFFFF;">
-                    <tr>
-                        <th>Tratamiento</th>
-                        <th>Servicio Relacionado</th>
-                        <th>Descripción</th>
-                        <th>Costo</th>
-                        <th>Duración Estimada</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var tratamiento in tratamientos)
-                    {
+            <div class="table-responsive">
+                <table class="table table-striped text-center">
+                    <thead style="background-color: #004080; color: #FFFFFF;">
                         <tr>
-                            <td>@tratamiento.Nombre</td>
-                            <td>@tratamiento.Servicio?.Nombre</td>
-                            <td>@tratamiento.Descripcion</td>
-                            <td>₡@tratamiento.Costo.ToString("N0")</td>
-                            <td>@tratamiento.DuracionEstimada</td>
+                            <th>Tratamiento</th>
+                            <th>Servicio Relacionado</th>
+                            <th>Descripción</th>
+                            <th>Costo</th>
+                            <th>Duración Estimada</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var tratamiento in tratamientos)
+                        {
+                            <tr>
+                                <td>@tratamiento.Nombre</td>
+                                <td>@tratamiento.Servicio?.Nombre</td>
+                                <td>@tratamiento.Descripcion</td>
+                                <td>₡@tratamiento.Costo.ToString("N0")</td>
+                                <td>@tratamiento.DuracionEstimada</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
 
     <!-- 🔹 CITAS AGENDADAS -->
     <div class="card shadow-lg mb-4">
@@ -119,102 +122,105 @@
             📅 Citas Agendadas
         </div>
         <div class="card-body">
-            <table class="table table-striped text-center">
-                <thead style="background-color: #004080; color: #FFFFFF;">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Motivo</th>
-                        <th>Odontólogo</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var cita in citas)
-                    {
+            <div class="table-responsive">
+                <table class="table table-striped text-center">
+                    <thead style="background-color: #004080; color: #FFFFFF;">
                         <tr>
-                            <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@cita.Motivo</td>
-                            <td>@(cita.Empleado != null ? cita.Empleado.Nombre + " " + cita.Empleado.Apellidos : "No asignado")</td>
-                            <td>@cita.Estado</td>
+                            <th>Fecha</th>
+                            <th>Motivo</th>
+                            <th>Odontólogo</th>
+                            <th>Estado</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in citas)
+                        {
+                            <tr>
+                                <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@cita.Motivo</td>
+                                <td>@(cita.Empleado != null ? cita.Empleado.Nombre + " " + cita.Empleado.Apellidos : "No asignado")</td>
+                                <td>@cita.Estado</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 🔹 ESTILOS MEJORADOS -->
-<style>
-    ..jumbotron {
-        background-color: #f8f9fa;
-        padding: 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
-        text-align: center; /* Opcional: centra el texto del jumbotron */
-    }
+    <!-- 🔹 ESTILOS MEJORADOS -->
+    <style>
+        ..jumbotron {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center; /* Opcional: centra el texto del jumbotron */
+        }
 
-    .jumbotron h1 {
-        font-size: 2. .card {
-        border-radius: 12px;
-        border: 1px solid #E6E6E6;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+        .jumbotron h1 {
+            font-size: 2. .card
+
+        {
+            border-radius: 12px;
+            border: 1px solid #E6E6E6;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
         }
 
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f2f9ff;
-    }
-
-    .table-striped tbody tr:hover {
-        background-color: #e6f2ff;
-    }
-
-    .btn-primary {
-        background-color: #004080;
-        border-color: #004080;
-        transition: 0.3s;
-    }
-
-        .btn-primary:hover {
-            background-color: #003366;
-            transform: scale(1.05);
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f2f9ff;
         }
 
-    .btn-success {
-        background-color: #28a745;
-        color: white;
-        transition: 0.3s;
-    }
-
-        .btn-success:hover {
-            background-color: #218838;
-            transform: scale(1.05);
+        .table-striped tbody tr:hover {
+            background-color: #e6f2ff;
         }
 
-    .btn-warning {
-        background-color: #ffc107;
-        transition: 0.3s;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-            transform: scale(1.05);
+        .btn-primary {
+            background-color: #004080;
+            border-color: #004080;
+            transition: 0.3s;
         }
 
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        transition: 0.3s;
-    }
+            .btn-primary:hover {
+                background-color: #003366;
+                transform: scale(1.05);
+            }
 
-        .btn-danger:hover {
-            background-color: #c82333;
-            transform: scale(1.05);
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            transition: 0.3s;
         }
-</style>
+
+            .btn-success:hover {
+                background-color: #218838;
+                transform: scale(1.05);
+            }
+
+        .btn-warning {
+            background-color: #ffc107;
+            transition: 0.3s;
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+                transform: scale(1.05);
+            }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            transition: 0.3s;
+        }
+
+            .btn-danger:hover {
+                background-color: #c82333;
+                transform: scale(1.05);
+            }
+    </style>
