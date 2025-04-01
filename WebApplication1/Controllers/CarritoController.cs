@@ -407,7 +407,15 @@ namespace WebApplication1.Controllers
                 .ToListAsync();
 
             // ================================
-            // 🔍 Aplicación del Descuento
+            // Aplicación del Financiamiento
+            // ================================
+            // Se evalúa si existen ítems de tipo "servicio" para los cuales se pueda solicitar financiamiento.
+            bool hayServiciosFinanciables = items.Any(i => i.Tipo == "servicio" && i.IdServicio.HasValue);
+            // Esta bandera se envía a la vista para, por ejemplo, mostrar el checkbox o información adicional.
+            ViewBag.HayServiciosFinanciables = hayServiciosFinanciables;
+
+            // ================================
+            // Aplicación del Descuento
             // ================================
             string codigoDescuento = TempData["CodigoAplicado"] as string;
             string porcentajeDescuentoString = TempData["PorcentajeDescuento"] as string;
@@ -422,7 +430,7 @@ namespace WebApplication1.Controllers
                     ViewBag.CodigoAplicado = descuento.Codigo;
                     ViewBag.PorcentajeDescuento = descuento.PorcentajeDescuento;
 
-                    // Guardar en TempData como string para evitar error de serialización
+                    // Guardar en TempData como string para evitar problemas de serialización
                     TempData["CodigoAplicado"] = descuento.Codigo;
                     TempData["PorcentajeDescuento"] = descuento.PorcentajeDescuento.ToString("F2", CultureInfo.InvariantCulture);
                 }
@@ -442,13 +450,13 @@ namespace WebApplication1.Controllers
 
                 ViewBag.CodigoAplicado = codigoDescuento;
 
-                // Reasignamos para mantenerlo tras reloads
+                // Reasignar para mantenerlo tras reloads
                 TempData["CodigoAplicado"] = codigoDescuento;
                 TempData["PorcentajeDescuento"] = porcentajeDescuentoString;
             }
 
             // ================================
-            // Datos del paciente y métodos de pago
+            // Datos del Paciente y Métodos de Pago
             // ================================
             var paciente = await _context.Pacientes
                 .Include(p => p.Usuario)
@@ -468,12 +476,12 @@ namespace WebApplication1.Controllers
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> RegistrarCompra(
-     DateTime FechaCompra,
-     string Estado,
-     decimal MontoTotal,
-     int IdMetodoDePago,
-     bool SolicitaFinanciamiento,
-     string Nombre)
+            DateTime FechaCompra,
+            string Estado,
+            decimal MontoTotal,
+            int IdMetodoDePago,
+            bool SolicitaFinanciamiento,
+            string Nombre)
         {
             int userId = GetUserId();
             int rolId = GetRolId();
@@ -487,7 +495,6 @@ namespace WebApplication1.Controllers
             var paciente = await _context.Pacientes
                 .Include(p => p.Usuario)
                 .FirstOrDefaultAsync(p => p.IdUsuario == userId);
-
             if (paciente == null)
             {
                 TempData["ErrorMessage"] = "Paciente no encontrado.";
@@ -496,7 +503,6 @@ namespace WebApplication1.Controllers
 
             var carrito = await _context.Carrito
                 .FirstOrDefaultAsync(c => c.IdPaciente == paciente.IdPaciente && c.Estado == "abierto");
-
             if (carrito == null)
             {
                 TempData["ErrorMessage"] = "No hay un carrito abierto para continuar.";
@@ -507,56 +513,170 @@ namespace WebApplication1.Controllers
                 .Include(i => i.Servicio)
                 .Where(i => i.IdCarrito == carrito.IdCarrito)
                 .ToListAsync();
-
             if (!items.Any())
             {
                 TempData["ErrorMessage"] = "El carrito está vacío.";
                 return RedirectToAction("Carrito");
             }
 
-            int? idFinanciamiento = null;
+            // Lista para almacenar los IDs de financiamientos creados (uno por servicio)
+            List<int> idsFinanciamientos = new List<int>();
 
+            // Verifica que se haya enviado SolicitaFinanciamiento = true
             if (SolicitaFinanciamiento)
             {
-                var itemServicio = items.FirstOrDefault(i => i.Tipo == "servicio" && i.IdServicio.HasValue);
-                if (itemServicio != null)
+                // Procesar cada ítem de tipo servicio
+                var servicios = items.Where(i => i.Tipo == "servicio" && i.IdServicio.HasValue).ToList();
+                foreach (var servicioItem in servicios)
                 {
+                    // Buscar tratamiento asociado al servicio
                     var tratamiento = await _context.Tratamientos
-                        .FirstOrDefaultAsync(t => t.IdServicio == itemServicio.IdServicio);
-
+                        .FirstOrDefaultAsync(t => t.IdServicio == servicioItem.IdServicio);
                     if (tratamiento != null)
                     {
-                        var nuevoFinanciamiento = new FinanciamientoModel
+                        // Omitir financiamiento para tratamientos que no lo permiten (por ejemplo, si tratamiento.IdTratamiento == 15)
+                        if (tratamiento.IdTratamiento == 15)
+                        {
+                            continue;
+                        }
+
+                        // Verificar que el empleado con Id = 1 exista
+                        var empleado = await _context.Empleados.FindAsync(1);
+                        if (empleado == null)
+                        {
+                            TempData["ErrorMessage"] = "No existe un empleado con Id 1. Ingrese un empleado válido.";
+                            return RedirectToAction("Carrito");
+                        }
+
+                        // Crear el historial médico
+                        var historialMedico = new HistorialMedicoModel
                         {
                             IdPaciente = paciente.IdPaciente,
+                            IdEmpleado = 1,
+                            Diagnostico = "Financiamiento automático por compra de servicio",
                             IdTratamiento = tratamiento.IdTratamiento,
-                            MontoTotal = tratamiento.Costo,
-                            MontoPagado = 0m,
-                            TasaInteres = 3.5m,
-                            Cuotas = 12,
-                            FechaInicio = DateTime.Today,
-                            FechaFinal = DateTime.Today.AddMonths(12)
+                            FechaActualizacion = DateTime.Today
                         };
 
-                        _context.Financiamientos.Add(nuevoFinanciamiento);
-                        await _context.SaveChangesAsync();
+                        try
+                        {
+                            _context.HistorialMedico.Add(historialMedico);
+                            await _context.SaveChangesAsync();
+                            // Para depurar: guardar el id insertado en TempData (solo para pruebas)
+                            TempData[$"HistorialInsertado_{tratamiento.IdTratamiento}"] = historialMedico.IdHistorial;
+                        }
+                        catch (Exception ex)
+                        {
+                            TempData["ErrorMessage"] = $"Error al insertar el historial médico: {ex.Message}";
+                            return RedirectToAction("Carrito");
+                        }
 
-                        idFinanciamiento = nuevoFinanciamiento.IdFinanciamiento;
+                        // Recuperar el financiamiento insertado por el trigger
+                        var financiamiento = await _context.Financiamientos
+                            .Where(f => f.IdPaciente == paciente.IdPaciente &&
+                                        f.IdTratamiento == tratamiento.IdTratamiento &&
+                                        f.FechaInicio.Date == DateTime.Today)
+                            .OrderByDescending(f => f.IdFinanciamiento)
+                            .FirstOrDefaultAsync();
+                        if (financiamiento != null)
+                        {
+                            // Aplicar condiciones según tratamiento
+                            int cuotas;
+                            DateTime fechaFinal;
+                            switch (tratamiento.IdTratamiento)
+                            {
+                                case 1:
+                                case 2:
+                                case 3:
+                                case 5:
+                                case 6:
+                                case 9:
+                                case 11:
+                                case 12:
+                                case 14:
+                                    cuotas = 1;
+                                    fechaFinal = DateTime.Today;
+                                    break;
+                                case 4:  // Ortodoncia
+                                    cuotas = 12;
+                                    fechaFinal = DateTime.Today.AddMonths(12);
+                                    break;
+                                case 7:  // Implantes Dentales
+                                    cuotas = 3;
+                                    fechaFinal = DateTime.Today.AddMonths(3);
+                                    break;
+                                case 8:  // Prótesis Dentales
+                                    cuotas = 2;
+                                    fechaFinal = DateTime.Today.AddDays(14);
+                                    break;
+                                case 10: // Carillas Dentales
+                                    cuotas = 3;
+                                    fechaFinal = DateTime.Today.AddDays(21);
+                                    break;
+                                case 13: // Cirugía Oral
+                                    cuotas = 6;
+                                    fechaFinal = DateTime.Today.AddMonths(6);
+                                    break;
+                                default:
+                                    cuotas = 1;
+                                    fechaFinal = DateTime.Today;
+                                    break;
+                            }
+                            financiamiento.Cuotas = cuotas;
+                            financiamiento.FechaFinal = fechaFinal;
+                            _context.Financiamientos.Update(financiamiento);
+                            await _context.SaveChangesAsync();
+
+                            idsFinanciamientos.Add(financiamiento.IdFinanciamiento);
+                        }
+                        else
+                        {
+                            TempData[$"FinanciamientoError_{tratamiento.IdTratamiento}"] = $"No se recuperó el financiamiento para el tratamiento {tratamiento.IdTratamiento}";
+                        }
                     }
                 }
             }
 
+            // Consolidar financiamientos si hay más de uno
+            FinanciamientoModel financiamientoAsignado = null;
+            if (idsFinanciamientos.Count == 1)
+            {
+                financiamientoAsignado = await _context.Financiamientos.FindAsync(idsFinanciamientos.First());
+            }
+            else if (idsFinanciamientos.Count > 1)
+            {
+                var financiamientos = await _context.Financiamientos
+                    .Where(f => idsFinanciamientos.Contains(f.IdFinanciamiento))
+                    .ToListAsync();
+                decimal montoTotalAgregado = financiamientos.Sum(f => f.MontoTotal);
+                financiamientoAsignado = new FinanciamientoModel
+                {
+                    IdPaciente = paciente.IdPaciente,
+                    MontoTotal = montoTotalAgregado,
+                    MontoPagado = 0m,
+                    TasaInteres = 3.5m,
+                    Cuotas = 12,
+                    FechaInicio = DateTime.Today,
+                    FechaFinal = DateTime.Today.AddMonths(12),
+                    Estado = "activo"
+                };
+                _context.Financiamientos.Add(financiamientoAsignado);
+                await _context.SaveChangesAsync();
+            }
+
+            // Crear la compra, asociando el financiamiento solo si se solicitó
             var compra = new CompraModel
             {
                 IdPaciente = paciente.IdPaciente,
                 FechaCompra = FechaCompra,
                 Estado = Estado,
                 MontoTotal = MontoTotal,
-                IdFinanciamiento = idFinanciamiento
+                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null
             };
             _context.Compras.Add(compra);
             await _context.SaveChangesAsync();
 
+            // Registrar cada ítem de la compra y actualizar stock si es producto
             foreach (var item in items)
             {
                 var detalle = new DetalleCompraModel
@@ -583,11 +703,13 @@ namespace WebApplication1.Controllers
             }
             await _context.SaveChangesAsync();
 
-            var codigo = TempData["CodigoAplicado"] as string;
-            var descuento = !string.IsNullOrWhiteSpace(codigo)
-                ? await _context.Descuentos.FirstOrDefaultAsync(d => d.Codigo == codigo && d.Estado == true)
-                : null;
+            // Procesar descuento, si existe
+            var codigoDescuento = TempData["CodigoAplicado"] as string;
+            var descuento = !string.IsNullOrWhiteSpace(codigoDescuento)
+                            ? await _context.Descuentos.FirstOrDefaultAsync(d => d.Codigo == codigoDescuento && d.Estado == true)
+                            : null;
 
+            // Crear la factura asociada a la compra, incluyendo el financiamiento si se solicitó
             var factura = new FacturaModel
             {
                 IdCompra = compra.IdCompra,
@@ -598,14 +720,15 @@ namespace WebApplication1.Controllers
                 Fecha = DateTime.Now,
                 IdMetodoPago = IdMetodoDePago,
                 IdDescuento = descuento?.IdDescuento,
-                IdFinanciamiento = idFinanciamiento
+                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null
             };
             _context.Facturas.Add(factura);
             await _context.SaveChangesAsync();
 
+            // Registrar cada detalle de factura
             foreach (var item in items)
             {
-                var subtotal = item.PrecioUnitario * item.Cantidad;
+                decimal subTotal = item.PrecioUnitario * item.Cantidad;
                 var detalleFactura = new DetalleFacturaModel
                 {
                     IdFactura = factura.IdFactura,
@@ -613,34 +736,36 @@ namespace WebApplication1.Controllers
                     IdProducto = item.IdProducto,
                     IdServicio = item.IdServicio,
                     Cantidad = item.Cantidad,
-                    Subtotal = subtotal,
+                    Subtotal = subTotal,
                     Impuestos = item.Impuestos,
-                    Total = subtotal + item.Impuestos
+                    Total = subTotal + item.Impuestos
                 };
                 _context.DetallesFactura.Add(detalleFactura);
             }
             await _context.SaveChangesAsync();
 
-            var historial = new HistorialComprasModel
+            // Crear el historial de compra
+            var historialCompra = new HistorialComprasModel
             {
                 IdPaciente = paciente.IdPaciente,
                 FechaCompra = DateTime.Now,
                 IdFactura = factura.IdFactura,
-                IdFinanciamiento = idFinanciamiento,
+                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null,
                 Tipo = "compra",
                 MontoTotal = compra.MontoTotal
             };
-            _context.HistorialCompras.Add(historial);
+            _context.HistorialCompras.Add(historialCompra);
             await _context.SaveChangesAsync();
 
+            // Cerrar el carrito y eliminar los ítems
             carrito.Estado = "cerrado";
             _context.Carrito.Update(carrito);
             _context.CarritoItems.RemoveRange(items);
             await _context.SaveChangesAsync();
 
-            // ✅ Enviar factura
             try
             {
+                // Recuperar la compra completa para enviar la factura por correo
                 var compraConDetalles = await _context.Compras
                     .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
                     .Include(c => c.Facturas).ThenInclude(f => f.MetodoPago)
@@ -659,6 +784,11 @@ namespace WebApplication1.Controllers
 
             return RedirectToAction("CompraCompletada", new { idCompra = compra.IdCompra });
         }
+
+
+
+
+
 
 
 

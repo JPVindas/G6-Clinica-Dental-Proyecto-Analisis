@@ -9,14 +9,20 @@
     decimal impuesto = subtotal * 0.13m;
     decimal total = subtotal + impuesto;
 
-    decimal porcentajeDescuento = ViewBag.PorcentajeDescuento != null ? (decimal)ViewBag.PorcentajeDescuento : 0m;
+    // Conversión segura del porcentaje de descuento desde ViewBag
+    decimal porcentajeDescuento = 0m;
+    if (ViewBag.PorcentajeDescuento != null)
+    {
+        decimal.TryParse(ViewBag.PorcentajeDescuento.ToString(), out porcentajeDescuento);
+    }
     bool descuentoAplicado = porcentajeDescuento > 0;
-
     decimal montoDescuento = descuentoAplicado ? total * porcentajeDescuento / 100 : 0;
     decimal totalConDescuento = total - montoDescuento;
+
+    // Variable para determinar si hay servicios que pueden ser financiados (definida en el controller)
+    bool hayServiciosFinanciables = ViewBag.HayServiciosFinanciables != null ? (bool)ViewBag.HayServiciosFinanciables : false;
 }
 
-<!-- Validaciones de descuento -->
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger text-center fw-bold">
@@ -29,7 +35,6 @@
         @TempData["SuccessMessage"]
     </div>
 }
-
 
 <div class="jumbotron text-center">
     <h1 class="display-4">Proceso de Pago</h1>
@@ -44,7 +49,6 @@
             Detalles de Pago
         </div>
         <div class="card-body" style="color: #003366;">
-
             <!-- Datos del Paciente -->
             <div>
                 <h5>Datos del Paciente:</h5>
@@ -54,7 +58,7 @@
                 <p><strong>Fecha de Registro:</strong> @ViewBag.Paciente?.FechaRegistro?.ToString("d")</p>
             </div>
 
-            <!-- Listado de ítems -->
+            <!-- Listado de Ítems -->
             <div class="mt-4">
                 <h5>Productos y Servicios:</h5>
                 <table class="table table-striped">
@@ -66,6 +70,7 @@
                             <th>Cantidad</th>
                             <th>Precio Unitario</th>
                             <th>Total</th>
+                            <th>Financiamiento</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,40 +78,59 @@
                         {
                             foreach (var item in Model)
                             {
-                                string itemName = item.Tipo == "producto"
-                                    ? item.Producto?.Nombre
-                                    : item.Servicio?.Nombre;
-
+                                string itemName = item.Tipo == "producto" ? item.Producto?.Nombre : item.Servicio?.Nombre;
                                 string imageUrl = "~/images/default-product.jpg";
                                 if (item.Tipo == "producto" && !string.IsNullOrEmpty(item.Producto?.UrlImagen))
+                                {
                                     imageUrl = item.Producto.UrlImagen;
+                                }
                                 else if (item.Tipo == "servicio" && !string.IsNullOrEmpty(item.Servicio?.UrlImagen))
+                                {
                                     imageUrl = item.Servicio.UrlImagen;
-
+                                }
                                 decimal totalPorLinea = item.PrecioUnitario * item.Cantidad;
-
                                 <tr>
-                                    <td><img src="@Url.Content(imageUrl)" alt="@itemName" style="width: 80px; height: auto; border-radius: 8px;"></td>
+                                    <td>
+                                        <img src="@Url.Content(imageUrl)" alt="@itemName" style="width: 80px; height: auto; border-radius: 8px;">
+                                    </td>
                                     <td>@(itemName ?? "Sin Nombre")</td>
                                     <td>@item.Tipo</td>
                                     <td>@item.Cantidad</td>
                                     <td>₡@item.PrecioUnitario.ToString("N2", new CultureInfo("es-CR"))</td>
                                     <td>₡@totalPorLinea.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    <td>
+                                        @if (item.Tipo == "servicio")
+                                        {
+                                            // Usamos la propiedad Id del modelo ServiciosModel
+                                            if (item.Servicio != null && item.Servicio.Id != 15)
+                                            {
+                                                <span class="text-success">Disponible</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">No Disponible</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center fw-bold text-danger">No hay ítems en el carrito.</td>
+                                <td colspan="7" class="text-center fw-bold text-danger">
+                                    No hay ítems en el carrito.
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
 
-
-<!-- Totales -->
             <!-- Totales -->
             <div class="mt-5">
                 <h4 class="mb-3">Resumen de Pago:</h4>
@@ -128,19 +152,19 @@
                                     <td class="text-end text-danger">-₡@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-semibold text-end text-muted">Total antes del descuento:</td>
-                                    <td class="text-end text-muted">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                    <td class="text-muted text-end">Total antes del descuento:</td>
+                                    <td class="text-muted text-end">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
                                 </tr>
-                                <tr class="table-success">
-                                    <td class="fw-bold text-end">Total con descuento:</td>
-                                    <td class="fw-bold text-end">₡@totalConDescuento.ToString("N2", new CultureInfo("es-CR"))</td>
+                                <tr class="table-success fw-bold">
+                                    <td class="text-end">Total con descuento:</td>
+                                    <td class="text-end">₡@totalConDescuento.ToString("N2", new CultureInfo("es-CR"))</td>
                                 </tr>
                             }
                             else
                             {
-                                <tr class="table-success">
-                                    <td class="fw-bold text-end">Total:</td>
-                                    <td class="fw-bold text-end">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                <tr class="table-success fw-bold">
+                                    <td class="text-end">Total:</td>
+                                    <td class="text-end">₡@total.ToString("N2", new CultureInfo("es-CR"))</td>
                                 </tr>
                             }
                         </tbody>
@@ -148,12 +172,10 @@
                 </div>
             </div>
 
-
-
-            <!-- ✅ Formulario de código de descuento -->
+            <!-- Formulario de código de descuento -->
             <form id="form-descuento" method="post" asp-controller="Carrito" asp-action="AplicarDescuento" class="mb-4">
                 <div class="input-group">
-                    <input type="text" class="form-control" id="codigoInput" name="codigoDescuento" placeholder="Código de descuento" required>
+                    <input type="text" class="form-control" name="codigoDescuento" placeholder="Código de descuento" required>
                     <button type="submit" class="btn btn-outline-success fw-bold">Aplicar</button>
                 </div>
                 <small class="form-text text-muted">Ejemplo: CLINICA10, PROMO25</small>
@@ -170,7 +192,7 @@
                 <div class="form-group">
                     <label for="fullName">Nombre Completo</label>
                     <input type="text" class="form-control" id="fullName" name="Nombre"
-                           value="@ViewBag.Paciente?.Nombre @ViewBag.Paciente?.Apellidos" required />
+                           value="@($"{ViewBag.Paciente?.Nombre} {ViewBag.Paciente?.Apellidos}")" required />
                 </div>
 
                 <div class="form-group mt-3">
@@ -184,12 +206,23 @@
                     </select>
                 </div>
 
-                <div class="form-group mt-3">
-                    <input type="checkbox" id="financiamientoCheck" name="SolicitaFinanciamiento" />
+                @if (hayServiciosFinanciables)
+                {
+                    <!-- Checkbox de Financiamiento -->
+                    <div class="form-group mt-3">
+                        <div class="form-check">
+                            @Html.CheckBox("SolicitaFinanciamiento", false, new { @class = "form-check-input", id = "financiamientoCheck" })
+                            <label class="form-check-label" for="financiamientoCheck">
+                                Solicitar financiamiento
+                            </label>
+                        </div>
+                        <div id="infoFinanciamiento" class="alert alert-warning mt-3 d-none">
+                            <strong>Financiamiento activado:</strong><br />
+                            Al seleccionar esta opción, se aplicará el financiamiento según el tratamiento de cada servicio.
+                        </div>
+                    </div>
 
-                    <label for="financiamientoCheck">Solicitar financiamiento</label>
-
-                </div>
+                }
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="javascript:history.back()" class="btn btn-secondary">
@@ -222,47 +255,44 @@
 <!-- JS -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Mostrar/ocultar info de financiamiento al hacer click en el checkbox
+        const financiamientoCheck = document.getElementById("financiamientoCheck");
+        const infoFinanciamiento = document.getElementById("infoFinanciamiento");
+        if (financiamientoCheck && infoFinanciamiento) {
+            financiamientoCheck.addEventListener("click", function () {
+                if (financiamientoCheck.checked) {
+                    infoFinanciamiento.classList.remove("d-none");
+                } else {
+                    infoFinanciamiento.classList.add("d-none");
+                }
+            });
+        }
+
+        // Lógica de descuento aplicado (usando ViewBag)
         const descuentoStr = '@ViewBag.PorcentajeDescuento';
         const codigo = '@ViewBag.CodigoAplicado';
-
-        const totalOriginalElement = document.getElementById("totalWithTax");
-        const descuentoElement = document.getElementById("descuentoMonto");
-        const totalConDescuentoElement = document.getElementById("totalConDescuento");
-
-        if (!totalOriginalElement || !descuentoStr || !codigo) return;
+        if (!descuentoStr || !codigo) return;
 
         const porcentaje = parseFloat(descuentoStr);
         if (isNaN(porcentaje) || porcentaje <= 0) return;
 
-        // Obtener total original desde el contenido visual (formato es-CR)
-        const totalOriginalRaw = totalOriginalElement.innerText.replace(/[₡\s]/g, "").replace(/\./g, "").replace(",", ".");
-        const totalOriginal = parseFloat(totalOriginalRaw);
-
-        if (isNaN(totalOriginal)) return;
+        // Obtener el valor oculto del total desde el input hidden del formulario
+        const totalInput = document.querySelector('input[name="MontoTotal"]');
+        const totalOriginal = totalInput ? parseFloat(totalInput.value) : 0;
+        if (isNaN(totalOriginal) || totalOriginal === 0) return;
 
         const montoDescuento = totalOriginal * porcentaje / 100;
         const totalFinal = totalOriginal - montoDescuento;
 
-        // Actualizar visualmente los montos
-        if (descuentoElement) {
-            descuentoElement.textContent = montoDescuento.toLocaleString("es-CR", { minimumFractionDigits: 2 });
-        }
-
-        if (totalConDescuentoElement) {
-            totalConDescuentoElement.textContent = totalFinal.toLocaleString("es-CR", { minimumFractionDigits: 2 });
-        }
-
-        // Mostrar mensaje informativo
+        // Crear y mostrar el mensaje informativo del descuento
         const infoBox = document.createElement("div");
         infoBox.className = "alert alert-success mt-3";
         infoBox.innerHTML = `
-            <strong>¡Descuento aplicado!</strong> Código: <b>${codigo}</b><br/>
-            Porcentaje: <b>${porcentaje}%</b><br/>
-            Descuento aplicado: ₡<b>${montoDescuento.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b><br/>
-            <h5 class="mt-2">Total con descuento: <b>₡${totalFinal.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b></h5>
-        `;
-
+                                <strong>¡Descuento aplicado!</strong> Código: <b>${codigo}</b><br/>
+                                Porcentaje: <b>${porcentaje}%</b><br/>
+                                Descuento aplicado: ₡<b>${montoDescuento.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b><br/>
+                                <h5 class="mt-2">Total con descuento: <b>₡${totalFinal.toLocaleString("es-CR", { minimumFractionDigits: 2 })}</b></h5>
+                            `;
         document.querySelector(".mb-4")?.appendChild(infoBox);
     });
 </script>
-

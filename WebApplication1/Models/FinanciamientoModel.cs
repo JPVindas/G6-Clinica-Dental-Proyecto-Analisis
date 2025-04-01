@@ -27,7 +27,9 @@ namespace WebApplication1.Models
         public decimal MontoPagado { get; set; } = 0m;
 
         [Column("saldo_pendiente", TypeName = "decimal(10,2)")]
-        public decimal SaldoPendiente { get; private set; } // Se calcula en la BD.
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public decimal SaldoPendiente { get; set; }
+
 
         [Required]
         [Column("tasa_interes", TypeName = "decimal(5,2)")]

@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Compra Completada";
+    var factura = Model.Facturas?.FirstOrDefault();
 }
 
 <div class="container mt-5">
@@ -16,7 +17,6 @@
             Resumen de la Compra
         </div>
         <div class="card-body" style="color: #003366;">
-
             <div class="row mb-3">
                 <div class="col-md-6">
                     <p><strong>Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
@@ -34,10 +34,6 @@
             <p><strong>Nombre:</strong> @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</p>
             <p><strong>Correo:</strong> @Model.Paciente?.Usuario?.CorreoElectronico</p>
             <p><strong>Cédula:</strong> @Model.Paciente?.Usuario?.Cedula</p>
-
-            @{
-                var factura = Model.Facturas?.FirstOrDefault();
-            }
 
             @if (factura != null)
             {
@@ -85,6 +81,24 @@
                         </table>
                     </div>
                 }
+
+                @* Mostrar sección de financiamiento si existe *@
+                @if (factura.Financiamiento != null)
+                {
+                    var f = factura.Financiamiento;
+                    <div class="alert alert-info mt-4">
+                        <h5 class="text-primary"><i class="bi bi-cash-stack"></i> Financiamiento Activado</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Monto Total:</strong> ₡@f.MontoTotal.ToString("N2", new CultureInfo("es-CR"))</li>
+                            <li><strong>Tasa de Interés:</strong> @f.TasaInteres %</li>
+                            <li><strong>Cuotas:</strong> @f.Cuotas</li>
+                            <li><strong>Fecha de Inicio:</strong> @f.FechaInicio.ToString("dd/MM/yyyy")</li>
+                            <li><strong>Fecha Final:</strong> @f.FechaFinal?.ToString("dd/MM/yyyy") ?? "No asignada"</li>
+                            <li><strong>Estado:</strong> @f.Estado ?? "Activo"</li>
+                        </ul>
+                        <p class="text-muted">Tu tratamiento ha sido financiado con éxito.</p>
+                    </div>
+                }
             }
 
             <div class="d-flex justify-content-between mt-4">
@@ -94,7 +108,6 @@
                 <a class="btn btn-outline-danger fw-bold" style="min-width: 180px; font-size: 1rem;" target="_blank" href="@Url.Action("GenerarFacturaPDF", "Carrito", new { idCompra = Model.IdCompra })">
                     <i class="bi bi-file-earmark-pdf"></i> Generar Recibo PDF
                 </a>
-
             </div>
         </div>
     </div>
