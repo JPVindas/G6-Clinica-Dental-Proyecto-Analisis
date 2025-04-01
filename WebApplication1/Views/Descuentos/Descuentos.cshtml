@@ -43,67 +43,69 @@
             }
             else
             {
-                <table class="table table-striped table-hover text-center">
-                    <thead style="background-color: #003366; color: #FFFFFF;">
-                        <tr>
-                            <th>Código</th>
-                            <th>Porcentaje (%)</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var descuento in Model.OrderBy(d => d.Estado == false))
-                        {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover text-center">
+                        <thead style="background-color: #003366; color: #FFFFFF;">
                             <tr>
-                                <td>@descuento.Codigo</td>
-                                <td>@descuento.PorcentajeDescuento.ToString("N2", CultureInfo.CurrentCulture)</td>
-                                <td>
-                                    @if (descuento.Estado)
-                                    {
-                                        <span class="text-success">Activo</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-danger">Archivado</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2">
-
-                                        <!-- Editar -->
-                                        <a asp-action="Editar" asp-route-id="@descuento.IdDescuento" class="btn btn-warning btn-md btn-action">
-                                            <i class="bi bi-pencil-square text-white"></i>
-                                        </a>
-
+                                <th>Código</th>
+                                <th>Porcentaje (%)</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var descuento in Model.OrderBy(d => d.Estado == false))
+                            {
+                                <tr>
+                                    <td>@descuento.Codigo</td>
+                                    <td>@descuento.PorcentajeDescuento.ToString("N2", CultureInfo.CurrentCulture)</td>
+                                    <td>
                                         @if (descuento.Estado)
                                         {
-                                            <!-- Archivar -->
-                                            <form asp-action="ArchivarDescuento" method="post" onsubmit="return confirm('¿Estás seguro de archivar este descuento?');">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@descuento.IdDescuento" />
-                                                <button type="submit" class="btn btn-danger btn-md btn-action">
-                                                    <i class="bi bi-archive-fill"></i>
-                                                </button>
-                                            </form>
+                                            <span class="text-success">Activo</span>
                                         }
                                         else
                                         {
-                                            <!-- Reactivar -->
-                                            <form asp-action="ReactivarDescuento" method="post" onsubmit="return confirm('¿Estás seguro de reactivar este descuento?');">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@descuento.IdDescuento" />
-                                                <button type="submit" class="btn btn-success btn-md btn-action">
-                                                    <i class="bi bi-check-circle"></i>
-                                                </button>
-                                            </form>
+                                            <span class="text-danger">Archivado</span>
                                         }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+
+                                            <!-- Editar -->
+                                            <a asp-action="Editar" asp-route-id="@descuento.IdDescuento" class="btn btn-warning btn-md btn-action">
+                                                <i class="bi bi-pencil-square text-white"></i>
+                                            </a>
+
+                                            @if (descuento.Estado)
+                                            {
+                                                <!-- Archivar -->
+                                                <form asp-action="ArchivarDescuento" method="post" onsubmit="return confirm('¿Estás seguro de archivar este descuento?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@descuento.IdDescuento" />
+                                                    <button type="submit" class="btn btn-danger btn-md btn-action">
+                                                        <i class="bi bi-archive-fill"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <!-- Reactivar -->
+                                                <form asp-action="ReactivarDescuento" method="post" onsubmit="return confirm('¿Estás seguro de reactivar este descuento?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@descuento.IdDescuento" />
+                                                    <button type="submit" class="btn btn-success btn-md btn-action">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- Paginación -->
                 <div class="d-flex justify-content-center mt-3">
@@ -181,5 +183,14 @@
     .pagination .page-link:hover {
         background-color: #66b2ff !important;
         color: white !important;
+    }
+
+    /* 🔹 Tabla Responsiva */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+        border-radius: 8px;
     }
 </style>

@@ -33,78 +33,80 @@
             }
             else
             {
-                <table class="table table-striped table-hover text-center">
-                    <thead style="background-color: #003366; color: #FFFFFF;">
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Correo</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Cédula</th>
-                            <th>Teléfono</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover text-center">
+                        <thead style="background-color: #003366; color: #FFFFFF;">
                             <tr>
-                                <td>@item.Id</td>
-                                <td>@item.NombreUsuario</td>
-                                <td>@item.CorreoElectronico</td>
-                                <td>@item.Nombre</td>
-                                <td>@item.Apellido</td>
-                                <td><input type="text" value="@item.Cedula" class="form-control text-center" readonly /></td>
-                                <td>@item.Telefono</td>
-                                <td>@item.RolId</td>
-                                <td>
-                                    @if (item.Archivado)
-                                    {
-                                        <span class="text-danger">Archivado</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-success">Activo</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <!-- Botón Modificar -->
-                                        <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-warning btn-md btn-action">
-                                            <i class="bi bi-pencil-square text-white"></i>
-                                        </a>
-
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Correo</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Cédula</th>
+                                <th>Teléfono</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.NombreUsuario</td>
+                                    <td>@item.CorreoElectronico</td>
+                                    <td>@item.Nombre</td>
+                                    <td>@item.Apellido</td>
+                                    <td><input type="text" value="@item.Cedula" class="form-control text-center" readonly /></td>
+                                    <td>@item.Telefono</td>
+                                    <td>@item.RolId</td>
+                                    <td>
                                         @if (item.Archivado)
                                         {
-                                            <!-- Botón Reactivar -->
-                                            <form asp-action="ReactivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas activar este usuario?');">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="btn btn-success btn-md btn-action">
-                                                    <i class="bi bi-check-circle"></i>
-                                                </button>
-                                            </form>
+                                            <span class="text-danger">Archivado</span>
                                         }
                                         else
                                         {
-                                            <!-- Botón Archivar -->
-                                            <form asp-action="ArchivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas archivar este usuario?');">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="btn btn-danger btn-md btn-action">
-                                                    <i class="bi bi-archive-fill"></i>
-                                                </button>
-                                            </form>
+                                            <span class="text-success">Activo</span>
                                         }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <!-- Botón Modificar -->
+                                            <a asp-controller="Usuarios" asp-action="ModificarUsuario" asp-route-id="@item.Id" class="btn btn-warning btn-md btn-action">
+                                                <i class="bi bi-pencil-square text-white"></i>
+                                            </a>
+
+                                            @if (item.Archivado)
+                                            {
+                                                <!-- Botón Reactivar -->
+                                                <form asp-action="ReactivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas activar este usuario?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-success btn-md btn-action">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <!-- Botón Archivar -->
+                                                <form asp-action="ArchivarUsuario" asp-controller="Usuarios" method="post" onsubmit="return confirm('¿Estás seguro de que deseas archivar este usuario?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-danger btn-md btn-action">
+                                                        <i class="bi bi-archive-fill"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- Paginación -->
                 <div class="d-flex justify-content-center mt-3">
@@ -172,6 +174,15 @@
         background-color: #003366 !important;
         color: white !important;
         border: 1px solid #003366;
+    }
+
+    /* 🔹 Tabla Responsiva */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+        border-radius: 8px;
     }
 </style>
 
