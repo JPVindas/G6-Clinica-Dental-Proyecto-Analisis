@@ -41,11 +41,11 @@ namespace WebApplication1.Controllers
 
             // Inicializamos la consulta
             var financiamientosQuery = _context.Financiamientos
-                .Include(f => f.Paciente)  // Incluir la relación con Paciente
-                .ThenInclude(p => p.Usuario)  // Incluir la relación con Usuario a través de Paciente
+                .Include(f => f.Paciente)
+                .ThenInclude(p => p.Usuario)
                 .AsQueryable();
 
-            if (rolID == 3) // Cliente solo ve sus propios financiamientos
+            if (rolID == 3) 
             {
                 var pacienteId = await _context.Pacientes
                     .Where(p => p.IdUsuario == userId)
@@ -55,21 +55,17 @@ namespace WebApplication1.Controllers
                 financiamientosQuery = financiamientosQuery.Where(f => f.IdPaciente == pacienteId);
             }
 
-            // Filtrar por estado si se pasa como parámetro
             if (!string.IsNullOrEmpty(estado) && estado != "Todos")
             {
                 financiamientosQuery = financiamientosQuery.Where(f => f.Estado == estado);
             }
 
-            // Filtrar por nombre y apellido si se pasa el parámetro de búsqueda
             if (!string.IsNullOrEmpty(search))
             {
-                var searchTerms = search.ToLower().Split(' '); // Convertir el término de búsqueda a minúsculas y dividir por espacio
+                var searchTerms = search.ToLower().Split(' ');
 
-                // Recuperar los financiamientos en memoria
                 var financiamientosList = await financiamientosQuery.ToListAsync();
 
-                // Filtrar en memoria, buscando cada término en el nombre o el apellido
                 financiamientosList = financiamientosList
                     .Where(f => f.Paciente != null &&
                                 searchTerms.All(term =>
@@ -77,24 +73,21 @@ namespace WebApplication1.Controllers
                                     f.Paciente.Apellidos.ToLower().Contains(term)))
                     .ToList();
 
-                // Paginación después del filtrado
                 var financiamientos = financiamientosList.ToPagedList(pageNumber, pageSize);
 
-                // Pasar los valores de búsqueda y estado a la vista
                 ViewBag.UserRole = rolID;
                 ViewBag.UserId = userId;
-                ViewBag.Search = search; // Pasar el valor de búsqueda
-                ViewBag.EstadoSeleccionado = estado; // Pasar el estado seleccionado
+                ViewBag.Search = search;
+                ViewBag.EstadoSeleccionado = estado;
 
                 return View("Financiamiento", financiamientos);
             }
             else
             {
-                // Si no hay término de búsqueda, realizar la paginación normal
                 var financiamientosList = await financiamientosQuery.OrderBy(f => f.FechaInicio).ToListAsync();
                 var financiamientos = financiamientosList.ToPagedList(pageNumber, pageSize);
 
-                // Pasar los valores de búsqueda y estado a la vista
+               
                 ViewBag.UserRole = rolID;
                 ViewBag.UserId = userId;
                 ViewBag.EstadoSeleccionado = estado;
@@ -110,7 +103,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Editar(int id)
         {
             var financiamiento = await _context.Financiamientos
-                .Include(f => f.Paciente) // Incluye los datos del paciente
+                .Include(f => f.Paciente) 
                 .FirstOrDefaultAsync(f => f.IdFinanciamiento == id);
 
             if (financiamiento == null)
@@ -118,7 +111,6 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            // Enviar nombre completo del paciente a la vista
             ViewBag.NombrePaciente = financiamiento.Paciente != null
                 ? $"{financiamiento.Paciente.Nombre} {financiamiento.Paciente.Apellidos}"
                 : "Paciente no encontrado";
@@ -142,15 +134,12 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Financiamiento");
             }
 
-            // Solo actualizamos los campos permitidos
             financiamientoExistente.MontoPagado = financiamiento.MontoPagado;
             financiamientoExistente.TasaInteres = financiamiento.TasaInteres;
             financiamientoExistente.Estado = financiamiento.Estado;
 
-            // Recalculamos el saldo pendiente
             financiamientoExistente.SaldoPendiente = financiamientoExistente.MontoTotal - financiamientoExistente.MontoPagado;
 
-            // Guardamos los cambios
             _context.Entry(financiamientoExistente).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -158,22 +147,6 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Financiamiento");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var financiamiento = await _context.Financiamientos.FindAsync(id);
-            if (financiamiento == null)
-            {
-                TempData["ErrorMessage"] = "No se encontró el financiamiento.";
-                return RedirectToAction("Financiamiento");
-            }
-
-            _context.Financiamientos.Remove(financiamiento);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "El financiamiento ha sido eliminado correctamente.";
-            return RedirectToAction("Financiamiento");
-        }
     }
 }
 
