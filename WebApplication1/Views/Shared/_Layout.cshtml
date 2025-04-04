@@ -60,13 +60,13 @@
                             <!-- Dropdown "Mi Cuenta" -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ⚙️ Mi Cuenta
+                                    @(userRole == "1" || userRole == "2" ? "⚙️ Administración" : "⚙️ Mi Cuenta")
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     @if (userRole == "3")
                                     {
                                         <li><a class="dropdown-item" asp-controller="MiPerfil" asp-action="MiPerfil">📄 Mi Perfil</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">📄 Mi Financiamiento</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Mi Financiamiento</a></li>
                                         <li><a class="dropdown-item" asp-controller="Portal" asp-action="Expediente">📂 Mi Portal</a></li>
                                     }
                                     @if (userRole == "4")
@@ -81,7 +81,7 @@
                                         <li><a class="dropdown-item" asp-controller="Facturas" asp-action="Index">🧾 Facturas</a></li>
                                         <li><a class="dropdown-item" asp-controller="DetalleFactura" asp-action="Index">📑 Detalles de Factura</a></li>
                                         <li><a class="dropdown-item" asp-controller="Compras" asp-action="Index">🛒 Compras</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">🛒 Financiamientos</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Financiamientos</a></li>
                                                     
 
 

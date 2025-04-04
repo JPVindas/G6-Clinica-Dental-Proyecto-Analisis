@@ -1,0 +1,104 @@
+﻿@model WebApplication1.Models.FinanciamientoModel
+
+@{
+    ViewData["Title"] = "Editar Financiamiento";
+}
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Editar Financiamiento</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="bg-white p-4 shadow-sm rounded">
+            <div class="card-body">
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                }
+
+                <form asp-controller="Financiamiento" asp-action="GuardarEdicion" method="post">
+                    <input type="hidden" asp-for="IdFinanciamiento" />
+                    <input type="hidden" asp-for="IdPaciente" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Paciente</label>
+                        <input type="text" class="form-control" value="@ViewBag.NombrePaciente" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Monto Total</label>
+                        <input asp-for="MontoTotal" type="number" class="form-control" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MontoPagado" class="form-label">Monto Pagado</label>
+                        <input asp-for="MontoPagado" type="number" class="form-control" required step="0.01" min="0" id="montoPagado">
+                        <span asp-validation-for="MontoPagado" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Saldo Pendiente</label>
+                        <input type="number" class="form-control" id="saldoPendiente" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TasaInteres" class="form-label">Tasa de Interés (%)</label>
+                        <input asp-for="TasaInteres" type="number" class="form-control" required step="0.01" min="0">
+                        <span asp-validation-for="TasaInteres" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Estado" class="form-label">Estado</label>
+                        <select asp-for="Estado" class="form-control" required>
+                            <option value="Pagado" selected="@(Model.Estado == "Pagado")">Pagado</option>
+                            <option value="Activo" selected="@(Model.Estado == "Activo")">Activo</option>
+                        </select>
+                        <span asp-validation-for="Estado" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a asp-controller="Financiamiento" asp-action="Financiamiento" class="btn btn-secondary">Cancelar</a>
+                </form>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        let montoTotal = parseFloat(document.getElementById("MontoTotal").value);
+                        let montoPagado = document.getElementById("montoPagado");
+                        let saldoPendiente = document.getElementById("saldoPendiente");
+
+                        function calcularSaldo() {
+                            let pagado = parseFloat(montoPagado.value) || 0;
+                            saldoPendiente.value = (montoTotal - pagado).toFixed(2);
+                        }
+
+                        montoPagado.addEventListener("input", calcularSaldo);
+                        calcularSaldo(); // Calcular al cargar la página
+                    });
+                </script>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        calcularSaldoPendiente();
+
+        document.getElementById("montoTotal").addEventListener("input", calcularSaldoPendiente);
+        document.getElementById("montoPagado").addEventListener("input", calcularSaldoPendiente);
+    });
+
+    function calcularSaldoPendiente() {
+        let total = parseFloat(document.getElementById("montoTotal").value) || 0;
+        let pagado = parseFloat(document.getElementById("montoPagado").value) || 0;
+        document.getElementById("saldoPendiente").value = (total - pagado).toFixed(2);
+    }
+</script>

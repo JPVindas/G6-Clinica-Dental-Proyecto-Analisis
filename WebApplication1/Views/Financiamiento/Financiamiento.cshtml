@@ -10,8 +10,16 @@
 }
 
 <div class="jumbotron text-center">
-    <h1 class="display-4">¡Bienvenido a Financiamientos!</h1>
-    <p class="lead">Aquí puedes gestionar los financiamientos de la clínica</p>
+    @if (rolID == 3)
+    {
+        <h1 class="display-4">¡Bienvenido a tus financiamientos!</h1>
+        <p class="lead">Aquí puedes consultar tus financiamientos y su estado.</p>
+    }
+    else 
+    {
+        <h1 class="display-4">¡Bienvenido a Financiamientos!</h1>
+        <p class="lead">Aquí puedes gestionar los financiamientos de la clínica.</p>
+    }
 </div>
 
 <div class="container mt-4">
@@ -34,6 +42,31 @@
                 </div>
             }
 
+            <!-- Formulario de Búsqueda y Filtro -->
+            @if (rolID != 3)
+            {<div class="row mb-3">
+                <div class="col-md-6">
+                    <form method="get">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="@ViewBag.Search">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Buscar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <form method="get">
+                        <div class="input-group">
+                            <select name="estado" class="form-select" onchange="this.form.submit()">
+                                <option value="Todos" selected="@(ViewBag.EstadoSeleccionado == "Todos")">Todos</option>
+                                <option value="Activo" selected="@(ViewBag.EstadoSeleccionado == "Activo")">Activo</option>
+                                <option value="Pagado" selected="@(ViewBag.EstadoSeleccionado == "Pagado")">Pagado</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
+            <!-- Tabla de Financiamientos -->
             @if (Model != null && Model.Any())
             {
                 <div class="table-responsive">
@@ -41,14 +74,17 @@
                         <thead style="background-color: #003366; color: #FFFFFF;">
                             <tr>
                                 <th>Paciente</th>
-                                <th>Cedula</th>
+                                <th>Cédula</th>
                                 <th>Monto Total</th>
                                 <th>Monto Pagado</th>
                                 <th>Saldo Pendiente</th>
                                 <th>Tasa de Interés</th>
                                 <th>Cuotas</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
+                                @if (rolID != 3)
+                                {
+                                    <th>Acciones</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -67,11 +103,14 @@
                                             @(financiamiento.Estado ?? "Sin estado")
                                         </span>
                                     </td>
-                                    <td>
-                                            <a asp-action="EditarFinanciamiento" asp-route-id="@financiamiento.IdFinanciamiento" class="btn-warning btn-sm">
+                                    @if (rolID != 3)
+                                    {
+                                        <td>
+                                            <a asp-controller="Financiamiento" asp-action="Editar" asp-route-id="@financiamiento.IdFinanciamiento" class="btn btn-warning btn-sm">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
-                                    </td>
+                                        </td>
+                                    }
                                 </tr>
                             }
                         </tbody>
@@ -93,13 +132,16 @@
                     <strong>No hay financiamientos disponibles.</strong>
                 </div>
             }
-
-            <a asp-action="CrearFinanciamiento" class="btn btn-primary w-100 mt-3">
-                <i class="bi bi-plus-circle"></i> Agregar Nuevo Financiamiento
+            @if (rolID != 3)
+            {
+                <a asp-action="CrearFinanciamiento" class="btn btn-primary w-100 mt-3">
+                    <i class="bi bi-plus-circle"></i> Agregar Nuevo Financiamiento
             </a>
+            }
         </div>
     </div>
 </div>
+
 
 <style>
     /* 🔹 Botón "Agendar Nueva Cita" */
