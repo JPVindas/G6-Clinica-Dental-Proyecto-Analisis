@@ -5,9 +5,11 @@ using WebApplication1.Models;
 using X.PagedList;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class ComprasController : Controller
     {
         private readonly MinombredeconexionDbContext _context;

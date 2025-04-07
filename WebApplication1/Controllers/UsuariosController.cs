@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using X.PagedList;
 using X.PagedList.Mvc.Core;
 using X.PagedList.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 
 
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class UsuariosController : Controller
     {
         private readonly MinombredeconexionDbContext _context;

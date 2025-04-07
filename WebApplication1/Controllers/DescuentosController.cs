@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +10,7 @@ using X.PagedList; // Para StaticPagedList
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class DescuentosController : Controller
     {
         private readonly MinombredeconexionDbContext _context;

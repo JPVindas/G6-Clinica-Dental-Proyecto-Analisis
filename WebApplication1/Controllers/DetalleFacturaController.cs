@@ -5,9 +5,11 @@ using X.PagedList; // ✅ Agregá esta línea
 using System.Threading.Tasks;
 using System.Linq;
 using X.PagedList.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class DetalleFacturaController : Controller
     {
         private readonly MinombredeconexionDbContext _context;

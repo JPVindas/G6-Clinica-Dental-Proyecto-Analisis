@@ -7,10 +7,11 @@ using WebApplication1.DATA;
 using WebApplication1.Models;
 using X.PagedList;
 using X.PagedList.Extensions;
-
+using Microsoft.AspNetCore.Authorization; // 👈 Importa el espacio de nombres
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class FacturasController : Controller
     {
         private readonly MinombredeconexionDbContext _context;
@@ -31,14 +32,11 @@ namespace WebApplication1.Controllers
                 .Include(f => f.Descuento)
                 .Include(f => f.Compra)
                     .ThenInclude(c => c.Paciente)
-                .OrderByDescending(f => f.Fecha) 
-                .ToPagedList(pageNumber, pageSize); 
+                .OrderByDescending(f => f.Fecha)
+                .ToPagedList(pageNumber, pageSize);
 
             return View("Index", facturas);
         }
-
-
-
 
         // ✅ VER DETALLES DE UNA FACTURA A PARTIR DEL ID DE COMPRA
         // ✅ VER DETALLES DE UNA FACTURA A PARTIR DEL ID DE COMPRA
@@ -89,8 +87,6 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index", "Compras");
             }
         }
-
-
 
         // ✅ PROCESAR ELIMINACIÓN DE FACTURA (POST)
         [HttpPost, ActionName("Eliminar")]

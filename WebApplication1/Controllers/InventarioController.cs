@@ -7,10 +7,12 @@ using WebApplication1.Models;
 using WebApplication1.DATA;
 using X.PagedList;
 using X.PagedList.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Policy = "Roles1y2")]
     public class InventarioController : Controller
     {
         private readonly MinombredeconexionDbContext _context;

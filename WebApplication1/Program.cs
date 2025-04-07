@@ -35,6 +35,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("Roles1y2", policy =>
+    policy.RequireClaim("RolID", "1", "2"));
     options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
     options.AddPolicy("Secretaria", policy => policy.RequireRole("Secretaria"));
     options.AddPolicy("Paciente", policy => policy.RequireRole("Paciente"));
