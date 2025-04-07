@@ -140,7 +140,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            // Buscar carrito abierto del paciente o crearlo si no existe
+            // Buscar o crear carrito abierto
             var carrito = await _context.Carrito
                 .FirstOrDefaultAsync(c => c.IdPaciente == pacienteId && c.Estado == "abierto");
 
@@ -159,23 +159,26 @@ namespace WebApplication1.Controllers
             // Determinar si es producto o servicio
             string tipo = (idProducto.HasValue) ? "producto" : "servicio";
 
-            // Obtener precio unitario (y en este ejemplo, el nombre se obtiene en la vista)
+            // Obtener precio unitario y tasa de impuesto (taxRate)
             decimal precioUnitario = 0;
+            decimal taxRate = 0m; // expresado en valor decimal: 13% = 0.13
             if (idProducto.HasValue)
             {
                 var producto = await _context.Productos.FindAsync(idProducto.Value);
                 if (producto == null) return NotFound("Producto no encontrado.");
                 precioUnitario = producto.Precio;
+                // Si el producto está exento, taxRate = 0; de lo contrario, usar su porcentaje (dividido entre 100)
+                taxRate = producto.Exento ? 0.00m : producto.PorcentajeIVA / 100m;
             }
             else if (idServicio.HasValue)
             {
                 var servicio = await _context.Servicios.FindAsync(idServicio.Value);
                 if (servicio == null) return NotFound("Servicio no encontrado.");
                 precioUnitario = servicio.Costo;
+                taxRate = servicio.Exento ? 0.00m : servicio.PorcentajeIVA / 100m;
             }
 
-            // Buscar si ya existe ese ítem en el carrito:
-            // Se compara correctamente: para producto, idProducto debe coincidir y idServicio debe ser null; para servicio, viceversa.
+            // Buscar si ya existe ese ítem en el carrito
             var existingItem = await _context.CarritoItems
                 .FirstOrDefaultAsync(ci =>
                     ci.IdCarrito == carrito.IdCarrito &&
@@ -186,17 +189,17 @@ namespace WebApplication1.Controllers
 
             if (existingItem != null)
             {
-                // Sumar la cantidad y recalcular impuestos
+                // Actualizar cantidad y recalcular impuestos
                 existingItem.Cantidad += cantidad;
                 decimal subtotal = existingItem.Cantidad * existingItem.PrecioUnitario;
-                existingItem.Impuestos = subtotal * TAX_RATE; // Calcula el 13%
+                existingItem.Impuestos = subtotal * taxRate;
                 _context.CarritoItems.Update(existingItem);
             }
             else
             {
-                // Crear un nuevo ítem en el carrito
+                // Calcular impuestos para el nuevo ítem
                 decimal subtotal = precioUnitario * cantidad;
-                decimal impuestos = subtotal * TAX_RATE;
+                decimal impuestos = subtotal * taxRate;
 
                 var newItem = new CarritoItemModel
                 {
@@ -215,6 +218,7 @@ namespace WebApplication1.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Carrito");
         }
+
 
         // ===============================================
         // 3) Eliminar ítem (POST /Carrito/EliminarItem)
@@ -345,9 +349,12 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Checkout");
             }
 
-            // Verificar si el paciente ya ha usado este descuento anteriormente en una factura
+            // Verificar si el paciente ya ha usado este descuento anteriormente
             bool yaUsado = await _context.Facturas
-                .AnyAsync(f => f.IdDescuento == descuento.IdDescuento && f.Compra.IdPaciente == paciente.IdPaciente);
+                .AnyAsync(f =>
+                    f.IdDescuento == descuento.IdDescuento &&
+                    f.Compra != null &&
+                    f.Compra.IdPaciente == paciente.IdPaciente);
 
             if (yaUsado)
             {
@@ -357,7 +364,7 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                // Código válido y aún no utilizado por el paciente
+                // ✅ Código válido y no ha sido utilizado previamente
                 TempData["CodigoAplicado"] = descuento.Codigo;
                 TempData["PorcentajeDescuento"] = descuento.PorcentajeDescuento.ToString("F2", CultureInfo.InvariantCulture);
                 TempData["SuccessMessage"] = "¡Código aplicado correctamente!";
@@ -370,10 +377,10 @@ namespace WebApplication1.Controllers
 
 
 
+
         // ===============================================
         // 5.1) Checkout => vista de pago
         // ===============================================
-
         [Authorize]
         public async Task<IActionResult> Checkout()
         {
@@ -406,12 +413,40 @@ namespace WebApplication1.Controllers
                 .Where(ci => ci.IdCarrito == carrito.IdCarrito)
                 .ToListAsync();
 
+            // 🔹 Calcular impuestos y subtotales por ítem
+            decimal subtotalGeneral = 0m;
+            decimal impuestosTotales = 0m;
+
+            foreach (var item in items)
+            {
+                decimal precioUnitario = item.PrecioUnitario;
+                decimal porcentajeIVA = 0m;
+
+                if (item.Tipo == "producto" && item.Producto != null)
+                {
+                    porcentajeIVA = item.Producto.Exento ? 0m : item.Producto.PorcentajeIVA;
+                }
+                else if (item.Tipo == "servicio" && item.Servicio != null)
+                {
+                    porcentajeIVA = item.Servicio.Exento ? 0m : item.Servicio.PorcentajeIVA;
+                }
+
+                decimal impuestoItem = (precioUnitario * item.Cantidad) * (porcentajeIVA / 100m);
+                item.Impuestos = impuestoItem;
+
+                subtotalGeneral += precioUnitario * item.Cantidad;
+                impuestosTotales += impuestoItem;
+            }
+
+            decimal totalConImpuestos = subtotalGeneral + impuestosTotales;
+            ViewBag.Subtotal = subtotalGeneral;
+            ViewBag.Impuestos = impuestosTotales;
+            ViewBag.TotalConImpuestos = totalConImpuestos;
+
             // ================================
             // Aplicación del Financiamiento
             // ================================
-            // Se evalúa si existen ítems de tipo "servicio" para los cuales se pueda solicitar financiamiento.
             bool hayServiciosFinanciables = items.Any(i => i.Tipo == "servicio" && i.IdServicio.HasValue);
-            // Esta bandera se envía a la vista para, por ejemplo, mostrar el checkbox o información adicional.
             ViewBag.HayServiciosFinanciables = hayServiciosFinanciables;
 
             // ================================
@@ -430,9 +465,16 @@ namespace WebApplication1.Controllers
                     ViewBag.CodigoAplicado = descuento.Codigo;
                     ViewBag.PorcentajeDescuento = descuento.PorcentajeDescuento;
 
-                    // Guardar en TempData como string para evitar problemas de serialización
-                    TempData["CodigoAplicado"] = descuento.Codigo;
-                    TempData["PorcentajeDescuento"] = descuento.PorcentajeDescuento.ToString("F2", CultureInfo.InvariantCulture);
+                    // Calcular descuento
+                    decimal montoDescuento = totalConImpuestos * (descuento.PorcentajeDescuento / 100m);
+                    decimal totalConDescuento = totalConImpuestos - montoDescuento;
+
+                    ViewBag.MontoDescuento = montoDescuento;
+                    ViewBag.TotalConDescuento = totalConDescuento;
+
+                    // ✅ Eliminar para evitar que se vuelva a usar
+                    TempData.Remove("CodigoAplicado");
+                    TempData.Remove("PorcentajeDescuento");
                 }
                 else
                 {
@@ -446,13 +488,19 @@ namespace WebApplication1.Controllers
                 if (decimal.TryParse(porcentajeDescuentoString, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal porcentaje))
                 {
                     ViewBag.PorcentajeDescuento = porcentaje;
+
+                    decimal montoDescuento = totalConImpuestos * (porcentaje / 100m);
+                    decimal totalConDescuento = totalConImpuestos - montoDescuento;
+
+                    ViewBag.MontoDescuento = montoDescuento;
+                    ViewBag.TotalConDescuento = totalConDescuento;
                 }
 
                 ViewBag.CodigoAplicado = codigoDescuento;
 
-                // Reasignar para mantenerlo tras reloads
-                TempData["CodigoAplicado"] = codigoDescuento;
-                TempData["PorcentajeDescuento"] = porcentajeDescuentoString;
+                // ✅ Limpiar de todos modos para evitar reuso
+                TempData.Remove("CodigoAplicado");
+                TempData.Remove("PorcentajeDescuento");
             }
 
             // ================================
@@ -473,15 +521,18 @@ namespace WebApplication1.Controllers
 
 
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> RegistrarCompra(
-            DateTime FechaCompra,
-            string Estado,
-            decimal MontoTotal,
-            int IdMetodoDePago,
-            bool SolicitaFinanciamiento,
-            string Nombre)
+     DateTime FechaCompra,
+     string Estado,
+     decimal MontoTotal,
+     int IdMetodoDePago,
+     bool SolicitaFinanciamiento,
+     string Nombre,
+     string CodigoDescuento,
+     decimal? PorcentajeDescuento
+ )
         {
             int userId = GetUserId();
             int rolId = GetRolId();
@@ -492,8 +543,7 @@ namespace WebApplication1.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var paciente = await _context.Pacientes
-                .Include(p => p.Usuario)
+            var paciente = await _context.Pacientes.Include(p => p.Usuario)
                 .FirstOrDefaultAsync(p => p.IdUsuario == userId);
             if (paciente == null)
             {
@@ -510,206 +560,146 @@ namespace WebApplication1.Controllers
             }
 
             var items = await _context.CarritoItems
+                .Include(i => i.Producto)
                 .Include(i => i.Servicio)
                 .Where(i => i.IdCarrito == carrito.IdCarrito)
                 .ToListAsync();
+
             if (!items.Any())
             {
                 TempData["ErrorMessage"] = "El carrito está vacío.";
                 return RedirectToAction("Carrito");
             }
 
-            // Lista para almacenar los IDs de financiamientos creados (uno por servicio)
-            List<int> idsFinanciamientos = new List<int>();
+            // Obtener descuento si se aplicó
+            int? idDescuento = null;
+            decimal porcentajeDescuentoReal = 0m;
 
-            // Verifica que se haya enviado SolicitaFinanciamiento = true
-            if (SolicitaFinanciamiento)
+            if (!string.IsNullOrWhiteSpace(CodigoDescuento) && PorcentajeDescuento.HasValue)
             {
-                // Procesar cada ítem de tipo servicio
-                var servicios = items.Where(i => i.Tipo == "servicio" && i.IdServicio.HasValue).ToList();
-                foreach (var servicioItem in servicios)
+                string codigo = CodigoDescuento.Trim().ToLower();
+                var descuento = await _context.Descuentos
+                    .FirstOrDefaultAsync(d => d.Codigo.ToLower() == codigo && d.Estado == true);
+
+                if (descuento != null)
                 {
-                    // Buscar tratamiento asociado al servicio
-                    var tratamiento = await _context.Tratamientos
-                        .FirstOrDefaultAsync(t => t.IdServicio == servicioItem.IdServicio);
-                    if (tratamiento != null)
-                    {
-                        // Omitir financiamiento para tratamientos que no lo permiten (por ejemplo, si tratamiento.IdTratamiento == 15)
-                        if (tratamiento.IdTratamiento == 15)
-                        {
-                            continue;
-                        }
-
-                        // Verificar que el empleado con Id = 1 exista
-                        var empleado = await _context.Empleados.FindAsync(1);
-                        if (empleado == null)
-                        {
-                            TempData["ErrorMessage"] = "No existe un empleado con Id 1. Ingrese un empleado válido.";
-                            return RedirectToAction("Carrito");
-                        }
-
-                        // Crear el historial médico
-                        var historialMedico = new HistorialMedicoModel
-                        {
-                            IdPaciente = paciente.IdPaciente,
-                            IdEmpleado = 1,
-                            Diagnostico = "Financiamiento automático por compra de servicio",
-                            IdTratamiento = tratamiento.IdTratamiento,
-                            FechaActualizacion = DateTime.Today
-                        };
-
-                        try
-                        {
-                            _context.HistorialMedico.Add(historialMedico);
-                            await _context.SaveChangesAsync();
-                            // Para depurar: guardar el id insertado en TempData (solo para pruebas)
-                            TempData[$"HistorialInsertado_{tratamiento.IdTratamiento}"] = historialMedico.IdHistorial;
-                        }
-                        catch (Exception ex)
-                        {
-                            TempData["ErrorMessage"] = $"Error al insertar el historial médico: {ex.Message}";
-                            return RedirectToAction("Carrito");
-                        }
-
-                        // Recuperar el financiamiento insertado por el trigger
-                        var financiamiento = await _context.Financiamientos
-                            .Where(f => f.IdPaciente == paciente.IdPaciente &&
-                                        f.IdTratamiento == tratamiento.IdTratamiento &&
-                                        f.FechaInicio.Date == DateTime.Today)
-                            .OrderByDescending(f => f.IdFinanciamiento)
-                            .FirstOrDefaultAsync();
-                        if (financiamiento != null)
-                        {
-                            // Aplicar condiciones según tratamiento
-                            int cuotas;
-                            DateTime fechaFinal;
-                            switch (tratamiento.IdTratamiento)
-                            {
-                                case 1:
-                                case 2:
-                                case 3:
-                                case 5:
-                                case 6:
-                                case 9:
-                                case 11:
-                                case 12:
-                                case 14:
-                                    cuotas = 1;
-                                    fechaFinal = DateTime.Today;
-                                    break;
-                                case 4:  // Ortodoncia
-                                    cuotas = 12;
-                                    fechaFinal = DateTime.Today.AddMonths(12);
-                                    break;
-                                case 7:  // Implantes Dentales
-                                    cuotas = 3;
-                                    fechaFinal = DateTime.Today.AddMonths(3);
-                                    break;
-                                case 8:  // Prótesis Dentales
-                                    cuotas = 2;
-                                    fechaFinal = DateTime.Today.AddDays(14);
-                                    break;
-                                case 10: // Carillas Dentales
-                                    cuotas = 3;
-                                    fechaFinal = DateTime.Today.AddDays(21);
-                                    break;
-                                case 13: // Cirugía Oral
-                                    cuotas = 6;
-                                    fechaFinal = DateTime.Today.AddMonths(6);
-                                    break;
-                                default:
-                                    cuotas = 1;
-                                    fechaFinal = DateTime.Today;
-                                    break;
-                            }
-                            financiamiento.Cuotas = cuotas;
-                            financiamiento.FechaFinal = fechaFinal;
-                            _context.Financiamientos.Update(financiamiento);
-                            await _context.SaveChangesAsync();
-
-                            idsFinanciamientos.Add(financiamiento.IdFinanciamiento);
-                        }
-                        else
-                        {
-                            TempData[$"FinanciamientoError_{tratamiento.IdTratamiento}"] = $"No se recuperó el financiamiento para el tratamiento {tratamiento.IdTratamiento}";
-                        }
-                    }
+                    idDescuento = descuento.IdDescuento;
+                    porcentajeDescuentoReal = descuento.PorcentajeDescuento;
                 }
             }
 
-            // Consolidar financiamientos si hay más de uno
-            FinanciamientoModel financiamientoAsignado = null;
-            if (idsFinanciamientos.Count == 1)
+            // Calcular subtotal e impuestos totales
+            decimal subtotal = 0m;
+            decimal impuestos = 0m;
+
+            foreach (var item in items)
             {
-                financiamientoAsignado = await _context.Financiamientos.FindAsync(idsFinanciamientos.First());
-            }
-            else if (idsFinanciamientos.Count > 1)
-            {
-                var financiamientos = await _context.Financiamientos
-                    .Where(f => idsFinanciamientos.Contains(f.IdFinanciamiento))
-                    .ToListAsync();
-                decimal montoTotalAgregado = financiamientos.Sum(f => f.MontoTotal);
-                financiamientoAsignado = new FinanciamientoModel
-                {
-                    IdPaciente = paciente.IdPaciente,
-                    MontoTotal = montoTotalAgregado,
-                    MontoPagado = 0m,
-                    TasaInteres = 3.5m,
-                    Cuotas = 12,
-                    FechaInicio = DateTime.Today,
-                    FechaFinal = DateTime.Today.AddMonths(12),
-                    Estado = "activo"
-                };
-                _context.Financiamientos.Add(financiamientoAsignado);
-                await _context.SaveChangesAsync();
+                decimal precioLinea = item.PrecioUnitario * item.Cantidad;
+                subtotal += precioLinea;
+
+                decimal porcentajeIVA = 0m;
+                if (item.Tipo == "producto" && item.Producto != null && !item.Producto.Exento)
+                    porcentajeIVA = item.Producto.PorcentajeIVA / 100m;
+                else if (item.Tipo == "servicio" && item.Servicio != null && !item.Servicio.Exento)
+                    porcentajeIVA = item.Servicio.PorcentajeIVA / 100m;
+
+                item.Impuestos = precioLinea * porcentajeIVA;
+                impuestos += item.Impuestos;
             }
 
-            // Crear la compra, asociando el financiamiento solo si se solicitó
+            decimal totalSinDescuento = subtotal + impuestos;
+            decimal montoDescuento = porcentajeDescuentoReal > 0 ? totalSinDescuento * porcentajeDescuentoReal / 100 : 0;
+            decimal totalFinal = totalSinDescuento - montoDescuento;
+
+            // Crear financiamiento si se solicitó
+            List<int> idsFinanciamientos = new();
+            FinanciamientoModel financiamientoAsignado = null;
+
+            if (SolicitaFinanciamiento)
+            {
+                foreach (var item in items.Where(i => i.Tipo == "servicio" && i.IdServicio.HasValue))
+                {
+                    var tratamiento = await _context.Tratamientos.FirstOrDefaultAsync(t => t.IdServicio == item.IdServicio);
+                    if (tratamiento == null || tratamiento.IdTratamiento == 15) continue;
+
+                    _context.HistorialMedico.Add(new HistorialMedicoModel
+                    {
+                        IdPaciente = paciente.IdPaciente,
+                        IdEmpleado = 1,
+                        Diagnostico = "Financiamiento automático por compra de servicio",
+                        IdTratamiento = tratamiento.IdTratamiento,
+                        FechaActualizacion = DateTime.Today
+                    });
+                    await _context.SaveChangesAsync();
+
+                    var financiamiento = await _context.Financiamientos
+                        .Where(f => f.IdPaciente == paciente.IdPaciente &&
+                                    f.IdTratamiento == tratamiento.IdTratamiento &&
+                                    f.FechaInicio.Date == DateTime.Today)
+                        .OrderByDescending(f => f.IdFinanciamiento)
+                        .FirstOrDefaultAsync();
+
+                    if (financiamiento != null)
+                    {
+                        int cuotas;
+                        DateTime fechaFinal;
+                        switch (tratamiento.IdTratamiento)
+                        {
+                            case 4: cuotas = 12; fechaFinal = DateTime.Today.AddMonths(12); break;
+                            case 7: cuotas = 3; fechaFinal = DateTime.Today.AddMonths(3); break;
+                            case 8: cuotas = 2; fechaFinal = DateTime.Today.AddDays(14); break;
+                            case 10: cuotas = 3; fechaFinal = DateTime.Today.AddDays(21); break;
+                            case 13: cuotas = 6; fechaFinal = DateTime.Today.AddMonths(6); break;
+                            default: cuotas = 1; fechaFinal = DateTime.Today; break;
+                        }
+
+                        financiamiento.Cuotas = cuotas;
+                        financiamiento.FechaFinal = fechaFinal;
+                        _context.Financiamientos.Update(financiamiento);
+                        await _context.SaveChangesAsync();
+
+                        idsFinanciamientos.Add(financiamiento.IdFinanciamiento);
+                    }
+                }
+
+                if (idsFinanciamientos.Count > 1)
+                {
+                    var fList = await _context.Financiamientos
+                        .Where(f => idsFinanciamientos.Contains(f.IdFinanciamiento))
+                        .ToListAsync();
+
+                    financiamientoAsignado = new FinanciamientoModel
+                    {
+                        IdPaciente = paciente.IdPaciente,
+                        MontoTotal = fList.Sum(f => f.MontoTotal),
+                        MontoPagado = 0,
+                        TasaInteres = 3.5m,
+                        Cuotas = 12,
+                        FechaInicio = DateTime.Today,
+                        FechaFinal = DateTime.Today.AddMonths(12),
+                        Estado = "activo"
+                    };
+                    _context.Financiamientos.Add(financiamientoAsignado);
+                    await _context.SaveChangesAsync();
+                }
+                else if (idsFinanciamientos.Count == 1)
+                {
+                    financiamientoAsignado = await _context.Financiamientos.FindAsync(idsFinanciamientos.First());
+                }
+            }
+
+            // Crear compra y factura
             var compra = new CompraModel
             {
                 IdPaciente = paciente.IdPaciente,
                 FechaCompra = FechaCompra,
                 Estado = Estado,
-                MontoTotal = MontoTotal,
-                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null
+                MontoTotal = totalFinal,
+                IdFinanciamiento = financiamientoAsignado?.IdFinanciamiento
             };
             _context.Compras.Add(compra);
             await _context.SaveChangesAsync();
 
-            // Registrar cada ítem de la compra y actualizar stock si es producto
-            foreach (var item in items)
-            {
-                var detalle = new DetalleCompraModel
-                {
-                    IdCompra = compra.IdCompra,
-                    Tipo = item.Tipo,
-                    IdProducto = item.IdProducto,
-                    IdServicio = item.IdServicio,
-                    Cantidad = item.Cantidad,
-                    PrecioUnitario = item.PrecioUnitario,
-                    Impuestos = item.Impuestos
-                };
-                _context.DetallesCompra.Add(detalle);
-
-                if (item.Tipo == "producto" && item.IdProducto.HasValue)
-                {
-                    var producto = await _context.Productos.FindAsync(item.IdProducto);
-                    if (producto != null)
-                    {
-                        producto.Stock -= item.Cantidad;
-                        _context.Productos.Update(producto);
-                    }
-                }
-            }
-            await _context.SaveChangesAsync();
-
-            // Procesar descuento, si existe
-            var codigoDescuento = TempData["CodigoAplicado"] as string;
-            var descuento = !string.IsNullOrWhiteSpace(codigoDescuento)
-                            ? await _context.Descuentos.FirstOrDefaultAsync(d => d.Codigo == codigoDescuento && d.Estado == true)
-                            : null;
-
-            // Crear la factura asociada a la compra, incluyendo el financiamiento si se solicitó
             var factura = new FacturaModel
             {
                 IdCompra = compra.IdCompra,
@@ -719,45 +709,58 @@ namespace WebApplication1.Controllers
                 CorreoCliente = paciente.Usuario?.CorreoElectronico,
                 Fecha = DateTime.Now,
                 IdMetodoPago = IdMetodoDePago,
-                IdDescuento = descuento?.IdDescuento,
-                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null
+                IdFinanciamiento = financiamientoAsignado?.IdFinanciamiento,
+                IdDescuento = idDescuento
             };
             _context.Facturas.Add(factura);
             await _context.SaveChangesAsync();
 
-            // Registrar cada detalle de factura
             foreach (var item in items)
             {
-                decimal subTotal = item.PrecioUnitario * item.Cantidad;
-                var detalleFactura = new DetalleFacturaModel
+                decimal subtotalItem = item.PrecioUnitario * item.Cantidad;
+
+                _context.DetallesCompra.Add(new DetalleCompraModel
+                {
+                    IdCompra = compra.IdCompra,
+                    Tipo = item.Tipo,
+                    IdProducto = item.IdProducto,
+                    IdServicio = item.IdServicio,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.PrecioUnitario,
+                    Impuestos = item.Impuestos
+                });
+
+                _context.DetallesFactura.Add(new DetalleFacturaModel
                 {
                     IdFactura = factura.IdFactura,
                     Tipo = item.Tipo,
                     IdProducto = item.IdProducto,
                     IdServicio = item.IdServicio,
                     Cantidad = item.Cantidad,
-                    Subtotal = subTotal,
+                    Subtotal = subtotalItem,
                     Impuestos = item.Impuestos,
-                    Total = subTotal + item.Impuestos
-                };
-                _context.DetallesFactura.Add(detalleFactura);
+                    Total = subtotalItem + item.Impuestos
+                });
+
+                if (item.Tipo == "producto" && item.Producto != null)
+                {
+                    item.Producto.Stock -= item.Cantidad;
+                    _context.Productos.Update(item.Producto);
+                }
             }
+
             await _context.SaveChangesAsync();
 
-            // Crear el historial de compra
-            var historialCompra = new HistorialComprasModel
+            _context.HistorialCompras.Add(new HistorialComprasModel
             {
                 IdPaciente = paciente.IdPaciente,
                 FechaCompra = DateTime.Now,
                 IdFactura = factura.IdFactura,
-                IdFinanciamiento = SolicitaFinanciamiento ? financiamientoAsignado?.IdFinanciamiento : null,
+                IdFinanciamiento = financiamientoAsignado?.IdFinanciamiento,
                 Tipo = "compra",
-                MontoTotal = compra.MontoTotal
-            };
-            _context.HistorialCompras.Add(historialCompra);
-            await _context.SaveChangesAsync();
+                MontoTotal = totalFinal
+            });
 
-            // Cerrar el carrito y eliminar los ítems
             carrito.Estado = "cerrado";
             _context.Carrito.Update(carrito);
             _context.CarritoItems.RemoveRange(items);
@@ -765,25 +768,24 @@ namespace WebApplication1.Controllers
 
             try
             {
-                // Recuperar la compra completa para enviar la factura por correo
-                var compraConDetalles = await _context.Compras
+                var compraCompleta = await _context.Compras
                     .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
                     .Include(c => c.Facturas).ThenInclude(f => f.MetodoPago)
-                    .Include(c => c.Facturas).ThenInclude(f => f.Descuento)
                     .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Producto)
                     .Include(c => c.Facturas).ThenInclude(f => f.DetallesFactura).ThenInclude(df => df.Servicio)
                     .FirstOrDefaultAsync(c => c.IdCompra == compra.IdCompra);
 
-                EnviarFacturaPorCorreo(compraConDetalles);
+                EnviarFacturaPorCorreo(compraCompleta);
                 TempData["SuccessMessage"] = "Compra registrada y factura enviada al correo.";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"La compra fue registrada, pero ocurrió un error al enviar la factura por correo: {ex.Message}";
+                TempData["ErrorMessage"] = $"La compra fue registrada, pero ocurrió un error al enviar la factura: {ex.Message}";
             }
 
             return RedirectToAction("CompraCompletada", new { idCompra = compra.IdCompra });
         }
+
 
 
 
@@ -816,10 +818,49 @@ namespace WebApplication1.Controllers
             if (compra == null)
                 return NotFound("Compra no encontrada.");
 
+            var factura = compra.Facturas?.FirstOrDefault();
+
+            if (factura != null)
+            {
+                var subtotal = factura.DetallesFactura?.Sum(d => d.Subtotal) ?? 0;
+                var impuestos = factura.DetallesFactura?.Sum(d => d.Impuestos) ?? 0;
+                var totalSinDescuento = subtotal + impuestos;
+
+                // Verificar si el descuento aún no está enlazado
+                if (factura.IdDescuento == null && TempData.ContainsKey("CodigoAplicado"))
+                {
+                    string codigo = TempData["CodigoAplicado"]?.ToString();
+                    var descuento = await _context.Descuentos.FirstOrDefaultAsync(d => d.Codigo == codigo);
+                    if (descuento != null)
+                    {
+                        factura.IdDescuento = descuento.IdDescuento;
+                        _context.Facturas.Update(factura);
+                        await _context.SaveChangesAsync();
+
+                        factura.Descuento = descuento; // forzar carga manual
+                    }
+                }
+
+                decimal porcentajeDescuento = factura.Descuento?.PorcentajeDescuento ?? 0;
+                decimal montoDescuento = porcentajeDescuento > 0 ? totalSinDescuento * porcentajeDescuento / 100 : 0;
+
+                // ✅ Usar siempre el monto total real desde la base de datos
+                decimal totalFinal = compra.MontoTotal;
+
+                ViewBag.Subtotal = subtotal;
+                ViewBag.Impuestos = impuestos;
+                ViewBag.Descuento = montoDescuento;
+                ViewBag.TotalSinDescuento = totalSinDescuento;
+                ViewBag.TotalConDescuento = totalFinal;
+                ViewBag.PorcentajeDescuento = porcentajeDescuento;
+                ViewBag.MetodoPago = factura.MetodoPago?.Nombre;
+            }
+
             return View(compra);
         }
 
-        // ========== Generar Factura =================
+
+
         [Authorize]
         public async Task<IActionResult> GenerarFacturaPDF(int idCompra)
         {
@@ -834,11 +875,30 @@ namespace WebApplication1.Controllers
             if (compra == null)
                 return NotFound("Compra no encontrada.");
 
+            var factura = compra.Facturas?.FirstOrDefault();
+            if (factura == null)
+                return NotFound("Factura no encontrada para esta compra.");
+
+            // Cálculos
+            decimal subtotal = factura.DetallesFactura?.Sum(d => d.Subtotal) ?? 0;
+            decimal impuestos = factura.DetallesFactura?.Sum(d => d.Impuestos) ?? 0;
+            decimal totalSinDescuento = subtotal + impuestos;
+
+            decimal porcentajeDescuento = factura.Descuento?.PorcentajeDescuento ?? 0;
+            decimal montoDescuento = porcentajeDescuento > 0 ? totalSinDescuento * porcentajeDescuento / 100 : 0;
+            decimal totalConDescuento = totalSinDescuento - montoDescuento;
+
+            // Agregar a la factura para que el generador tenga los valores disponibles (si se usa en la vista PDF)
+            factura.TotalSinDescuento = totalSinDescuento;
+            factura.MontoDescuento = montoDescuento;
+            factura.TotalFinal = totalConDescuento;
+
             // ⚙️ Generar el PDF usando QuestPDF
             var pdfBytes = FacturaPDFGenerator.GenerarFactura(compra);
 
             return File(pdfBytes, "application/pdf", $"Factura_{compra.IdCompra}.pdf");
         }
+
 
 
 

@@ -11,56 +11,91 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <div class="bg-white p-4 shadow-sm rounded">
-        <form asp-action="GuardarProductoEdicion" method="post">
-            <input type="hidden" asp-for="Id" />
 
-            <div class="mb-3">
-                <label asp-for="Nombre" class="form-label">Nombre del Producto</label>
-                <input asp-for="Nombre" class="form-control" required />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+            <form asp-action="GuardarProductoEdicion" method="post">
+                <input type="hidden" asp-for="Id" />
 
-            <div class="mb-3">
-                <label asp-for="Descripcion" class="form-label">Descripción</label>
-                <textarea asp-for="Descripcion" class="form-control"></textarea>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label">Nombre del Producto</label>
+                    <input asp-for="Nombre" class="form-control" required />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Marca" class="form-label">Marca</label>
-                <input asp-for="Marca" class="form-control" required />
-                <span asp-validation-for="Marca" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Descripcion" class="form-label">Descripción</label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Precio" class="form-label">Precio</label>
-                <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0" required />
-                <span asp-validation-for="Precio" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Marca" class="form-label">Marca</label>
+                    <input asp-for="Marca" class="form-control" required />
+                    <span asp-validation-for="Marca" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Stock" class="form-label">Stock</label>
-                <input asp-for="Stock" class="form-control" type="number" min="0" required />
-                <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Precio" class="form-label">Precio</label>
+                    <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0" required />
+                    <span asp-validation-for="Precio" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
-                <input asp-for="UrlImagen" class="form-control" id="UrlImagen" />
-                <span asp-validation-for="UrlImagen" class="text-danger"></span>
-                <img id="imagenVistaPrevia" src="@Model.UrlImagen" alt="Vista previa de la imagen" class="img-thumbnail mt-2" style="max-width: 200px;" />
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Stock" class="form-label">Stock</label>
+                    <input asp-for="Stock" class="form-control" type="number" min="0" required />
+                    <span asp-validation-for="Stock" class="text-danger"></span>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Guardar</button>
-            <a asp-action="Productos" class="btn btn-secondary">Cancelar</a>
-        </form>
+                <div class="mb-3">
+                    <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
+                    <input asp-for="UrlImagen" class="form-control" id="UrlImagen" />
+                    <span asp-validation-for="UrlImagen" class="text-danger"></span>
+                    <img id="imagenVistaPrevia" src="@Model.UrlImagen" alt="Vista previa de la imagen" class="img-thumbnail mt-2" style="max-width: 200px;" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PorcentajeIVA" class="form-label">Porcentaje IVA (%)</label>
+                    <input asp-for="PorcentajeIVA" class="form-control" id="ivaInput" />
+                    <span asp-validation-for="PorcentajeIVA" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="Exento" type="checkbox" class="form-check-input" id="exentoCheckbox" />
+                    <label asp-for="Exento" class="form-check-label">Exento de IVA</label>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar
+                </button>
+
+                <a asp-action="Productos" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </form>
+
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        // Vista previa de imagen
         document.getElementById("UrlImagen").addEventListener("input", function () {
             document.getElementById("imagenVistaPrevia").src = this.value;
         });
+
+        // Cambio automático de IVA si se marca "Exento"
+        document.getElementById("exentoCheckbox").addEventListener("change", function () {
+            const ivaInput = document.getElementById("ivaInput");
+            if (this.checked) {
+                ivaInput.value = "0.00";
+            } else {
+                ivaInput.value = "13.00"; // O "4.00" si aplica para tu negocio
+            }
+        });
     </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

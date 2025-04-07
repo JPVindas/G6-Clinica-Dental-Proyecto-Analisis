@@ -82,6 +82,15 @@ namespace WebApplication1.Models
                 return DetallesFactura?.Sum(d => d.Total) ?? 0;
             }
         }
+        [NotMapped]
+        public decimal TotalSinDescuento { get; set; }
 
-        }
+        [NotMapped]
+        public decimal MontoDescuento { get; set; }
+
+        [NotMapped]
+        public decimal TotalFinal { get; set; }
+
+
+    }
 }

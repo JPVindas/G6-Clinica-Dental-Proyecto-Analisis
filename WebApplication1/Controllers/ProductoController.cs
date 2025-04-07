@@ -23,9 +23,10 @@ namespace WebApplication1.Controllers
 
 
         // ✅ PROCESAR CREACIÓN DE PRODUCTO (POST)
+        // CREAR PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Marca,Precio,Stock,UrlImagen")] ProductosModel producto)
+        public async Task<IActionResult> AgregarProducto([Bind("Nombre,Descripcion,Marca,Precio,Stock,UrlImagen,PorcentajeIVA,Exento")] ProductosModel producto)
         {
             if (ModelState.IsValid)
             {
@@ -83,32 +84,25 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR EDICIÓN DEL PRODUCTO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GuardarProductoEdicion(int id, ProductosModel productoEditado)
+        public async Task<IActionResult> GuardarProductoEdicion(int id, [Bind("Id,Nombre,Descripcion,Marca,Precio,Stock,UrlImagen,PorcentajeIVA,Exento")] ProductosModel productoEditado)
         {
-            if (id != productoEditado.Id)
-            {
-                return NotFound();
-            }
+            if (id != productoEditado.Id) return NotFound();
 
             var producto = await _context.Productos.FindAsync(id);
-            if (producto == null)
-            {
-                return NotFound();
-            }
+            if (producto == null) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Mostrar cambios en consola para debug
-                    Console.WriteLine($"Precio antes: {producto.Precio}, Precio nuevo: {productoEditado.Precio}");
-
                     producto.Nombre = productoEditado.Nombre;
                     producto.Descripcion = productoEditado.Descripcion;
                     producto.Marca = productoEditado.Marca;
-                    producto.Precio = productoEditado.Precio; // Asegurar que realmente se actualiza
+                    producto.Precio = productoEditado.Precio;
                     producto.Stock = productoEditado.Stock;
                     producto.UrlImagen = productoEditado.UrlImagen;
+                    producto.PorcentajeIVA = productoEditado.PorcentajeIVA;
+                    producto.Exento = productoEditado.Exento;
 
                     _context.Update(producto);
                     await _context.SaveChangesAsync();
@@ -116,41 +110,33 @@ namespace WebApplication1.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ProductoExiste(productoEditado.Id))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Productos));
             }
             return View("EditarProducto", productoEditado);
         }
 
-
         private bool ProductoExiste(int id)
         {
             return _context.Productos.Any(e => e.Id == id);
         }
 
-        // ✅ CONFIRMACIÓN PARA ELIMINAR PRODUCTO
+        // CONFIRMACIÓN PARA ELIMINAR
         public async Task<IActionResult> EliminarProducto(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var producto = await _context.Productos.FirstOrDefaultAsync(m => m.Id == id);
-            if (producto == null)
-            {
-                return NotFound();
-            }
+            if (producto == null) return NotFound();
 
             return View(producto);
         }
+
+
+
 
         // ✅ PROCESAR ELIMINACIÓN
         [HttpPost, ActionName("EliminarProducto")]

@@ -16,6 +16,14 @@ public static class FacturaPDFGenerator
         var culture = new CultureInfo("es-CR");
         var factura = compra.Facturas?.FirstOrDefault();
 
+        // Calcular totales
+        decimal subtotal = factura?.DetallesFactura?.Sum(d => d.Subtotal) ?? 0;
+        decimal impuestos = factura?.DetallesFactura?.Sum(d => d.Impuestos) ?? 0;
+        decimal totalSinDescuento = subtotal + impuestos;
+        decimal porcentajeDescuento = factura?.Descuento?.PorcentajeDescuento ?? 0;
+        decimal montoDescuento = porcentajeDescuento > 0 ? totalSinDescuento * porcentajeDescuento / 100 : 0;
+        decimal totalConDescuento = totalSinDescuento - montoDescuento;
+
         return Document.Create(container =>
         {
             container.Page(page =>
@@ -57,10 +65,26 @@ public static class FacturaPDFGenerator
                         }
 
                         col.Item().PaddingTop(15).Element(GenerateTablaDetalle(factura, culture));
-                    }
 
-                    col.Item().PaddingTop(15).AlignRight().Text($"Total de la Compra: ₡{compra.MontoTotal.ToString("N2", culture)}")
-                        .FontSize(14).Bold().FontColor(Colors.Blue.Medium);
+                        col.Item().PaddingTop(20).AlignRight().Column(totals =>
+                        {
+                            totals.Item().Text($"Subtotal: ₡{subtotal.ToString("N2", culture)}").FontSize(12);
+                            totals.Item().Text($"Impuestos: ₡{impuestos.ToString("N2", culture)}").FontSize(12);
+
+                            if (porcentajeDescuento > 0)
+                            {
+                                totals.Item().Text($"Descuento ({porcentajeDescuento.ToString("N2", culture)}%): -₡{montoDescuento.ToString("N2", culture)}")
+                                    .FontSize(12).FontColor(Colors.Red.Medium);
+                                totals.Item().Text($"Total con descuento: ₡{totalConDescuento.ToString("N2", culture)}")
+                                    .FontSize(14).Bold().FontColor(Colors.Green.Darken2);
+                            }
+                            else
+                            {
+                                totals.Item().Text($"Total: ₡{totalSinDescuento.ToString("N2", culture)}")
+                                    .FontSize(14).Bold().FontColor(Colors.Green.Darken2);
+                            }
+                        });
+                    }
                 });
 
                 // Pie de página
@@ -81,15 +105,14 @@ public static class FacturaPDFGenerator
             {
                 table.ColumnsDefinition(columns =>
                 {
-                    columns.RelativeColumn(1); // Tipo
-                    columns.RelativeColumn(2); // Nombre
-                    columns.RelativeColumn(1); // Cantidad
-                    columns.RelativeColumn(1); // Subtotal
-                    columns.RelativeColumn(1); // Impuestos
-                    columns.RelativeColumn(1); // Total
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(1);
                 });
 
-                // Encabezados
                 table.Header(header =>
                 {
                     header.Cell().Element(CellStyle).Text("Tipo").FontColor(Colors.White).Bold();
@@ -103,7 +126,6 @@ public static class FacturaPDFGenerator
                         container.Background(Colors.Blue.Medium).Padding(5).AlignCenter();
                 });
 
-                // Filas de datos
                 foreach (var item in factura.DetallesFactura)
                 {
                     var nombre = item.Tipo == "producto" ? item.Producto?.Nombre : item.Servicio?.Nombre;
@@ -138,7 +160,6 @@ public static class FacturaPDFGenerator
             message.Subject = "Factura electrónica de tu compra";
             message.Body = $"Hola {paciente.Nombre},\n\nAdjunto encontrarás la factura de tu compra realizada en la Clínica Dental San Rafael.\n\n¡Gracias por tu preferencia!";
 
-            // Adjuntar el PDF
             message.Attachments.Add(new Attachment(new MemoryStream(pdfFactura), $"Factura_{compra.IdCompra}.pdf", "application/pdf"));
 
             using var smtpClient = new SmtpClient(emailSettings.SmtpServer)

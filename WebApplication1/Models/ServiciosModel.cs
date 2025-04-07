@@ -28,7 +28,13 @@ namespace WebApplication1.Models
         [Column("estado")]
         public bool estado { get; set; } = true;
 
+        [Required]
+        [Column("porcentaje_iva", TypeName = "decimal(5,2)")]
+        public decimal PorcentajeIVA { get; set; } = 4.00m; // Default para servicios de salud
 
+        [Required]
+        [Column("exento")]
+        public bool Exento { get; set; } = false;
 
 
 

@@ -35,6 +35,19 @@ namespace WebApplication1.Models
         public bool estado { get; set; } = true;
 
 
+        [Required]
+        [Column("porcentaje_iva", TypeName = "decimal(5,2)")]
+        public decimal PorcentajeIVA { get; set; } = 13.00m;
+
+        [Required]
+        [Column("exento")]
+        public bool Exento { get; set; } = false;
+
+        // Precio final con IVA (no mapeado a la BD)
+        [NotMapped]
+        public decimal PrecioConIVA => Exento ? Precio : Precio + (Precio * PorcentajeIVA / 100);
+
+
 
 
     }

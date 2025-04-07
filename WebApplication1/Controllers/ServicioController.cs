@@ -24,7 +24,7 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR CREACIÓN DE SERVICIO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Agregar([Bind("Nombre,Descripcion,Costo,UrlImagen")] ServiciosModel servicio)
+        public async Task<IActionResult> Agregar([Bind("Nombre,Descripcion,Costo,UrlImagen,PorcentajeIVA,Exento")] ServiciosModel servicio)
         {
             if (ModelState.IsValid)
             {
@@ -71,7 +71,7 @@ namespace WebApplication1.Controllers
         // ✅ PROCESAR EDICIÓN DEL SERVICIO (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GuardarEdicion(int id, [Bind("Id,Nombre,Descripcion,Costo,UrlImagen")] ServiciosModel servicio)
+        public async Task<IActionResult> GuardarEdicion(int id, [Bind("Id,Nombre,Descripcion,Costo,UrlImagen,PorcentajeIVA,Exento")] ServiciosModel servicio)
         {
             if (id != servicio.Id)
             {

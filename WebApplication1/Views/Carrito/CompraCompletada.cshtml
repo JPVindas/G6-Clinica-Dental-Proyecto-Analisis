@@ -4,6 +4,16 @@
 @{
     ViewData["Title"] = "Compra Completada";
     var factura = Model.Facturas?.FirstOrDefault();
+
+    decimal subtotal = ViewBag.Subtotal ?? (factura?.DetallesFactura?.Sum(d => d.Subtotal) ?? 0m);
+    decimal impuestos = ViewBag.Impuestos ?? (factura?.DetallesFactura?.Sum(d => d.Impuestos) ?? 0m);
+    decimal totalSinDescuento = subtotal + impuestos;
+
+    decimal porcentajeDescuento = ViewBag.PorcentajeDescuento ?? (factura?.Descuento?.PorcentajeDescuento ?? 0m);
+    decimal montoDescuento = ViewBag.Descuento ?? (porcentajeDescuento > 0 ? totalSinDescuento * porcentajeDescuento / 100m : 0m);
+    decimal totalFinal = ViewBag.TotalConDescuento ?? Model.MontoTotal;
+
+    string metodoPago = ViewBag.MetodoPago ?? factura?.MetodoPago?.Nombre ?? "No especificado";
 }
 
 <div class="container mt-5">
@@ -17,16 +27,62 @@
             Resumen de la Compra
         </div>
         <div class="card-body" style="color: #003366;">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <p><strong>Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
-                    <p><strong>Estado:</strong> @Model.Estado</p>
+            <div class="row mb-4">
+                <div class="row mb-4">
+                    <!-- Información de la Compra -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm border-0 bg-light h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Información de la Compra</h6>
+                                <p class="mb-2"><strong>📅 Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
+                                <p class="mb-0"><strong>📦 Estado:</strong> @Model.Estado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de Montos -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm border-0 bg-light h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-cash-coin me-2"></i>Resumen de Montos</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                        <span class="text-muted">Subtotal:</span>
+                                        <span class="fw-medium">₡@subtotal.ToString("N2", new CultureInfo("es-CR"))</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                        <span class="text-muted">Impuestos:</span>
+                                        <span class="fw-medium">₡@impuestos.ToString("N2", new CultureInfo("es-CR"))</span>
+                                    </li>
+
+                                    @if (porcentajeDescuento > 0)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                            <span class="text-muted">Descuento (@porcentajeDescuento%):</span>
+                                            <span class="text-danger fw-medium">-₡@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                            <span class="text-muted">Total antes del descuento:</span>
+                                            <span class="text-muted">₡@totalSinDescuento.ToString("N2", new CultureInfo("es-CR"))</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center border-top pt-3">
+                                            <span class="fw-bold fs-5">Total con Descuento:</span>
+                                            <span class="fw-bold fs-5 text-success">₡@totalFinal.ToString("N2", new CultureInfo("es-CR"))</span>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center border-top pt-3">
+                                            <span class="fw-bold fs-5">Total:</span>
+                                            <span class="fw-bold fs-5 text-success">₡@totalSinDescuento.ToString("N2", new CultureInfo("es-CR"))</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="fs-5 fw-bold">Monto Total:</p>
-                    <p class="fs-5 text-success fw-bold">₡@Model.MontoTotal.ToString("N2", new CultureInfo("es-CR"))</p>
-                </div>
-            </div>
+
 
             <hr />
 
@@ -39,7 +95,7 @@
             {
                 <hr />
                 <h5 class="mb-3">Factura Asociada:</h5>
-                <p><strong>Método de Pago:</strong> @(factura.MetodoPago?.Nombre ?? "No especificado")</p>
+                <p><strong>Método de Pago:</strong> @metodoPago</p>
 
                 @if (factura.Descuento != null)
                 {
@@ -82,7 +138,6 @@
                     </div>
                 }
 
-                @* Mostrar sección de financiamiento si existe *@
                 @if (factura.Financiamiento != null)
                 {
                     var f = factura.Financiamiento;
