@@ -17,6 +17,24 @@
             📋 Listado de Compras
         </div>
         <div class="card-body" style="font-family: 'Poppins', sans-serif; color: #003366;">
+
+            <!-- 🔍 Filtro por fecha -->
+            <form asp-action="FiltrarCompras" method="get" class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <label for="startDate" class="form-label fw-bold">Desde:</label>
+                    <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate" class="form-control" />
+                </div>
+                <div class="col-md-5">
+                    <label for="endDate" class="form-label fw-bold">Hasta:</label>
+                    <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate" class="form-control" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+
             @if (!Model.Any())
             {
                 <div class="alert alert-warning text-center fw-bold">
@@ -29,7 +47,6 @@
                     <table class="table table-striped table-hover text-center">
                         <thead style="background-color: #003366; color: white;">
                             <tr>
-                                <!-- <th>ID</th> Eliminado -->
                                 <th>Cliente</th>
                                 <th>Fecha</th>
                                 <th>Estado</th>
@@ -42,7 +59,6 @@
                             @foreach (var compra in Model)
                             {
                                 <tr>
-                                    <!-- ID oculto -->
                                     <input type="hidden" value="@compra.IdCompra" name="IdCompra" />
 
                                     <td>@(compra.Paciente?.Nombre + " " + compra.Paciente?.Apellidos)</td>
@@ -98,13 +114,17 @@
                                 </tr>
                             }
                         </tbody>
-
                     </table>
                 </div>
 
                 <!-- 🔽 Paginación -->
                 <div class="d-flex justify-content-center mt-3">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+                    @Html.PagedListPager(Model, page => Url.Action("FiltrarCompras", new
+                        {
+                            page,
+                            startDate = ViewBag.StartDate,
+                            endDate = ViewBag.EndDate
+                        }),
                              new PagedListRenderOptions
                 {
                     LiElementClasses = new[] { "page-item" },
@@ -177,7 +197,6 @@
         color: white !important;
     }
 
-    /* 🔹 Tabla Responsiva */
     .table-responsive {
         width: 100%;
         overflow-x: auto;

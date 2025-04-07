@@ -106,5 +106,47 @@ namespace WebApplication1.Controllers
             TempData["SuccessMessage"] = "Compra cancelada.";
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> FiltrarCompras(DateTime? startDate = null, DateTime? endDate = null, int? page = 1)
+        {
+            int pageNumber = page ?? 1;
+
+            var comprasQuery = _context.Compras
+                .Include(c => c.Paciente)
+                .Include(c => c.Facturas)
+                .AsQueryable();
+
+            // Aplicar filtros por fecha
+            if (startDate.HasValue)
+            {
+                comprasQuery = comprasQuery.Where(c => c.FechaCompra.Date >= startDate.Value.Date);
+            }
+
+            if (endDate.HasValue)
+            {
+                comprasQuery = comprasQuery.Where(c => c.FechaCompra.Date <= endDate.Value.Date);
+            }
+
+            // Ordenar por estado y luego por ID de forma descendente
+            comprasQuery = comprasQuery.OrderBy(c =>
+                c.Estado == "pendiente" ? 0 :
+                c.Estado == "completada" ? 1 : 2)
+                .ThenByDescending(c => c.IdCompra);
+
+            var comprasList = await comprasQuery
+                .Skip((pageNumber - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            int totalCount = await comprasQuery.CountAsync();
+
+            var comprasPaged = new StaticPagedList<CompraModel>(comprasList, pageNumber, PageSize, totalCount);
+
+            ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+
+            return View("Index", comprasPaged);
+        }
+
     }
 }
