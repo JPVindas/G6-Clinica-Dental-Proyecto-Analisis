@@ -4,7 +4,6 @@
 @{
     ViewData["Title"] = "Carrito de Compras";
 
-    // Sumar subtotales e impuestos a nivel de vista, si lo deseas
     decimal subtotalGeneral = 0;
     decimal impuestosGeneral = 0;
     decimal totalGeneral = 0;
@@ -15,7 +14,6 @@
     <p class="lead">Revisa los productos y servicios que has agregado.</p>
 </div>
 
-<!-- 🔹 ID del paciente oculto (si necesitas usarlo en AJAX) -->
 <input type="hidden" id="user-id" value="@ViewBag.IdPaciente" />
 
 <div class="cart-container mt-5">
@@ -27,105 +25,106 @@
         <div class="card-body" style="color: #003366;">
             @if (Model != null && Model.Any())
             {
-                <table class="table table-striped">
-                    <thead style="background-color: #003366; color: #FFFFFF;">
-                        <tr>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Impuestos</th>
-                            <th>Total</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            // 1) Determinar si es producto o servicio
-                            string nombreItem, imagenUrl;
-                            if (item.Tipo == "producto" && item.Producto != null)
+                <div class="table-responsive">
+                    <table class="table table-striped text-center align-middle">
+                        <thead style="background-color: #003366; color: #FFFFFF;">
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Impuestos</th>
+                                <th>Total</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
                             {
-                                nombreItem = item.Producto.Nombre ?? "Producto sin nombre";
-                                imagenUrl = string.IsNullOrEmpty(item.Producto.UrlImagen)
+                                string nombreItem, imagenUrl;
+                                if (item.Tipo == "producto" && item.Producto != null)
+                                {
+                                    nombreItem = item.Producto.Nombre ?? "Producto sin nombre";
+                                    imagenUrl = string.IsNullOrEmpty(item.Producto.UrlImagen)
                                     ? Url.Content("~/images/default-product.jpg")
                                     : Url.Content(item.Producto.UrlImagen);
-                            }
-                            else if (item.Tipo == "servicio" && item.Servicio != null)
-                            {
-                                nombreItem = item.Servicio.Nombre ?? "Servicio sin nombre";
-                                imagenUrl = string.IsNullOrEmpty(item.Servicio.UrlImagen)
+                                }
+                                else if (item.Tipo == "servicio" && item.Servicio != null)
+                                {
+                                    nombreItem = item.Servicio.Nombre ?? "Servicio sin nombre";
+                                    imagenUrl = string.IsNullOrEmpty(item.Servicio.UrlImagen)
                                     ? Url.Content("~/images/default-product.jpg")
                                     : Url.Content(item.Servicio.UrlImagen);
+                                }
+                                else
+                                {
+                                    nombreItem = "Ítem desconocido";
+                                    imagenUrl = Url.Content("~/images/default-product.jpg");
+                                }
+
+                                decimal subtotalLinea = item.PrecioUnitario * item.Cantidad;
+                                decimal impuestosLinea = item.Impuestos;
+                                decimal totalLinea = subtotalLinea + impuestosLinea;
+
+                                subtotalGeneral += subtotalLinea;
+                                impuestosGeneral += impuestosLinea;
+                                totalGeneral += totalLinea;
+
+                                <tr>
+                                    <td>
+                                        <img src="@imagenUrl"
+                                             alt="@nombreItem"
+                                             style="width: 80px; height: auto; border-radius: 8px;" />
+                                    </td>
+                                    <td>@nombreItem</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>₡@item.PrecioUnitario.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                    <td>₡@impuestosLinea.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                    <td>₡@totalLinea.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm btn-lg px-3 py-2 remove-from-cart"
+                                                data-id="@item.IdCarritoItem">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+
+                                    </td>
+                                </tr>
                             }
-                            else
-                            {
-                                // Fallback si no hay datos
-                                nombreItem = "Ítem desconocido";
-                                imagenUrl = Url.Content("~/images/default-product.jpg");
-                            }
+                        </tbody>
+                    </table>
+                </div>
 
-                            // 2) Cálculo en la vista (opcional)
-                            //    Si el Controller ya guarda item.Total, úsalo directamente.
-                            //    O lo recomputas: (item.PrecioUnitario * item.Cantidad) + item.Impuestos
-                            decimal subtotalLinea = item.PrecioUnitario * item.Cantidad;
-                            decimal impuestosLinea = item.Impuestos;
-                            decimal totalLinea = subtotalLinea + impuestosLinea;
-
-                            // 3) Acumular para mostrar total global
-                            subtotalGeneral += subtotalLinea;
-                            impuestosGeneral += impuestosLinea;
-                            totalGeneral += totalLinea;
-
-                            <tr>
-                                <td>
-                                    <img src="@imagenUrl"
-                                         alt="@nombreItem"
-                                         style="width: 80px; height: auto; border-radius: 8px;" />
-                                </td>
-                                <td>@nombreItem</td>
-                                <td>@item.Cantidad</td>
-                                <td>₡@item.PrecioUnitario.ToString("N2", CultureInfo.InvariantCulture)</td>
-                                <td>₡@impuestosLinea.ToString("N2", CultureInfo.InvariantCulture)</td>
-                                <td>₡@totalLinea.ToString("N2", CultureInfo.InvariantCulture)</td>
-                                <td>
-                                    <!-- Botón para eliminar un ítem del carrito -->
-                                    <button class="btn btn-danger btn-sm remove-from-cart"
-                                            data-id="@item.IdCarritoItem">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-                <div class="mt-4 d-flex justify-content-between align-items-center">
-                    <!-- Botón para vaciar carrito -->
-                    <form asp-action="VaciarCarrito" asp-controller="Carrito" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger fw-bold">
-                            <i class="bi bi-trash3-fill"></i> Vaciar Carrito
-                        </button>
-                    </form>
-
-
-                    <!-- Totales globales -->
-                    <div class="text-end fw-bold">
-                        <p class="m-0">Subtotal: ₡@subtotalGeneral.ToString("N2", CultureInfo.InvariantCulture)</p>
-                        <p class="m-0">Impuestos: ₡@impuestosGeneral.ToString("N2", CultureInfo.InvariantCulture)</p>
-                        <h5 class="mt-1">Total: ₡@totalGeneral.ToString("N2", CultureInfo.InvariantCulture)</h5>
+      
+                <!-- Totales y acciones -->
+                <div class="row justify-content-center text-center mt-4">
+                    <!-- Totales centrados -->
+                    <div class="col-12 col-md-6 mb-3">
+                        <div class="totales-box p-3 rounded shadow-sm bg-light">
+                            <p class="mb-1 fw-semibold">Subtotal: <span class="text-dark">₡@subtotalGeneral.ToString("N2", CultureInfo.InvariantCulture)</span></p>
+                            <p class="mb-1 fw-semibold">Impuestos: <span class="text-dark">₡@impuestosGeneral.ToString("N2", CultureInfo.InvariantCulture)</span></p>
+                            <h5 class="mt-2 fw-bold text-primary">Total: ₡@totalGeneral.ToString("N2", CultureInfo.InvariantCulture)</h5>
+                        </div>
                     </div>
 
-                    <!-- Botón para checkout -->
-                    <form asp-action="Checkout"
-                          asp-controller="Carrito"
-                          method="get"
-                          class="m-0">
-                        <button type="submit" class="btn btn-success fw-bold">
-                            <i class="bi bi-credit-card-fill"></i> Proceder al Pago
-                        </button>
-                    </form>
+                    <!-- Botones centrados debajo y más grandes -->
+                    <div class="col-12 d-flex flex-column flex-md-row justify-content-center gap-3">
+                        <form asp-action="VaciarCarrito" asp-controller="Carrito" method="post">
+                            <button type="submit" class="btn btn-danger btn-lg fw-bold px-5 py-3">
+                                <i class="bi bi-trash3-fill"></i> Vaciar Carrito
+                            </button>
+                        </form>
+
+                        <form asp-action="Checkout" asp-controller="Carrito" method="get">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold px-5 py-3">
+                                <i class="bi bi-credit-card-fill"></i> Proceder al Pago
+                            </button>
+                        </form>
+                    </div>
                 </div>
+
+
+
+
             }
             else
             {
@@ -137,10 +136,8 @@
     </div>
 </div>
 
-<!-- ICONOS DE BOOTSTRAP -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
-<!-- Estilos y script -->
 <style>
     .cart-container {
         margin-top: 20px;
@@ -148,27 +145,58 @@
         padding: 20px;
         border-radius: 10px;
     }
+
     .btn-danger {
         background-color: #dc3545 !important;
         border-color: #dc3545 !important;
     }
-    .btn-danger:hover {
-        background-color: #c82333 !important;
-        border-color: #bd2130 !important;
-    }
+
+        .btn-danger:hover {
+            background-color: #c82333 !important;
+            border-color: #bd2130 !important;
+        }
+
     .btn-success {
         background-color: #28a745 !important;
         border-color: #28a745 !important;
     }
-    .btn-success:hover {
-        background-color: #218838 !important;
-        border-color: #1e7e34 !important;
+
+        .btn-success:hover {
+            background-color: #218838 !important;
+            border-color: #1e7e34 !important;
+        }
+
+    .totales-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
     }
-    .total-text {
-        color: #003366 !important;
-        font-size: 1.6rem;
+
+    .btn-md {
+        font-size: 1rem;
+        border-radius: 8px;
+        min-width: 180px;
     }
+
+    .totales-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .totales-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-lg {
+        min-width: 220px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+
+
 </style>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
