@@ -80,6 +80,8 @@
                                 <th>Saldo Pendiente</th>
                                 <th>Tasa de Interés</th>
                                 <th>Cuotas</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
                                 <th>Estado</th>
                                 @if (rolID != 3)
                                 {
@@ -98,6 +100,8 @@
                                     <td>@financiamiento.SaldoPendiente</td>
                                     <td>@financiamiento.TasaInteres%</td>
                                     <td>@financiamiento.Cuotas</td>
+                                    <td>@financiamiento.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                    <td>@(financiamiento.FechaFinal?.ToString("dd/MM/yyyy"))</td>
                                     <td>
                                         <span class="badge @(financiamiento.Estado == "Activo" ? "bg-warning text-dark" : financiamiento.Estado == "Pagado" ? "bg-success" : "bg-danger")">
                                             @(financiamiento.Estado ?? "Sin estado")
