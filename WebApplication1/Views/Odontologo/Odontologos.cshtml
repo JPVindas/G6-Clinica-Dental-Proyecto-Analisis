@@ -55,17 +55,12 @@
                                class="btn btn-primary btn-md w-75">
                                 <i class="bi bi-calendar-check"></i> Agendar Cita
                             </a>
+
                             @if (userRole == 1 || userRole == 2)
                             {
-                                <div class="d-flex gap-2 w-75">
-                                    <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-warning btn-md w-50">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a asp-action="Eliminar" asp-route-id="@odontologo.IdEmpleado" class="btn btn-danger btn-md w-50"
-                                       onclick="return confirm('¿Estás seguro de que deseas eliminar este odontólogo?');">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
+                                <a asp-action="Editar" asp-route-idUsuario="@odontologo.IdUsuario" class="btn btn-warning btn-md w-75">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
                             }
                         </div>
                     </div>
@@ -74,6 +69,7 @@
         }
     </div>
 </div>
+
 
 <!-- Estilos personalizados -->
 <style>

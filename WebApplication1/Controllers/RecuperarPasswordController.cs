@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using Microsoft.AspNetCore.Mvc;
 using WebApplication1.DATA;
 using WebApplication1.Models;
+using System.Collections.Generic;
 
 namespace WebApplication1.Controllers
 {
@@ -12,11 +15,11 @@ namespace WebApplication1.Controllers
         private readonly MinombredeconexionDbContext _context;
         private readonly EmailSettings _emailSettings;
 
-        // Inyectamos el servicio IOptions<EmailSettings> para acceder a la configuración
+        // Inyección de EmailSettings a través de IOptions<EmailSettings>
         public RecuperarPasswordController(MinombredeconexionDbContext context, IOptions<EmailSettings> emailSettings)
         {
             _context = context;
-            _emailSettings = emailSettings.Value; // Accedemos a la configuración de correo
+            _emailSettings = emailSettings.Value;
         }
 
         // Acción GET para mostrar el formulario de recuperación de contraseña
@@ -30,15 +33,15 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public IActionResult RecuperarPassword(string email)
         {
+            // Buscar usuario por correo
             var usuario = _context.Usuarios.FirstOrDefault(u => u.CorreoElectronico == email);
-
             if (usuario == null)
             {
                 ModelState.AddModelError("", "El correo ingresado no está registrado.");
                 return View();
             }
 
-            // Lógica para generar y cambiar la contraseña
+            // Generar una nueva contraseña aleatoria y actualizar el usuario
             string nuevaContrasena = GenerarContraseñaAleatoria();
             string contrasenaEncriptada = BCrypt.Net.BCrypt.HashPassword(nuevaContrasena);
 
@@ -52,7 +55,7 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        // Método para generar una nueva contraseña aleatoria
+        // Método para generar una contraseña aleatoria
         private string GenerarContraseñaAleatoria()
         {
             var random = new Random();
@@ -68,19 +71,30 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var smtpClient = new SmtpClient(_emailSettings.SmtpServer)
+                using (var mensaje = new MailMessage())
                 {
-                    Port = int.Parse(_emailSettings.Port),
-                    Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password),
-                    EnableSsl = true,
-                };
+                    mensaje.From = new MailAddress(_emailSettings.From, "Clínica Dental San Rafael");
+                    mensaje.To.Add(email);
+                    mensaje.Subject = "Recuperación de Contraseña";
+                    mensaje.Body = $"Tu nueva contraseña es: {nuevaContrasena}";
+                    mensaje.IsBodyHtml = false; // O true si deseas enviar HTML
 
-                smtpClient.Send(_emailSettings.From, email, "Recuperación de Contraseña", $"Tu nueva contraseña es: {nuevaContrasena}");
+                    using (var smtpClient = new SmtpClient(_emailSettings.SmtpServer)
+                    {
+                        Port = int.Parse(_emailSettings.Port),
+                        Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password),
+                        EnableSsl = true
+                    })
+                    {
+                        smtpClient.Send(mensaje);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                // Manejar el error de envío de correo
-                Console.WriteLine($"Error al enviar correo: {ex.Message}");
+                // Guarda el error en TempData para pruebas o registra en tu log
+                TempData["ErrorEmail"] = $"Error al enviar correo de recuperación: {ex.Message}";
+                Console.WriteLine($"Error al enviar correo de recuperación: {ex.Message}");
             }
         }
     }
