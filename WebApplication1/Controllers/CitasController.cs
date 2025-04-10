@@ -139,7 +139,6 @@ namespace WebApplication1.Controllers
             ViewBag.UserRole = userRole;
             ViewBag.UserId = userId;
 
-            // 🔹 Si el usuario es Cliente (Rol 3), asignarle su propio paciente
             if (userRole == 3)
             {
                 var paciente = _context.Pacientes
@@ -152,17 +151,17 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                // 🔹 Para admin y secretario, permitir seleccionar cualquier paciente
                 ViewBag.Pacientes = new SelectList(_context.Pacientes
                     .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
                     .ToList(), "IdPaciente", "NombreCompleto");
             }
 
-            // 🔹 Si el usuario es un doctor (Rol 4), solo se asigna a sí mismo
             if (userRole == 4)
             {
                 var doctor = _context.Empleados
-                    .Where(e => e.IdUsuario == userId && e.Usuario.RolId == 4)
+                    .Include(e => e.Usuario)
+                 .Where(e => e.IdUsuario == userId && e.Usuario.RolId == 4 && e.Activo)
+
                     .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
                     .FirstOrDefault();
 
@@ -171,11 +170,12 @@ namespace WebApplication1.Controllers
             }
             else
             {
-                // 🔹 Si se recibió un doctor desde la vista de odontólogos, lo preseleccionamos
                 if (idDoctor.HasValue)
                 {
                     var doctorSeleccionado = _context.Empleados
-                        .Where(e => e.IdEmpleado == idDoctor)
+                        .Include(e => e.Usuario)
+                       .Where(e => e.IdEmpleado == idDoctor && e.Usuario.RolId == 4 && e.Activo)
+
                         .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
                         .FirstOrDefault();
 
@@ -185,13 +185,13 @@ namespace WebApplication1.Controllers
                         ViewBag.NombreDoctor = doctorSeleccionado.NombreCompleto;
                     }
                 }
-
-                // 🔹 Para admin y secretaria, permitir seleccionar cualquier doctor
                 ViewBag.Empleados = new SelectList(_context.Empleados
                     .Include(e => e.Usuario)
-                    .Where(e => e.Usuario.RolId == 4)
+                  .Where(e => e.Usuario.RolId == 4 && e.Activo)
+
                     .Select(e => new { e.IdEmpleado, NombreCompleto = e.Nombre + " " + e.Apellidos })
                     .ToList(), "IdEmpleado", "NombreCompleto");
+
             }
 
             return View();
@@ -221,34 +221,86 @@ namespace WebApplication1.Controllers
 
                 if (paciente == 0)
                 {
-                    Console.WriteLine($"❌ ERROR: No se encontró un paciente vinculado al usuario autenticado con ID {userId}.");
-                    TempData["ErrorMessage"] = "No tienes un perfil de paciente registrado. Contacta con el administrador.";
-                    return RedirectToAction("CrearCita");
+                    TempData["ErrorMessage"] = "No tienes un perfil de paciente registrado.";
+                    CargarListasDesplegables(cita, userId, rolID);
+                    return View("CrearCita", cita);
                 }
 
-                cita.IdPaciente = paciente; // 🔹 Asignar correctamente el ID
-                Console.WriteLine($"✅ Cliente asignado a su propio paciente ID: {cita.IdPaciente}");
+                cita.IdPaciente = paciente;
             }
 
-            // Validaciones
+            // Validación básica de selección
             if (cita.IdPaciente <= 0 || cita.IdEmpleado <= 0)
             {
-                Console.WriteLine($"❌ ERROR: Datos inválidos - Paciente ID={cita.IdPaciente}, Doctor ID={cita.IdEmpleado}");
                 TempData["ErrorMessage"] = "Debe seleccionar un paciente y un doctor válidos.";
-                return RedirectToAction("CrearCita");
+                CargarListasDesplegables(cita, userId, rolID);
+                return View("CrearCita", cita);
             }
 
-            // 🔹 Verificación antes de guardar la cita
-            Console.WriteLine("📌 Cita preparada para guardar:");
-            Console.WriteLine($"   - Paciente ID: {cita.IdPaciente}");
-            Console.WriteLine($"   - Doctor ID: {cita.IdEmpleado}");
-            Console.WriteLine($"   - Fecha y Hora: {cita.FechaHora}");
-            Console.WriteLine($"   - Motivo: {cita.Motivo}");
+            // Validación de horario permitido
+            if (!EsHorarioPermitido(cita.FechaHora))
+            {
+                ViewBag.HorarioError = "La cita está fuera del horario permitido.";
+                CargarListasDesplegables(cita, userId, rolID);
+                return View("CrearCita", cita);
+            }
 
-            return await SaveCita(cita);
+            // Verificar si ya hay una cita en ese horario
+            if (await DoctorTieneCitaEnHorario(cita.IdEmpleado, cita.FechaHora))
+            {
+                ViewBag.HorarioError = "El doctor ya tiene una cita en ese horario.";
+                CargarListasDesplegables(cita, userId, rolID);
+                return View("CrearCita", cita);
+            }
+
+            // Verificar existencia de paciente
+            var pacienteExiste = await _context.Pacientes
+                .AnyAsync(p => p.IdPaciente == cita.IdPaciente);
+
+            if (!pacienteExiste)
+            {
+                TempData["ErrorMessage"] = "El paciente seleccionado no existe.";
+                CargarListasDesplegables(cita, userId, rolID);
+                return View("CrearCita", cita);
+            }
+
+            // Verificar existencia de doctor activo
+            var empleadoExiste = await _context.Empleados
+                .Include(e => e.Usuario)
+               .AnyAsync(e => e.IdEmpleado == cita.IdEmpleado && e.Usuario.RolId == 4 && e.Activo);
 
 
+            if (!empleadoExiste)
+            {
+                TempData["ErrorMessage"] = "El doctor seleccionado no está disponible o ha sido archivado.";
+                CargarListasDesplegables(cita, userId, rolID);
+                return View("CrearCita", cita);
+            }
 
+            // Motivo y estado por defecto
+            cita.Motivo ??= "Consulta General";
+            cita.Estado ??= "Pendiente";
+
+            try
+            {
+                _context.Citas.Add(cita);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "La cita ha sido creada exitosamente.";
+                return RedirectToAction(nameof(Citas));
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"❌ Error DB: {dbEx.InnerException?.Message ?? dbEx.Message}");
+                TempData["ErrorMessage"] = $"Error en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error general: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error inesperado: {ex.Message}";
+            }
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
         }
 
 
@@ -319,86 +371,71 @@ namespace WebApplication1.Controllers
 
 
 
-        [HttpPost]
-        public async Task<IActionResult> SaveCita(CitasModel cita)
+      [HttpPost]
+public async Task<IActionResult> SaveCita(CitasModel cita, int userId, int rolID)
+{
+    try
+    {
+        if (cita.FechaHora == DateTime.MinValue)
         {
-            try
-            {
-                if (cita.FechaHora == DateTime.MinValue)
-                {
-                    Console.WriteLine("❌ ERROR: La fecha no es válida.");
-                    TempData["ErrorMessage"] = "Debe seleccionar una fecha y hora válida.";
-                    return RedirectToAction("CrearCita");
-                }
-
-                // Validar que el horario de la cita sea permitido
-                if (!EsHorarioPermitido(cita.FechaHora))
-                {
-                    Console.WriteLine("❌ ERROR: La cita está fuera del horario permitido.");
-                    TempData["ErrorMessage"] = "La cita está fuera del horario permitido.";
-                    return RedirectToAction("CrearCita");
-                }
-
-                // Validar que el doctor no tenga otra cita en la misma hora o con menos de 1 hora de diferencia
-                if (await DoctorTieneCitaEnHorario(cita.IdEmpleado, cita.FechaHora))
-                {
-                    Console.WriteLine("❌ ERROR: El doctor ya tiene una cita en el mismo horario o con menos de 1 hora de diferencia.");
-                    TempData["ErrorMessage"] = "El doctor ya tiene una cita en el mismo horario o con menos de 1 hora de diferencia.";
-                    return RedirectToAction("CrearCita");
-                }
-
-                if (string.IsNullOrEmpty(cita.Motivo))
-                {
-                    cita.Motivo = "Consulta General"; // Se asigna un motivo predeterminado
-                }
-
-                if (string.IsNullOrEmpty(cita.Estado))
-                {
-                    cita.Estado = "Pendiente";
-                }
-
-                // Confirmar que el paciente y doctor existen en la base de datos
-                var pacienteExiste = await _context.Pacientes
-                    .AnyAsync(p => p.IdPaciente == cita.IdPaciente);
-
-                var empleadoExiste = await _context.Empleados
-                    .AnyAsync(e => e.IdEmpleado == cita.IdEmpleado);
-
-                if (!pacienteExiste)
-                {
-                    Console.WriteLine($"❌ ERROR: Paciente con ID {cita.IdPaciente} no existe en la base de datos.");
-                    TempData["ErrorMessage"] = "El paciente seleccionado no existe.";
-                    return RedirectToAction("CrearCita");
-                }
-
-                if (!empleadoExiste)
-                {
-                    Console.WriteLine($"❌ ERROR: Doctor con ID {cita.IdEmpleado} no existe en la base de datos.");
-                    TempData["ErrorMessage"] = "El doctor seleccionado no existe.";
-                    return RedirectToAction("CrearCita");
-                }
-
-                // Guardar la cita en la base de datos
-                _context.Citas.Add(cita);
-                await _context.SaveChangesAsync();
-                Console.WriteLine("✅ Cita guardada correctamente en la base de datos.");
-
-                TempData["SuccessMessage"] = "La cita ha sido creada exitosamente.";
-                return RedirectToAction(nameof(Citas));
-            }
-            catch (DbUpdateException dbEx)
-            {
-                Console.WriteLine($"❌ Error de base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}");
-                TempData["ErrorMessage"] = $"Error en la base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error inesperado: {ex.Message}");
-                TempData["ErrorMessage"] = $"Error inesperado: {ex.Message}";
-            }
-
-            return RedirectToAction("CrearCita");
+            ViewBag.HorarioError = "Debe seleccionar una fecha y hora válida.";
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
         }
+
+        if (!EsHorarioPermitido(cita.FechaHora))
+        {
+            ViewBag.HorarioError = "La cita está fuera del horario permitido.";
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
+        }
+
+        if (await DoctorTieneCitaEnHorario(cita.IdEmpleado, cita.FechaHora))
+        {
+            ViewBag.HorarioError = "El doctor ya tiene una cita programada en ese horario.";
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
+        }
+
+        if (string.IsNullOrEmpty(cita.Motivo))
+            cita.Motivo = "Consulta General";
+
+        if (string.IsNullOrEmpty(cita.Estado))
+            cita.Estado = "Pendiente";
+
+        var pacienteExiste = await _context.Pacientes.AnyAsync(p => p.IdPaciente == cita.IdPaciente);
+        var empleadoExiste = await _context.Empleados
+            .Include(e => e.Usuario)
+            .AnyAsync(e => e.IdEmpleado == cita.IdEmpleado && !e.Usuario.Archivado);
+
+        if (!pacienteExiste)
+        {
+            ViewBag.HorarioError = "El paciente seleccionado no existe.";
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
+        }
+
+        if (!empleadoExiste)
+        {
+            ViewBag.HorarioError = "El doctor seleccionado no está disponible o ha sido archivado.";
+            CargarListasDesplegables(cita, userId, rolID);
+            return View("CrearCita", cita);
+        }
+
+        _context.Citas.Add(cita);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "La cita ha sido creada exitosamente.";
+        return RedirectToAction(nameof(Citas));
+    }
+    catch (Exception ex)
+    {
+        ViewBag.HorarioError = $"Ocurrió un error: {ex.Message}";
+        CargarListasDesplegables(cita, userId, rolID);
+        return View("CrearCita", cita);
+    }
+}
+
 
 
 
@@ -586,7 +623,11 @@ namespace WebApplication1.Controllers
                 TempData["ErrorMessage"] = "Ocurrió un error inesperado al actualizar la cita.";
             }
 
-            CargarListasDesplegables(cita);
+            int userId = Convert.ToInt32(User.FindFirst("UserID")?.Value ?? "0");
+            int rolID = Convert.ToInt32(User.FindFirst("RolID")?.Value ?? "3");
+
+            CargarListasDesplegables(cita, userId, rolID); // ✅ Correcto
+
             return View("EditarCita", cita);
         }
 
@@ -595,21 +636,45 @@ namespace WebApplication1.Controllers
 
 
 
-
-        private void CargarListasDesplegables(CitasModel cita)
+        private void CargarListasDesplegables(CitasModel cita, int userId, int rolId)
         {
-            ViewBag.Pacientes = new SelectList(_context.Pacientes.Select(p => new
+            if (rolId == 3) // Cliente
             {
-                p.IdPaciente,
-                NombreCompleto = p.Nombre + " " + p.Apellidos
-            }).ToList(), "IdPaciente", "NombreCompleto", cita.IdPaciente);
+                var paciente = _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                    .FirstOrDefault();
 
-            ViewBag.Empleados = new SelectList(_context.Empleados.Select(e => new
+                ViewBag.PacienteId = paciente?.IdPaciente ?? 0;
+                ViewBag.NombrePaciente = paciente?.NombreCompleto ?? "No disponible";
+            }
+            else
             {
-                e.IdEmpleado,
-                NombreCompleto = e.Nombre + " " + e.Apellidos
-            }).ToList(), "IdEmpleado", "NombreCompleto", cita.IdEmpleado);
+                ViewBag.Pacientes = new SelectList(_context.Pacientes
+                    .Select(p => new { p.IdPaciente, NombreCompleto = p.Nombre + " " + p.Apellidos })
+                    .ToList(), "IdPaciente", "NombreCompleto", cita.IdPaciente);
+            }
+
+            // 🔐 Mostrar solo empleados activos
+            var empleadosActivos = _context.Empleados
+                .Include(e => e.Usuario)
+                .Where(e => e.Usuario.RolId == 4 && e.Activo)
+                .Select(e => new
+                {
+                    e.IdEmpleado,
+                    NombreCompleto = e.Nombre + " " + e.Apellidos
+                })
+                .ToList();
+
+            ViewBag.Empleados = new SelectList(empleadosActivos, "IdEmpleado", "NombreCompleto", cita.IdEmpleado);
+
+            ViewBag.UserRole = rolId;
+            ViewBag.UserId = userId;
         }
+
+
+
+
 
 
 

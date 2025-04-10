@@ -68,6 +68,9 @@
                                         <li><a class="dropdown-item" asp-controller="MiPerfil" asp-action="MiPerfil">📄 Mi Perfil</a></li>
                                         <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Mi Financiamiento</a></li>
                                         <li><a class="dropdown-item" asp-controller="Portal" asp-action="Expediente">📂 Mi Portal</a></li>
+                                       
+
+
                                     }
                                     @if (userRole == "4")
                                     {
@@ -91,9 +94,14 @@
                                     }
                                     @if (userRole == "1" || userRole == "2" || userRole == "3" || userRole == "4")
                                     {
+                                        <li><a class="dropdown-item" asp-controller="CambiarContrasena" asp-action="Index">🔒 Cambiar Contraseña</a></li>
+
                                         <li>
                                             <a class="dropdown-item" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a>
+
                                         </li>
+                                      
+
                                     }
                                 </ul>
                             </li>

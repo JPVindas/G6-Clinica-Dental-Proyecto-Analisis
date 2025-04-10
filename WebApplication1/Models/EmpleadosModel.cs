@@ -37,9 +37,11 @@ namespace WebApplication1.Models
         [Range(0, 50)]
         public int Experiencia { get; set; } = 0;
 
-        // 🔹 Nuevo campo para la imagen del odontólogo (Puede ser NULL)
         [StringLength(255)]
         public string? ImagenUrl { get; set; }
+
+        [Required]
+        public bool Activo { get; set; } = true;
 
         // 🔹 Relación con Citas
         public virtual ICollection<CitasModel> Citas { get; set; } = new List<CitasModel>();

@@ -55,20 +55,20 @@
                         {
                             <div class="mt-2 d-flex justify-content-between">
                                 <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-md w-50 me-2 fw-bold">
-                                    <i class="bi bi-pencil-square"></i> Editar
+                                    <i class="bi bi-pencil-square"></i> 
                                 </a>
                                 @if (servicio.estado)
                                 {
                                     <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-md w-50 fw-bold"
                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
-                                        <i class="bi bi-trash"></i> Eliminar
+                                        <i class="bi bi-trash"></i> 
                                     </a>
                                 }
                                 else
                                 {
                                     <form asp-controller="Servicio" asp-action="ActivarServicio" asp-route-id="@servicio.Id" method="post" class="w-50">
                                         <button type="submit" class="btn btn-success btn-md w-100 fw-bold">
-                                            <i class="bi bi-check-circle"></i> Activar
+                                            <i class="bi bi-check-circle"></i> 
                                         </button>
                                     </form>
                                 }

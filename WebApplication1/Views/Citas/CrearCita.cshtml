@@ -9,6 +9,7 @@
     int doctorId = ViewBag.DoctorId != null ? Convert.ToInt32(ViewBag.DoctorId) : 0;
     string nombrePaciente = ViewBag.NombrePaciente ?? "No disponible";
     string nombreDoctor = ViewBag.NombreDoctor ?? "No disponible";
+    string horarioError = ViewBag.HorarioError as string;
 }
 
 <div class="jumbotron text-center">
@@ -18,10 +19,16 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <div class="bg-white p-4 shadow-sm rounded">
+            @if (!string.IsNullOrEmpty(horarioError))
+            {
+                <div class="alert alert-danger text-center">
+                    <strong>@horarioError</strong>
+                </div>
+            }
+
             <form asp-controller="Citas" asp-action="SaveCita" method="post" id="citaForm">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                <!-- Mensajes de error personalizados -->
                 <div id="error-message" class="alert alert-danger d-none"></div>
 
                 <!-- Paciente -->
@@ -84,31 +91,61 @@
                     <input asp-for="Motivo" class="form-control" placeholder="Ingrese el motivo de la cita" required>
                     <span asp-validation-for="Motivo" class="text-danger"></span>
                 </div>
-                <button type="submit" class="btn btn-primary">Guardar</button>
-                <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary">Cancelar</a>
-                
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Guardar
+                </button>
+
+                <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
             </form>
         </div>
     </div>
 </div>
 
-<!-- JavaScript para validar disponibilidad -->
+<!-- JS de disponibilidad -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- JS de disponibilidad -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $("#submitButton").click(function (event) {
-            event.preventDefault(); // Evita que el formulario se envíe directamente
+    function esHorarioPermitido(fechaHora) {
+        const fecha = new Date(fechaHora);
+        const diaSemana = fecha.getDay(); // 0 (Domingo) a 6 (Sábado)
+        const hora = fecha.getHours();
+        const minutos = fecha.getMinutes();
 
-            let fechaHora = new Date($("#fechaHoraInput").val());
-            let doctorId = $("#doctorSelect").val();
+        if (diaSemana >= 1 && diaSemana <= 5) { // Lunes a Viernes
+            return hora >= 8 && (hora < 22 || (hora === 22 && minutos === 0));
+        } else { // Sábado y Domingo
+            return hora >= 7 && (hora < 14 || (hora === 14 && minutos === 0));
+        }
+    }
+
+    $(document).ready(function () {
+        $("#citaForm").submit(function (event) {
+            event.preventDefault();
+
+            const fechaHora = $("#fechaHoraInput").val();
+            const doctorId = $("#doctorSelect").val();
+
+            if (!esHorarioPermitido(fechaHora)) {
+                $("#error-message").removeClass("d-none").html(
+                    "<strong>La hora seleccionada está fuera del horario permitido de la clínica.</strong><br>Nuestro horario es de <b>8:00 a.m. a 10:00 p.m.</b> de lunes a viernes, y de <b>7:00 a.m. a 2:00 p.m.</b> Los fines de semana."
+                );
+                $("#suggested-time").addClass("d-none"); // Ocultar sugerencia si ya estaba visible
+                return;
+            }
 
             $.ajax({
                 url: "/Citas/VerificarDisponibilidad",
                 type: "GET",
-                data: { idDoctor: doctorId, fechaHora: $("#fechaHoraInput").val() },
+                data: {
+                    idDoctor: doctorId,
+                    fechaHora: fechaHora
+                },
                 success: function (response) {
                     if (response.disponible) {
-                        $("#citaForm").unbind('submit').submit(); // Enviar formulario si está disponible
+                        $("#citaForm")[0].submit(); // Enviar formulario manualmente
                     } else {
                         $("#error-message").removeClass("d-none").text("El doctor ya tiene una cita en ese horario.");
                         $("#suggested-time").removeClass("d-none");
@@ -122,6 +159,9 @@
         });
     });
 </script>
+
+
+
 
 <!-- Estilos personalizados -->
 <style>

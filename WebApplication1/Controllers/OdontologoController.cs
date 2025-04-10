@@ -26,28 +26,30 @@ namespace WebApplication1.Controllers
         // ✅ LISTAR TODOS LOS ODONTÓLOGOS (RolId = 4)
         public async Task<IActionResult> Odontologos()
         {
-            var odontologos = await _context.Empleados
-                .Include(e => e.Usuario)
-                .Where(e => e.Usuario != null && e.Usuario.RolId == 4)
-                .ToListAsync();
+            int userRol = 0;
+            int.TryParse(User.FindFirst("RolID")?.Value, out userRol);
 
-            // Si el usuario está autenticado y es paciente (rol 3), asignar el ID del paciente
-            if (User.Identity.IsAuthenticated)
+            var empleadosQuery = _context.Empleados
+                .Include(e => e.Usuario)
+                .Where(e => e.Usuario != null && e.Usuario.RolId == 4);
+
+            // Los roles 1 (admin) y 2 (staff) ven todos, pero los roles 3 (cliente) y otros solo activos
+            if (userRol != 1 && userRol != 2)
             {
-                var rolIdClaim = User.FindFirst("RolID")?.Value;
-                if (rolIdClaim == "3")
-                {
-                    int userId;
-                    int.TryParse(User.FindFirst("UserID")?.Value, out userId);
-                    if (userId > 0)
-                    {
-                        var pacienteId = await _context.Pacientes
-                            .Where(p => p.IdUsuario == userId)
-                            .Select(p => p.IdPaciente)
-                            .FirstOrDefaultAsync();
-                        ViewBag.IdPaciente = pacienteId;
-                    }
-                }
+                empleadosQuery = empleadosQuery.Where(e => e.Activo);
+            }
+
+
+            var odontologos = await empleadosQuery.ToListAsync();
+
+            if (userRol == 3)
+            {
+                int.TryParse(User.FindFirst("UserID")?.Value, out var userId);
+                var pacienteId = await _context.Pacientes
+                    .Where(p => p.IdUsuario == userId)
+                    .Select(p => p.IdPaciente)
+                    .FirstOrDefaultAsync();
+                ViewBag.IdPaciente = pacienteId;
             }
 
             return View("Odontologos", odontologos);
@@ -204,5 +206,36 @@ namespace WebApplication1.Controllers
             int userRole = userRoleClaim != null ? Convert.ToInt32(userRoleClaim.Value) : 0;
             return userRole == 1 || userRole == 2;
         }
+        // POST: Desactivar empleado
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            var empleado = await _context.Empleados.FindAsync(id);
+            if (empleado == null) return NotFound();
+
+            empleado.Activo = false;
+            _context.Update(empleado);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Odontologos");
+        }
+
+        // POST: Activar empleado
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activar(int id)
+        {
+            var empleado = await _context.Empleados.FindAsync(id);
+            if (empleado == null) return NotFound();
+
+            empleado.Activo = true;
+            _context.Update(empleado);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Odontologos");
+        }
+
     }
+
 }

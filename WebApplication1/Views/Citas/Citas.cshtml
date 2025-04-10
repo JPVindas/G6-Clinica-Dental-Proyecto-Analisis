@@ -34,24 +34,23 @@
                 </div>
             }
 
-            <!-- Filtros -->
-            <form asp-action="FiltrarCitas" method="GET" class="mb-4">
-                <div class="row">
-                    <div class="col-md-5">
-                        <label class="form-label">Fecha Inicio</label>
-                        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label">Fecha Fin</label>
-                        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel"></i> Filtrar
-                        </button>
-                    </div>
+            <!-- 🔍 Filtro por fecha (estilo igual al de compras) -->
+            <form asp-action="FiltrarCitas" method="get" class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <label for="startDate" class="form-label fw-bold">Desde:</label>
+                    <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate" class="form-control" />
+                </div>
+                <div class="col-md-5">
+                    <label for="endDate" class="form-label fw-bold">Hasta:</label>
+                    <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate" class="form-control" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
                 </div>
             </form>
+
 
             @if (Model != null && Model.Any())
             {

@@ -1,114 +1,81 @@
 ﻿@model WebApplication1.Models.UsuariosModel
 
-<div class="register-container d-flex justify-content-center align-items-start">
-    <div class="card shadow-lg" style="width: 400px; border-radius: 10px;">
-        <div class="card-header text-white text-center">
-            Registro de Usuario
-        </div>
-        <div class="card-body">
-            <!-- Mostrar errores de validación -->
-            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+@{
+    ViewData["Title"] = "Registro de Usuario";
+}
 
+<div class="jumbotron text-center">
+    <h1 class="display-4">📝 Registro de Usuario</h1>
+    <p class="lead">Crea tu cuenta para acceder al portal de pacientes.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-6">
+        <div class="bg-white p-4 shadow-sm rounded">
             <form asp-action="Registrar" asp-controller="Registro" method="post">
-                @Html.AntiForgeryToken() <!-- Protección CSRF -->
-                <!-- Campo oculto para asignar RolId = 3 (paciente) -->
+                @Html.AntiForgeryToken()
+
+                <!-- Campo oculto para RolId de paciente -->
                 <input type="hidden" asp-for="RolId" value="3" />
 
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
                 <div class="mb-3">
-                    <label class="form-label">Nombre de Usuario</label>
+                    <label class="form-label fw-bold">Nombre de usuario</label>
                     <input asp-for="NombreUsuario" class="form-control" placeholder="Ejemplo: usuario123" required />
                     <span asp-validation-for="NombreUsuario" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Correo Electrónico</label>
+                    <label class="form-label fw-bold">Correo electrónico</label>
                     <input asp-for="CorreoElectronico" type="email" class="form-control" placeholder="ejemplo@correo.com" required />
                     <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Contraseña</label>
+                    <label class="form-label fw-bold">Contraseña</label>
                     <input asp-for="Contrasena" type="password" class="form-control" placeholder="Debe tener al menos 6 caracteres" required />
                     <span asp-validation-for="Contrasena" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Nombre</label>
+                    <label class="form-label fw-bold">Nombre</label>
                     <input asp-for="Nombre" class="form-control" placeholder="Tu nombre" required />
                     <span asp-validation-for="Nombre" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Apellido</label>
-                    <input asp-for="Apellido" class="form-control" placeholder="Tu apellido" required />
+                    <label class="form-label fw-bold">Apellidos</label>
+                    <input asp-for="Apellido" class="form-control" placeholder="Tus apellidos" required />
                     <span asp-validation-for="Apellido" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Cédula</label>
+                    <label class="form-label fw-bold">Cédula</label>
                     <input asp-for="Cedula" class="form-control" placeholder="Ejemplo: 12345678" required />
                     <span asp-validation-for="Cedula" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Teléfono</label>
+                    <label class="form-label fw-bold">Teléfono</label>
                     <input asp-for="Telefono" class="form-control" placeholder="Ejemplo: 8888-8888" required />
                     <span asp-validation-for="Telefono" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn w-100">
-                    Registrarse
-                </button>
+                <div class="d-flex justify-content-start gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Registrarse
+                    </button>
+
+                    <a asp-controller="Login" asp-action="Login" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver al Login
+                    </a>
+                </div>
             </form>
-        </div>
-        <div class="card-footer text-center">
-            <a asp-controller="Login" asp-action="Login">¿Ya tienes una cuenta? Inicia Sesión</a>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <partial name="_ValidationScriptsPartial" />
 }
-
-<style>
-    .register-container {
-        height: 100vh;
-        background-color: #F8F9FA;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .card {
-        border: 1px solid #E6E6E6;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-        background-color: #003366;
-        color: #FFFFFF;
-        font-size: 1.5rem;
-        font-family: 'Merriweather', serif;
-    }
-
-    .btn {
-        background-color: #003366;
-        color: #FFFFFF;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-        .btn:hover {
-            background-color: #002244;
-            transform: scale(1.05);
-        }
-
-    .alert-danger {
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-</style>
