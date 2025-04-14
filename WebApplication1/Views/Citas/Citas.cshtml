@@ -8,12 +8,6 @@
     int rolID = ViewBag.UserRole != null ? Convert.ToInt32(ViewBag.UserRole) : 3;
     int userId = ViewBag.UserId != null && int.TryParse(ViewBag.UserId.ToString(), out tempUserId) ? tempUserId : 0;
 }
-
-<div class="jumbotron text-center">
-    <h1 class="display-4">¡Bienvenido a Citas!</h1>
-    <p class="lead">Aquí puedes gestionar las citas de la clínica</p>
-</div>
-
 <div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
@@ -376,6 +370,8 @@
             font-size: 13px;
         }
     }
+
+
     
 </style>
 

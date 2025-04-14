@@ -9,19 +9,6 @@
     int userId = ViewBag.UserId != null && int.TryParse(ViewBag.UserId.ToString(), out tempUserId) ? tempUserId : 0;
 }
 
-<div class="jumbotron text-center">
-    @if (rolID == 3)
-    {
-        <h1 class="display-4">💰¡Bienvenido a tus financiamientos!</h1>
-        <p class="lead">Aquí puedes consultar tus financiamientos y su estado.</p>
-    }
-    else 
-    {
-        <h1 class="display-4">💰¡Bienvenido a Financiamientos!</h1>
-        <p class="lead">Aquí puedes gestionar los financiamientos de la clínica.</p>
-    }
-</div>
-
 <div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">

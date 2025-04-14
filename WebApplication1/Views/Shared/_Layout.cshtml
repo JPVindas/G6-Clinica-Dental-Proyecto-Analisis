@@ -17,174 +17,465 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Clínica San Rafael</title>
 
-    <!-- Estilos -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" />
+    <!-- Estilos existentes -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/StyleSheet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Puedes incluir aquí otros scripts globales -->
+
+    <!-- Estilos para sidebar - adicionales -->
+    <style>
+        :root {
+            --primary-blue: #003366;
+            --secondary-blue: #0477BF;
+            --sidebar-width: 320px;
+            --sidebar-collapsed-width: 70px;
+            --sidebar-bg: #003366;
+            --sidebar-active: rgba(255,255,255,0.1);
+            --sidebar-hover: rgba(255,255,255,0.05);
+            --accent-color: #0477BF;
+            --content-transition: all 0.3s;
+        }
+
+        body {
+            padding-top: 0 !important;
+            overflow-x: hidden;
+        }
+
+        /* Wrapper para layout de sidebar */
+        .layout-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(145deg, var(--primary-blue) 0%, var(--primary-blue) 100%, var(--secondary-blue) 20%);
+            color: #fff;
+            z-index: 1030;
+            transition: var(--content-transition);
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 1.3rem; /* Aumenta el tamaño de letra general en el sidebar */
+            padding: 0; /* Elimina el padding global */
+        }
+
+        /* Sidebar collapsed */
+        .sidebar-collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Header del Sidebar */
+        .sidebar-header {
+            padding: 10px 15px; /* Ajusta el padding para alineación correcta */
+            text-align: left; /* Alinea el texto a la izquierda */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center; /* Alinea logo y texto */
+            justify-content: flex-start; /* Alinea el logo y texto a la izquierda */
+        }
+
+            .sidebar-header .sidebar-title {
+                font-size: 1.5rem; /* Tamaño de la letra */
+                font-weight: bold; /* Hacer el texto negrita */
+                color: white; /* Color blanco */
+                margin-left: 10px; /* Espacio entre el logo y el texto */
+            }
+
+            .sidebar-header img {
+                height: 40px; /* Ajusta el tamaño del logo */
+                object-fit: contain; /* Asegura que la imagen no se distorsione */
+            }
+
+        /* Ajustes cuando el sidebar está colapsado */
+        .sidebar-collapsed .sidebar-header img {
+            height: 40px;
+        }
+
+        /* Navegación en el Sidebar */
+        .sidebar-nav {
+            list-style: none;
+            padding: 0; /* Elimina el padding */
+            margin: 0; /* Elimina el margen */
+        }
+
+            .sidebar-nav li {
+                margin-bottom: 2px;
+            }
+
+            .sidebar-nav a {
+                display: flex;
+                align-items: center;
+                padding: 10px 15px;
+                color: #fff;
+                text-decoration: none;
+                transition: var(--content-transition);
+                border-left: 3px solid transparent;
+            }
+
+            .sidebar-nav i {
+                margin-right: 10px;
+                width: 20px;
+                text-align: center;
+                font-size: 1.3rem;
+            }
+
+            .sidebar-nav a:hover {
+                background-color: var(--sidebar-hover);
+                border-left-color: var(--accent-color);
+            }
+
+            .sidebar-nav a.active {
+                background-color: var(--sidebar-active);
+                border-left-color: var(--accent-color);
+            }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-footer {
+            padding: 10px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--sidebar-bg);
+        }
+
+        .sidebar-collapsed .sidebar-footer {
+            display: none;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--content-transition);
+            width: calc(100% - var(--sidebar-width));
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content-expanded {
+            margin-left: var(--sidebar-collapsed-width);
+            width: calc(100% - var(--sidebar-collapsed-width));
+        }
+
+        /* Header principal */
+        .main-header {
+            background-color: #fff;
+            box-shadow: 0 1px 10px rgba(0,0,0,0.1);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+            .main-header img {
+                max-height: 65px; /* Limita la altura máxima de la imagen */
+            }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #003366;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+            .toggle-btn:hover {
+                background-color: rgba(0,0,0,0.05);
+                border-radius: 50%;
+            }
+
+        /* Para móviles */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1025;
+        }
+
+        .page-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        footer {
+            margin-top: auto;
+            background: linear-gradient(145deg, var(--primary-blue) 0%, var(--primary-blue) 100%, var(--secondary-blue) 20%);
+            
+        }
+
+        /* Estilos responsivos */
+        media (max-width: 991.98px) {
+            .sidebar
+
+        {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.mobile-show {
+            transform: translateX(0);
+        }
+
+        .main-content {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .main-content-expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .sidebar-backdrop.show {
+            display: block;
+        }
+
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-custom border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/imageedit_3_4448582679.png" alt="Logo Clínica San Rafael" style="height: 80px; border-radius: 5px;">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Citas" asp-action="Citas">Citas</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Servicio" asp-action="Servicios">Servicios</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Producto" asp-action="Productos">Productos</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">Odontólogos</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Clinica">Clínica</a></li>
-                        </ul>
-                        <!-- Sección derecha: Carrito + Menú de usuario -->
-                        <ul class="navbar-nav ms-auto">
-                            <!-- Ícono de carrito -->
-                            <li class="nav-item">
-                                <a class="nav-link position-relative" asp-controller="Carrito" asp-action="Carrito">
-                                    <i class="bi bi-cart-fill fs-5"></i>
-                                    <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        0
-                                    </span>
-                                </a>
-                            </li>
-                            <!-- Dropdown "Mi Cuenta" -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    @(userRole == "1" || userRole == "2" ? "⚙️ Administración" : "⚙️ Mi Cuenta")
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    @if (userRole == "3")
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="MiPerfil" asp-action="MiPerfil">📄 Mi Perfil</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Mi Financiamiento</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Portal" asp-action="Expediente">📂 Mi Portal</a></li>
-                                       
-
-
-                                    }
-                                    @if (userRole == "4")
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="HistorialMedico" asp-action="Index">📁 Historial Médico</a></li>
-                                    }
-                                    @if (userRole == "1" || userRole == "2")
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Usuarios">👥 Usuarios</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Inventario" asp-action="Inventario">📝 Inventario</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Descuentos" asp-action="Descuentos">🏷️ Descuentos</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Facturas" asp-action="Index">🧾 Facturas</a></li>
-                                        <li><a class="dropdown-item" asp-controller="DetalleFactura" asp-action="Index">📑 Detalles de Factura</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Compras" asp-action="Index">🛒 Compras</a></li>
-                                        <li><a class="dropdown-item" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Financiamientos</a></li>
-                                                    
-
-
-
-
-
-                                    }
-                                    @if (userRole == "1" || userRole == "2" || userRole == "3" || userRole == "4")
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="CambiarContrasena" asp-action="Index">🔒 Cambiar Contraseña</a></li>
-
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a>
-
-                                        </li>
-                                      
-
-                                    }
-                                </ul>
-                            </li>
-                        </ul>
-                    }
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Input oculto: ID del paciente, necesario para el JS -->
-    @if (User.Identity.IsAuthenticated && userRole == "3")
+    @if (User.Identity.IsAuthenticated)
     {
-        <input type="hidden" id="user-id" value="@(ViewBag.IdPaciente ?? "0")" />
-    }
+        <!-- Layout con sidebar para usuarios autenticados -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        <div class="layout-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
 
-    <footer style="background-color: #003366; color: white; padding: 20px;">
-        <div class="container text-center">
-            <p>&copy; 2025 - Clínica San Rafael</p>
-            <p>
-                C. Impresora Delta, San Rafael, Costa Rica | Teléfono:
-                <a href="tel:+50685624198" style="color: #66b2ff;">+506 8562-4198</a>
-            </p>
-            <div class="social-icons mt-3">
-                <a href="https://www.instagram.com" target="_blank" class="text-white mx-2 fs-4">
-                    <i class="bi bi-instagram"></i>
-                </a>
-                <a href="https://wa.me/1234567890" target="_blank" class="text-white mx-2 fs-4">
-                    <i class="bi bi-whatsapp"></i>
-                </a>
-                <a href="https://www.facebook.com" target="_blank" class="text-white mx-2 fs-4">
-                    <i class="bi bi-facebook"></i>
-                </a>
+                    <h1 class="sidebar-title">Clínica Dental San Rafael</h1> <!-- Título agregado -->
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house-fill me-2"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Citas" asp-action="Citas">
+                            <i class="bi bi-calendar-check me-2"></i> Citas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Servicio" asp-action="Servicios">
+                            <i class="bi bi-clipboard2-pulse me-2"></i> Servicios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Producto" asp-action="Productos">
+                            <i class="bi bi-box2-heart me-2"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Odontologo" asp-action="Odontologos">
+                            <i class="bi bi-people-fill me-2"></i> Odontólogos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Clinica">
+                            <i class="bi bi-building me-2"></i> Clínica
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+           <div class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="main-header d-flex justify-content-between align-items-center">
+        <!-- Logo a la izquierda -->
+        <div class="d-flex align-items-center">
+            <img src="~/images/iconodental.png" alt="Logo Clínica San Rafael">
+        </div>
+
+        <!-- Carrito y dropdown alineados a la derecha -->
+        <div class="d-flex align-items-center">
+                        @if (userRole == "3") // Solo para pacientes
+                        {
+                            <!-- Ícono de carrito -->
+                            <a class="nav-link position-relative me-3" asp-area="" asp-controller="Carrito" asp-action="Carrito">
+                                <i class="bi bi-cart-fill fs-5" style="color: #003366;"></i> <!-- Azul oscuro -->
+                                <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    0
+                                </span>
+                            </a>
+                        }
+
+                        <!-- Dropdown de usuario -->
+                        <div class="dropdown">
+                            <button class="btn btn-link dropdown-toggle text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <!-- Ícono de persona para todos los roles -->
+                                
+
+                                <!-- Cambiar el texto basado en el rol del usuario -->
+                                @if (userRole == "3")
+                                {
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    <span class="fw-bold text-white">Mi Cuenta</span> <!-- Para pacientes -->
+                                }
+                                else
+                                {
+                                    <!-- Ícono de configuración para administradores y secretarias -->
+                                    <i class="bi bi-gear-fill me-1"></i>
+                                    <span class="fw-bold text-white">Administración</span> <!-- Para administradores y secretarias -->
+                                }
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @if (userRole == "3") // Opciones para pacientes
+                                {
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="MiPerfil" asp-action="MiPerfil">📄 Mi Perfil</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Mi Financiamiento</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Portal" asp-action="Expediente">📂 Mi Portal</a></li>
+                                }
+                                @if (userRole == "4") // Opciones para odontólogos
+                                {
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="HistorialMedico" asp-action="Index">📁 Historial Médico</a></li>
+                                }
+                                @if (userRole == "1" || userRole == "2") // Opciones para administradores
+                                {
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Usuarios" asp-action="Usuarios">👥 Usuarios</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Inventario" asp-action="Inventario">📝 Inventario</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Descuentos" asp-action="Descuentos">🏷️ Descuentos</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Facturas" asp-action="Index">🧾 Facturas</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="DetalleFactura" asp-action="Index">📑 Detalles de Factura</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Compras" asp-action="Index">🛒 Compras</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Financiamiento" asp-action="Financiamiento">💰 Financiamientos</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="CambiarContrasena" asp-action="Index">🔒 Cambiar Contraseña</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Login" asp-action="Logout">🚪 Cerrar Sesión</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Campo oculto para ID del paciente -->
+                @if (User.Identity.IsAuthenticated && userRole == "3")
+                {
+                    <input type="hidden" id="user-id" value="@(ViewBag.IdPaciente ?? "0")" />
+                }
+
+                <!-- Contenido de la página -->
+                <div class="page-content">
+                    @RenderBody()
+                </div>
+
+                <!-- Footer -->
+                <footer style="background-color: #003366; color: white; padding: 20px;">
+                    <div class="container text-center">
+                        <p>&copy; 2025 - Clínica San Rafael</p>
+                        <p>
+                            C. Impresora Delta, San Rafael, Costa Rica | Teléfono:
+                            <a href="tel:+50685624198" style="color: #66b2ff;">+506 8562-4198</a>
+                        </p>
+                        <div class="social-icons mt-3">
+                            <a href="https://www.instagram.com" target="_blank" class="text-white mx-2 fs-4">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            <a href="https://wa.me/1234567890" target="_blank" class="text-white mx-2 fs-4">
+                                <i class="bi bi-whatsapp"></i>
+                            </a>
+                            <a href="https://www.facebook.com" target="_blank" class="text-white mx-2 fs-4">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </div>
-    </footer>
+    }
+    else
+    {
+        <!-- Layout original para usuarios no autenticados -->
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    }
 
     <!-- Scripts -->
-    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    <!-- Incluye tu archivo site.js -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!-- Script inline para actualizar el badge (por si no deseas usar site.js) -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const cartBadge = document.getElementById("cart-badge");
-            const userIdElement = document.getElementById("user-id");
-            let idPaciente = userIdElement ? userIdElement.value.trim() : "";
+        // Script para el funcionamiento del sidebar
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
-            if (!idPaciente) {
-                console.warn("⚠️ No se pudo detectar el ID del paciente para el carrito.");
-                return;
-            }
-
-            async function updateCartBadge() {
-                if (!cartBadge || !idPaciente) {
-                    console.warn("⚠️ No se puede actualizar el carrito: ID de paciente no disponible.");
-                    return;
+            // Verificar si los elementos existen (sólo para usuarios autenticados)
+            if (sidebar && mainContent && sidebarToggle) {
+                // Detectar el tamaño de pantalla
+                function handleScreenSize() {
+                    if (window.innerWidth < 992) {
+                        // Móvil: remover clases de colapso y restaurar layout móvil
+                        sidebar.classList.remove('sidebar-collapsed');
+                        mainContent.classList.remove('main-content-expanded');
+                    }
                 }
-                try {
-                    let response = await fetch(`/Carrito/GetCarritoCount?idPaciente=${idPaciente}`);
-                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-                    let data = await response.json();
-                    cartBadge.textContent = data.cantidadCarrito ?? "0";
-                    console.log(`🛒 Badge actualizado: ${data.cantidadCarrito} ítems.`);
-                } catch (error) {
-                    console.error("❌ Error al actualizar el badge del carrito:", error);
+
+                // Comprobar tamaño inicial y configurar el listener
+                handleScreenSize();
+                window.addEventListener('resize', handleScreenSize);
+
+            // Actualización del badge del carrito
+            const cartBadge = document.getElementById('cart-badge');
+            const userIdInput = document.getElementById('user-id');
+
+            if (cartBadge && userIdInput) {
+                const idPaciente = userIdInput.value.trim();
+
+                if (idPaciente && idPaciente !== '0') {
+                    async function updateCartBadge() {
+                        try {
+                            const response = await fetch(`/Carrito/GetCarritoCount?idPaciente=${idPaciente}`);
+                            if (response.ok) {
+                                const data = await response.json();
+                                cartBadge.textContent = data.cantidadCarrito || '0';
+                            }
+                        } catch (error) {
+                            console.error('Error al actualizar el carrito:', error);
+                        }
+                    }
+
+                    // Actualizar inmediatamente y luego cada 10 segundos
+                    updateCartBadge();
+                    setInterval(updateCartBadge, 10000);
                 }
             }
-
-            // Actualiza el badge inmediatamente y cada 10 segundos
-            updateCartBadge();
-            setInterval(updateCartBadge, 10000);
         });
-
     </script>
 </body>
 </html>
