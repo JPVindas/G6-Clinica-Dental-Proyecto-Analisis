@@ -12,90 +12,101 @@
     string horarioError = ViewBag.HorarioError as string;
 }
 
-
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-        <div class="bg-white p-4 shadow-sm rounded">
-            @if (!string.IsNullOrEmpty(horarioError))
-            {
-                <div class="alert alert-danger text-center">
-                    <strong>@horarioError</strong>
-                </div>
-            }
-
-            <form asp-controller="Citas" asp-action="SaveCita" method="post" id="citaForm">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-
-                <div id="error-message" class="alert alert-danger d-none"></div>
-
-                <!-- Paciente -->
-                <div class="mb-3">
-                    <label class="form-label">Paciente</label>
-                    @if (userRole == 3)
-                    {
-                        <input type="hidden" asp-for="IdPaciente" value="@pacienteId" />
-                        <input class="form-control" value="@nombrePaciente" readonly />
-                    }
-                    else
-                    {
-                        <select asp-for="IdPaciente" class="form-select" required>
-                            <option value="">Seleccione un paciente</option>
-                            @foreach (var paciente in pacientesDisponibles)
-                            {
-                                <option value="@paciente.Value">@paciente.Text</option>
-                            }
-                        </select>
-                    }
-                    <span asp-validation-for="IdPaciente" class="text-danger"></span>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary fw-bold">
+                        <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
+                    </h2>
+                    <p class="text-muted">Completa la siguiente información para programar tu cita.</p>
                 </div>
 
-                <!-- Doctor -->
-                <div class="mb-3">
-                    <label class="form-label">Doctor</label>
-                    @if (userRole == 4)
-                    {
-                        <input type="hidden" asp-for="IdEmpleado" value="@doctorId" />
-                        <input class="form-control" value="@nombreDoctor" readonly />
-                    }
-                    else
-                    {
-                        <select asp-for="IdEmpleado" class="form-select" required id="doctorSelect">
-                            <option value="">Seleccione un doctor</option>
-                            @foreach (var empleado in empleadosDisponibles)
-                            {
-                                <option value="@empleado.Value" selected="@(empleado.Value == doctorId.ToString())">@empleado.Text</option>
-                            }
-                        </select>
-                    }
-                    <span asp-validation-for="IdEmpleado" class="text-danger"></span>
-                </div>
+                @if (!string.IsNullOrEmpty(horarioError))
+                {
+                    <div class="alert alert-danger text-center">
+                        <strong>@horarioError</strong>
+                    </div>
+                }
 
-                <!-- Fecha y Hora -->
-                <div class="mb-3">
-                    <label class="form-label">Fecha y Hora</label>
-                    <input asp-for="FechaHora" type="datetime-local" class="form-control"
-                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required id="fechaHoraInput">
-                    <span asp-validation-for="FechaHora" class="text-danger"></span>
-                </div>
+                <form asp-controller="Citas" asp-action="SaveCita" method="post" id="citaForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div id="error-message" class="alert alert-danger d-none"></div>
 
-                <div id="suggested-time" class="alert alert-warning d-none">
-                    <strong>El doctor ya tiene una cita en ese horario.</strong> Intente programar la cita en el siguiente horario disponible: <span id="nextAvailable"></span>
-                </div>
+                    <!-- Paciente -->
+                    <div class="mb-3">
+                        <label class="form-label">Paciente</label>
+                        @if (userRole == 3)
+                        {
+                            <input type="hidden" asp-for="IdPaciente" value="@pacienteId" />
+                            <input class="form-control bg-light" value="@nombrePaciente" readonly />
+                        }
+                        else
+                        {
+                            <select asp-for="IdPaciente" class="form-select" required>
+                                <option value="">Seleccione un paciente</option>
+                                @foreach (var paciente in pacientesDisponibles)
+                                {
+                                    <option value="@paciente.Value">@paciente.Text</option>
+                                }
+                            </select>
+                        }
+                        <span asp-validation-for="IdPaciente" class="text-danger"></span>
+                    </div>
 
-                <!-- Motivo de la Cita -->
-                <div class="mb-3">
-                    <label class="form-label">Motivo</label>
-                    <input asp-for="Motivo" class="form-control" placeholder="Ingrese el motivo de la cita" required>
-                    <span asp-validation-for="Motivo" class="text-danger"></span>
-                </div>
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-check-circle"></i> Guardar
-                </button>
+                    <!-- Doctor -->
+                    <div class="mb-3">
+                        <label class="form-label">Odontólogo</label>
+                        @if (userRole == 4)
+                        {
+                            <input type="hidden" asp-for="IdEmpleado" value="@doctorId" />
+                            <input class="form-control bg-light" value="@nombreDoctor" readonly />
+                        }
+                        else
+                        {
+                            <select asp-for="IdEmpleado" class="form-select" required id="doctorSelect">
+                                <option value="">Seleccione un doctor</option>
+                                @foreach (var empleado in empleadosDisponibles)
+                                {
+                                    <option value="@empleado.Value" selected="@(empleado.Value == doctorId.ToString())">@empleado.Text</option>
+                                }
+                            </select>
+                        }
+                        <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                    </div>
 
-                <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
-            </form>
+                    <!-- Fecha y Hora -->
+                    <div class="mb-3">
+                        <label class="form-label">Fecha y Hora</label>
+                        <input asp-for="FechaHora" type="datetime-local" class="form-control"
+                               min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required id="fechaHoraInput">
+                        <span asp-validation-for="FechaHora" class="text-danger"></span>
+                    </div>
+
+                    <div id="suggested-time" class="alert alert-warning d-none">
+                        <strong>El doctor ya tiene una cita en ese horario.</strong><br>
+                        Siguiente horario disponible: <span id="nextAvailable"></span>
+                    </div>
+
+                    <!-- Motivo -->
+                    <div class="mb-4">
+                        <label class="form-label">Motivo de la Cita</label>
+                        <input asp-for="Motivo" class="form-control" placeholder="Ej: Revisión general" required />
+                        <span asp-validation-for="Motivo" class="text-danger"></span>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle"></i> Guardar
+                        </button>
+                        <a asp-controller="Citas" asp-action="Citas" class="btn btn-secondary px-4">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

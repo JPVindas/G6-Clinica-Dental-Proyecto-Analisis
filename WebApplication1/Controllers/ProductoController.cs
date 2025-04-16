@@ -40,8 +40,10 @@ namespace WebApplication1.Controllers
 
         // ✅ LISTAR TODOS LOS PRODUCTOS
         [HttpGet]
-        public async Task<IActionResult> Productos()
+        public async Task<IActionResult> Productos(int page = 1)
         {
+            int pageSize = 6; // Número de productos por página
+
             // 🔹 Obtener el ID del usuario autenticado
             string userIdClaim = User.FindFirst("UserID")?.Value;
             int userId = int.TryParse(userIdClaim, out var id) ? id : 0;
@@ -53,15 +55,26 @@ namespace WebApplication1.Controllers
                 .FirstOrDefaultAsync();
 
             ViewBag.IdPaciente = pacienteId > 0 ? (int?)pacienteId : null;
-            // 🔹 Enviar `null` si no tiene paciente
 
-            // 🔹 Obtener los productos activos
-            var productos = await _context.Productos
-                .Where(p => p.estado) // Solo productos activos
+            // 🔹 Obtener los productos activos con paginación
+            var productosActivos = _context.Productos
+                .Where(p => p.estado)
+                .OrderBy(p => p.Nombre);
+
+            var totalProductos = await productosActivos.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalProductos / (double)pageSize);
+
+            var productosPaginados = await productosActivos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return View("Productos", productos);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View("Productos", productosPaginados);
         }
+
 
 
         // ✅ FORMULARIO PARA EDITAR PRODUCTO (GET)

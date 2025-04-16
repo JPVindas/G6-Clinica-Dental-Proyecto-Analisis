@@ -4,67 +4,91 @@
     ViewData["Title"] = "Editar Perfil";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-        <div class="bg-white p-4 shadow-sm rounded">
-            <form asp-action="Editar" method="post">
-                @Html.AntiForgeryToken()
-
-                <!-- Mostrar resumen de validación -->
-                <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
-                <!-- Campo oculto con ID del paciente -->
-                <input type="hidden" asp-for="IdPaciente" />
-
-                <div class="mb-3">
-                    <label asp-for="Nombre" class="form-label"></label>
-                    <input asp-for="Nombre" class="form-control" maxlength="100" required />
-                    <span asp-validation-for="Nombre" class="text-danger"></span>
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4 rounded-4">
+                <div class="text-center mb-3">
+                    <h2 class="text-primary fw-bold mb-1">
+                        <i class="bi bi-person-lines-fill"></i> Editar Perfil del Paciente
+                    </h2>
+                    <p class="text-muted mb-0">Actualiza tu información personal</p>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Apellidos" class="form-label"></label>
-                    <input asp-for="Apellidos" class="form-control" maxlength="100" required />
-                    <span asp-validation-for="Apellidos" class="text-danger"></span>
-                </div>
+                <form asp-action="Editar" method="post" id="editarPerfilForm" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="IdPaciente" />
 
-                <div class="mb-3">
-                    <label asp-for="Correo" class="form-label"></label>
-                    <input asp-for="Correo" type="email" class="form-control" maxlength="150" required />
-                    <span asp-validation-for="Correo" class="text-danger"></span>
-                </div>
+                    <!-- Validación global -->
+                    <div class="alert alert-danger d-none" id="validation-summary"></div>
 
-                <div class="mb-3">
-                    <label asp-for="Telefono" class="form-label"></label>
-                    <input asp-for="Telefono" class="form-control" maxlength="15" />
-                    <span asp-validation-for="Telefono" class="text-danger"></span>
-                </div>
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-person-fill me-1"></i> Nombre</label>
+                        <input asp-for="Nombre" class="form-control" maxlength="100" required />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="Direccion" class="form-label"></label>
-                    <textarea asp-for="Direccion" class="form-control" maxlength="255" rows="3"></textarea>
-                    <span asp-validation-for="Direccion" class="text-danger"></span>
-                </div>
+                    <!-- Apellidos -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-person-bounding-box me-1"></i> Apellidos</label>
+                        <input asp-for="Apellidos" class="form-control" maxlength="100" required />
+                        <span asp-validation-for="Apellidos" class="text-danger"></span>
+                    </div>
 
-                <!-- Solo mostrar la fecha de registro (no editable) -->
-                <div class="mb-3">
-                    <label class="form-label">Fecha de Registro</label>
-                    <input value="@Model.FechaRegistro.ToString("yyyy-MM-dd")" class="form-control" disabled />
-                </div>
+                    <!-- Correo -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-envelope-fill me-1"></i> Correo Electrónico</label>
+                        <input asp-for="Correo" type="email" class="form-control" maxlength="150" required />
+                        <span asp-validation-for="Correo" class="text-danger"></span>
+                    </div>
 
-                <div class="d-flex justify-content-between">
-                    <a asp-action="MiPerfil" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Volver
-                    </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar
-                    </button>
-                </div>
-            </form>
+                    <!-- Teléfono -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-telephone-fill me-1"></i> Teléfono</label>
+                        <input asp-for="Telefono" class="form-control" maxlength="15" />
+                        <span asp-validation-for="Telefono" class="text-danger"></span>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-geo-alt-fill me-1"></i> Dirección</label>
+                        <textarea asp-for="Direccion" class="form-control" maxlength="255" rows="3"></textarea>
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Fecha de registro -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-calendar-event-fill me-1"></i> Fecha de Registro</label>
+                        <input value="@Model.FechaRegistro.ToString("yyyy-MM-dd")" class="form-control bg-light" disabled />
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a asp-action="MiPerfil" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle-fill"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const validationSummary = document.getElementById("validation-summary");
+            const errorList = document.querySelectorAll(".field-validation-error");
+
+            if (errorList.length > 0) {
+                validationSummary.classList.remove("d-none");
+                validationSummary.innerHTML = "<strong>Por favor corrija los errores marcados en el formulario.</strong>";
+            }
+        });
+    </script>
 }

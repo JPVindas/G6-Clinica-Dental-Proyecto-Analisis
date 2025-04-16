@@ -2,206 +2,98 @@
     ViewData["Title"] = "Nuestro Equipo";
 }
 
-
-<div class="container mt-5">
-    <h2 class="text-center mb-4">Nuestras Instalaciones</h2>
-    <br>
-    <br/>
-    <div class="row text-center">
-      
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow-lg h-100">
-            <img src="/images/Sala-Ortodoncial.jpg" alt="Sala de Ortodoncia" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Sala de Ortodoncia</h5>
-            <p>Equipos modernos para tratamientos de ortodoncia.</p>
-                <br>
-                <br />
-            </div>
-        </div>
-     
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow-lg h-100">
-            <img src="/images/Sala-Infantil.jpg" alt="Sala Infantil" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Sala Infantil</h5>
-            <p>Espacio diseñado para los más pequeños con entretenimiento.</p>
-                <br>
-                <br />
-            </div>
-        </div>
-       
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow-lg h-100">
-            <img src="/images/Recepcion.jpg" alt="Recepción" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Recepción</h5>
-            <p>Atención personalizada y cómoda espera para los pacientes.</p>
-                <br>
-                <br />
-        </div>
-        </div>
-    </div>
-    <br>
-    <br />
-    <br>
-    <br />
-    <div class="row text-center">
-
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow-lg h-100">
-            <img src="/images/Sala-Radiografias.jpg" alt="Sala de Radiografías" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Sala de Radiografías</h5>
-            <p>Equipos avanzados para diagnósticos precisos y rápidos.</p>
-                <br>
-                <br />
-            </div>
-        </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card shadow-lg h-100">
-            <img src="/images/Consultorio-General.jpg" alt="Consultorio General" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Consultorio General</h5>
-            <p>Espacio cómodo y equipado para consultas generales.</p>
-                <br>
-                <br />
-                </div>
-        </div>
-
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card shadow-lg h-100">
-            <img src="/images/Sala-Esterilizacion.jpg" alt="Sala de Esterilización" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Sala de Esterilización</h5>
-            <p>Protocolos estrictos de higiene para la seguridad de nuestros pacientes.</p>
-                <br>
-                <br />
-                    </div>
-        </div>
-    </div>
-    <br>
-    <br />
-    <br>
-    <br />
-    <div class="row text-center">
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card shadow-lg h-100">
-            <img src="/images/Sala-Estetica.jpg" alt="Sala de Tratamientos Estéticos" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Sala de Tratamientos Estéticos</h5>
-            <p>Especializada en procedimientos estéticos para mejorar tu sonrisa.</p>
-                <br>
-                <br />
-
-                        </div>
-        </div>
-
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card shadow-lg h-100">
-            <img src="/images/Area-Espera-VIP.jpg" alt="Área de Espera VIP" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Área de Espera VIP</h5>
-            <p>Zona exclusiva con comodidades para nuestros clientes VIP.</p>
-                <br>
-                <br />
-                            </div>
-        </div>
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card shadow-lg h-100">
-            <img src="/images/Laboratorio-Dental.jpg" alt="Laboratorio Dental" class="instalacion-img">
-            <br>
-            <br />
-            <h5>Laboratorio Dental</h5>
-            <p>Tecnología avanzada para la fabricación de prótesis y más.</p>
-                <br>
-                <br />
-                                </div>
-        </div>
-    </div>
-</div>
-<div class="container mt-5">
-    <h2 class="text-center mb-4">¿Dónde Estamos?</h2>
+<!-- ENCABEZADO -->
+<div class="container my-5">
     <div class="text-center">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15718.306676237587!2d-84.21207!3d9.9691348!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0f9b6515ecb4f%3A0x57161815d70fd572!2sClinica%20Dental%20San%20Rafael!5e0!3m2!1ses!2scr!4v1733814278901!5m2!1ses!2scr"
-                width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <h2 class="display-5 fw-bold text-primary">
+            <i class="bi bi-hospital-fill me-2 text-primary"></i> Nuestras Instalaciones
+        </h2>
+        <p class="lead text-muted">Explora nuestros espacios diseñados para tu bienestar y comodidad.</p>
     </div>
 </div>
 
+<!-- GALERÍA DE INSTALACIONES -->
+<div class="container mb-5">
+    <div class="row g-4">
+        @{
+            var instalaciones = new[]
+            {
+                new { Titulo = "Sala de Ortodoncia", Imagen = "/images/Sala-Ortodoncial.jpg", Descripcion = "Equipos modernos para tratamientos de ortodoncia." },
+                new { Titulo = "Sala Infantil", Imagen = "/images/Sala-Infantil.jpg", Descripcion = "Espacio diseñado para los más pequeños con entretenimiento." },
+                new { Titulo = "Recepción", Imagen = "/images/Recepcion.jpg", Descripcion = "Atención personalizada y cómoda espera para los pacientes." },
+                new { Titulo = "Sala de Radiografías", Imagen = "/images/Sala-Radiografias.jpg", Descripcion = "Equipos avanzados para diagnósticos precisos y rápidos." },
+                new { Titulo = "Consultorio General", Imagen = "/images/Consultorio-General.jpg", Descripcion = "Espacio cómodo y equipado para consultas generales." },
+                new { Titulo = "Sala de Esterilización", Imagen = "/images/Sala-Esterilizacion.jpg", Descripcion = "Protocolos estrictos de higiene para la seguridad de nuestros pacientes." },
+                new { Titulo = "Sala de Tratamientos Estéticos", Imagen = "/images/Sala-Estetica.jpg", Descripcion = "Especializada en procedimientos estéticos para mejorar tu sonrisa." },
+                new { Titulo = "Área de Espera VIP", Imagen = "/images/Area-Espera-VIP.jpg", Descripcion = "Zona exclusiva con comodidades para nuestros clientes VIP." },
+                new { Titulo = "Laboratorio Dental", Imagen = "/images/Laboratorio-Dental.jpg", Descripcion = "Tecnología avanzada para la fabricación de prótesis y más." }
+            };
+        }
 
+        @foreach (var item in instalaciones)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden d-flex flex-column">
+                    <div class="overflow-hidden">
+                        <img src="@item.Imagen" alt="@item.Titulo" class="instalacion-img" />
+                    </div>
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                        <h5 class="fw-bold text-primary mb-2">@item.Titulo</h5>
+                        <p class="text-muted mb-0">@item.Descripcion</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
+<!-- MAPA -->
+<div class="container mb-5">
+    <h2 class="text-center fw-bold mb-4 text-primary">¿Dónde Estamos?</h2>
+    <div class="ratio ratio-16x9 shadow rounded overflow-hidden">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15718.306676237587!2d-84.21207!3d9.9691348!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0f9b6515ecb4f%3A0x57161815d70fd572!2sClinica%20Dental%20San%20Rafael!5e0!3m2!1ses!2scr!4v1733814278901!5m2!1ses!2scr"
+                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+</div>
+
+<!-- ESTILOS PERSONALIZADOS -->
 <style>
+    .instalacion-img {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+
+    .card:hover .instalacion-img {
+        transform: scale(1.05);
+    }
 
     .card {
-        border: none;
-        transition: transform 0.3s ease-in-out;
+        border-radius: 16px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-        .card:hover {
-            transform: scale(1.05);
-        }
-
-    
-    .card-img-top {
-        width: 100%;
-        max-height: 150px;
-        object-fit: cover;
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
 
-    h5{
+    .text-primary {
         color: #003366 !important;
     }
-  
-    .btn-primary {
-        background-color: #66b2ff;
-        border: none;
-        color: #fff;
-        font-size: 0.9rem;
+
+    .ratio iframe {
+        border-radius: 16px;
     }
 
-        .btn-primary:hover {
-            background-color: #003366;
-        }
 
-   
-    .odontologo-img,
-    .team-img,
-    .instalacion-img {
-        width: 100%;
-        max-height: 150px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
- 
-    .odontologos-container,
-    .container-section {
-        margin-top: 20px;
-        padding: 20px;
-        background-color: #F8F9FA;
-    }
-
-   
-    footer {
-        background-color: #003366;
-        color: #fff;
-        padding: 15px;
-        text-align: center;
-        font-size: 0.9rem;
-    }
-
-        footer p {
-            margin: 0;
-        }
 </style>
 
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />

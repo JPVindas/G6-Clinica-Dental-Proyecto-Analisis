@@ -173,6 +173,25 @@ header {
     margin-bottom: 15px;
 }
 
+
+@keyframes bounce-glow {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 0 8px #ffffff);
+    }
+
+    50% {
+        transform: translateY(-12px) scale(1.05);
+        filter: drop-shadow(0 0 14px #ffffff);
+    }
+}
+/* ✅ Animación del diente mejorada */
+.tooth-animation img {
+    animation: bounce-glow 2.5s infinite ease-in-out;
+    filter: drop-shadow(0 0 8px #ffffff);
+    transition: transform 0.3s ease;
+}
+
 .card a {
     font-family: 'Arial Bold', sans-serif;
     color: #FFFFFF;
@@ -288,6 +307,7 @@ btn-primary {
         padding: 8px 12px;
         font-size: 14px;
     }
+
     .table-responsive {
         width: 100%;
         overflow-x: auto;
@@ -295,6 +315,7 @@ btn-primary {
         margin-top: 15px;
         border-radius: 10px;
     }
+
 
     /* Opcional: mejora visual en pantallas pequeñas */
     @media (max-width: 768px) {
@@ -304,14 +325,96 @@ btn-primary {
             padding: 8px 10px;
         }
     }
+
     .navbar-toggler {
         color: white !important;
-
     }
+
     .navbar-toggler-icon {
         background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
     }
 
+    /* 📱 RESPONSIVE DESIGN */
 
+    /* TABLETAS */
+    @media (max-width: 991.98px) {
+        .sidebar {
+            transform: translateX(-100%);
+            position: fixed;
+            z-index: 1040;
+        }
 
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+
+        .main-content,
+        .main-content-expanded {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+
+        .sidebar-backdrop.show {
+            display: block;
+        }
+
+        .sidebar-header .sidebar-title {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav a {
+            font-size: 1rem;
+            padding: 10px 12px;
+        }
+
+        .dropdown-menu {
+            font-size: 0.95rem;
+        }
+
+        .main-header img {
+            max-height: 55px;
+        }
+    }
+
+    /* CELULARES */
+    @media (max-width: 576px) {
+        .btn,
+        button {
+            font-size: 0.9rem;
+            padding: 8px 14px;
+        }
+
+        .pagination li a,
+        .pagination li span {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 15px;
+            border-radius: 10px;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        .main-header img {
+            max-height: 45px;
+        }
+
+        .navbar-toggler {
+            color: white !important;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+        }
+    }
 }

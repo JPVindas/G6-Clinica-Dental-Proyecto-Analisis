@@ -24,8 +24,92 @@
     <link rel="stylesheet" href="~/css/StyleSheet.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/StyleSheet.css" />
+
     <!-- Estilos para sidebar - adicionales -->
     <style>
+            media screen and (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 1040;
+            }
+
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+
+            .main-content,
+            .main-content-expanded {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            .sidebar-header .sidebar-title {
+                font-size: 1.2rem;
+            }
+
+            .sidebar-nav a {
+                font-size: 1rem;
+                padding: 10px 12px;
+            }
+
+            .dropdown-menu {
+                font-size: 0.95rem;
+            }
+
+            .main-header img {
+                max-height: 55px;
+            }
+        }
+
+        media screen and (max-width: 576px) {
+            .btn,
+            button {
+                font-size: 0.9rem;
+                padding: 8px 14px;
+            }
+
+            .pagination li a,
+            .pagination li span {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-top: 15px;
+                border-radius: 10px;
+            }
+
+            .table th,
+            .table td {
+                white-space: nowrap;
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+
+            .main-header img {
+                max-height: 45px;
+            }
+
+            .navbar-toggler {
+                color: white !important;
+            }
+
+            .navbar-toggler-icon {
+                background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+            }
+        }
         :root {
             --primary-blue: #003366;
             --secondary-blue: #0477BF;

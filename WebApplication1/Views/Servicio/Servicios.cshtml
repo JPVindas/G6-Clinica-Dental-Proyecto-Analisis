@@ -42,8 +42,7 @@
                                 data-tipo="servicio"
                                 data-name="@servicio.Nombre"
                                 data-price="@servicio.Costo"
-                                data-image="@imageUrl"
-                                aria-label="Agregar @servicio.Nombre al carrito">
+                                data-image="@imageUrl">
                             <i class="bi bi-cart-plus-fill"></i> Agregar al Carrito
                         </button>
 
@@ -51,20 +50,20 @@
                         {
                             <div class="mt-2 d-flex justify-content-between">
                                 <a asp-action="Editar" asp-route-id="@servicio.Id" class="btn btn-warning btn-md w-50 me-2 fw-bold">
-                                    <i class="bi bi-pencil-square"></i> 
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
                                 @if (servicio.estado)
                                 {
                                     <a asp-action="Eliminar" asp-route-id="@servicio.Id" class="btn btn-danger btn-md w-50 fw-bold"
                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
-                                        <i class="bi bi-trash"></i> 
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 }
                                 else
                                 {
                                     <form asp-controller="Servicio" asp-action="ActivarServicio" asp-route-id="@servicio.Id" method="post" class="w-50">
                                         <button type="submit" class="btn btn-success btn-md w-100 fw-bold">
-                                            <i class="bi bi-check-circle"></i> 
+                                            <i class="bi bi-check-circle"></i>
                                         </button>
                                     </form>
                                 }
@@ -75,16 +74,28 @@
             </div>
         }
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Paginación de servicios" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link fw-bold" asp-action="Servicios" asp-route-page="@i">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>
 
 <style>
-    /* Usamos un selector más específico para los botones dentro del contenido principal */
     .container .btn {
         font-family: 'Arial', sans-serif;
         font-weight: bold;
         transition: 0.3s ease;
         border-width: 2px;
-        width: 10000px;
         padding: 15px 16px;
     }
 
@@ -106,7 +117,6 @@
     .container .btn-success {
         background-color: #28a745 !important;
         color: white !important;
-        padding: 4%;
     }
 
     .card {
@@ -122,6 +132,23 @@
     .card-img-top {
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+    }
+
+    .pagination .page-link {
+        color: #003366;
+        border-radius: 8px;
+        margin: 0 5px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #003366;
+        color: white;
+        border-color: #003366;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #005999;
+        color: white;
     }
 </style>
 

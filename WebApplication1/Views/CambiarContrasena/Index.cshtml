@@ -4,58 +4,120 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
-        <strong>@TempData["SuccessMessage"]</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+        <div class="container mt-4">
+            <div class="alert alert-success alert-dismissible fade show shadow-sm text-center" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> <strong>@TempData["SuccessMessage"]</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        </div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-        <strong>@TempData["ErrorMessage"]</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+        <div class="container mt-4">
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm text-center" role="alert">
+                <i class="bi bi-x-circle-fill me-2"></i> <strong>@TempData["ErrorMessage"]</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        </div>
 }
 
-<div class="jumbotron text-center">
-    <h1 class="display-4">🔒 Cambiar Contraseña</h1>
-    <p class="lead">Actualiza tu contraseña de forma segura.</p>
-</div>
-
-<div class="container mt-5">
-    <div class="card shadow-lg p-4">
-        <div class="card-body">
-            <form asp-controller="CambiarContrasena" asp-action="Index" method="post" class="row g-3">
-                @Html.AntiForgeryToken()
-
-                <div class="col-md-12">
-                    <label for="actual" class="form-label fw-bold">Contraseña Actual</label>
-                    <input type="password" class="form-control" name="actual" id="actual" required />
-                </div>
-
-                <div class="col-md-12">
-                    <label for="nueva" class="form-label fw-bold">Nueva Contraseña</label>
-                    <input type="password" class="form-control" name="nueva" id="nueva" required minlength="6" />
-                </div>
-
-                <div class="col-md-12">
-                    <label for="confirmar" class="form-label fw-bold">Confirmar Nueva Contraseña</label>
-                    <input type="password" class="form-control" name="confirmar" id="confirmar" required minlength="6" />
-                </div>
-
-                <div class="col-md-12 d-flex justify-content-start mt-4 gap-2">
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Guardar
-                    </button>
-
-                    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left-circle"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+<div class="container mt-4 mb-5 d-flex justify-content-center">
+    <div class="card border-0 shadow-lg p-4 w-100" style="max-width: 550px; border-radius: 20px;">
+        <div class="text-center mb-4">
+            <div class="icon-circle mx-auto mb-3">
+                <i class="bi bi-lock-fill fs-1 text-white"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-1">Cambiar Contraseña</h4>
+            <p class="text-muted small">Actualiza tu clave para mantener tu cuenta segura.</p>
         </div>
+
+        <div id="empty-fields-alert" class="alert alert-warning d-none text-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> Por favor, completa todos los campos.
+        </div>
+
+        <form asp-controller="CambiarContrasena" asp-action="Index" method="post" novalidate id="changePasswordForm">
+            @Html.AntiForgeryToken()
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="actual" id="actual" placeholder="Contraseña Actual" />
+                <label for="actual"><i class="bi bi-key me-1"></i> Contraseña Actual</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="nueva" id="nueva" placeholder="Nueva Contraseña" minlength="6" />
+                <label for="nueva"><i class="bi bi-lock me-1"></i> Nueva Contraseña</label>
+            </div>
+
+            <div class="form-floating mb-4">
+                <input type="password" class="form-control" name="confirmar" id="confirmar" placeholder="Confirmar Nueva Contraseña" minlength="6" />
+                <label for="confirmar"><i class="bi bi-lock-fill me-1"></i> Confirmar Nueva Contraseña</label>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-circle-fill"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<style>
+    .icon-circle {
+        width: 70px;
+        height: 70px;
+        background-color: #003366;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25);
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .form-floating > label {
+        color: #6c757d;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("changePasswordForm");
+        const alertBox = document.getElementById("empty-fields-alert");
+
+        form.addEventListener("submit", function (e) {
+            const actual = document.getElementById("actual").value.trim();
+            const nueva = document.getElementById("nueva").value.trim();
+            const confirmar = document.getElementById("confirmar").value.trim();
+
+            if (!actual && !nueva && !confirmar) {
+                e.preventDefault();
+                alertBox.classList.remove("d-none");
+                alertBox.scrollIntoView({ behavior: "smooth" });
+            } else {
+                alertBox.classList.add("d-none");
+            }
+        });
+    });
+</script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />

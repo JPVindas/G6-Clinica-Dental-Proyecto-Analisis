@@ -19,8 +19,7 @@ namespace WebApplication1.Controllers
         }
 
         // ✅ Mostrar el expediente del paciente autenticado
-        // ✅ Mostrar el expediente del paciente autenticado
-        public async Task<IActionResult> Expediente()
+        public async Task<IActionResult> Expediente(int pageHistorial = 1, int pageTratamientos = 1, int pageCitas = 1, int pageSize = 5)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("UserID");
             if (userIdClaim == null)
@@ -43,26 +42,60 @@ namespace WebApplication1.Controllers
 
             var paciente = usuario.Paciente;
 
+            // Historial Médico
+            var historialTotal = await _context.HistorialMedico
+                .Where(h => h.IdPaciente == paciente.IdPaciente)
+                .CountAsync();
+
             var historialMedico = await _context.HistorialMedico
                 .Include(h => h.Paciente)
-                .Include(h => h.Tratamiento) // 🔹 Asegurar la relación con Tratamiento
+                .Include(h => h.Tratamiento)
                 .Where(h => h.IdPaciente == paciente.IdPaciente)
+                .Skip((pageHistorial - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            var tratamientos = await _context.Tratamientos
+            // Tratamientos
+            var tratamientosQuery = _context.Tratamientos
                 .Include(t => t.Servicio)
-                .Where(t => historialMedico.Select(h => h.IdTratamiento).Contains(t.IdTratamiento)) // 🔹 Relación con historial
+                .Where(t => _context.HistorialMedico
+                    .Where(h => h.IdPaciente == paciente.IdPaciente)
+                    .Select(h => h.IdTratamiento)
+                    .Contains(t.IdTratamiento));
+
+            var tratamientosTotal = await tratamientosQuery.CountAsync();
+
+            var tratamientos = await tratamientosQuery
+                .Skip((pageTratamientos - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            // Citas
+            var citasTotal = await _context.Citas
+                .Where(c => c.IdPaciente == paciente.IdPaciente)
+                .CountAsync();
 
             var citas = await _context.Citas
                 .Where(c => c.IdPaciente == paciente.IdPaciente)
                 .Include(c => c.Empleado)
+                .Skip((pageCitas - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            // Paginación
+            ViewBag.TotalPagesHistorial = (int)Math.Ceiling((double)historialTotal / pageSize);
+            ViewBag.TotalPagesTratamientos = (int)Math.Ceiling((double)tratamientosTotal / pageSize);
+            ViewBag.TotalPagesCitas = (int)Math.Ceiling((double)citasTotal / pageSize);
+
+            ViewBag.CurrentPageHistorial = pageHistorial;
+            ViewBag.CurrentPageTratamientos = pageTratamientos;
+            ViewBag.CurrentPageCitas = pageCitas;
 
             return View(new Tuple<PacientesModel, List<HistorialMedicoModel>, List<TratamientosModel>, List<CitasModel>>(
                 paciente, historialMedico, tratamientos, citas
             ));
         }
+
 
 
     }

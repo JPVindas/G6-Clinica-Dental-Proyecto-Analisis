@@ -11,9 +11,10 @@
 
 <div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-            Gestión de Financiamientos
+        <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: Arial, sans-serif;">
+            💵 Gestión de Financiamientos
         </div>
+
         <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
 
             @if (TempData["ErrorMessage"] != null)
@@ -328,5 +329,32 @@
         font-size: 13px;
     }
 
+    
+    .pagination .page-item {
+        margin: 2px;
     }
+
+    .pagination .page-link {
+        color: #003366 !important;
+        background-color: #fff;
+        border: 1px solid #003366;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #003366 !important;
+        color: white !important;
+        border-color: #003366 !important;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #66b2ff !important; /* celeste al pasar */
+        color: white !important;
+        border-color: #66b2ff !important;
+    }
+
 </style>

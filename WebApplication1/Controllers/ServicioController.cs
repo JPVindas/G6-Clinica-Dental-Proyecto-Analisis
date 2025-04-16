@@ -36,9 +36,15 @@ namespace WebApplication1.Controllers
         }
 
         // ✅ LISTAR TODOS LOS SERVICIOS
-        public async Task<IActionResult> Servicios()
+        public async Task<IActionResult> Servicios(int page = 1, int pageSize = 7)
         {
-            var servicios = await _context.Servicios.ToListAsync();
+            var totalServicios = await _context.Servicios.CountAsync();
+            var servicios = await _context.Servicios
+                .OrderBy(s => s.Nombre)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             string userIdClaim = User.FindFirst("UserID")?.Value;
             int userId = int.TryParse(userIdClaim, out var id) ? id : 0;
 
@@ -48,8 +54,12 @@ namespace WebApplication1.Controllers
                 .FirstOrDefaultAsync();
 
             ViewBag.IdPaciente = pacienteId > 0 ? (int?)pacienteId : null;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalServicios / pageSize);
+
             return View("Servicios", servicios);
         }
+
 
         // ✅ FORMULARIO PARA EDITAR SERVICIO (GET)
         public async Task<IActionResult> Editar(int? id)

@@ -3,40 +3,102 @@
 @{
     ViewData["Title"] = "Mi Perfil";
 }
+
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
-        <strong>@TempData["SuccessMessage"]</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="container mt-4">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm text-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> <strong>@TempData["SuccessMessage"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
     </div>
 }
 
-
 @if (Model != null)
 {
-
     <div class="container mt-5">
-        <div class="card shadow-lg p-4">
+        <div class="card border-0 shadow-lg rounded-4 p-4">
             <div class="card-body">
-                <h4 class="card-title text-primary">@Model.Nombre @Model.Apellidos</h4>
-                <p><strong>Correo:</strong> @Model.Correo</p>
-                <p><strong>Teléfono:</strong> @(string.IsNullOrWhiteSpace(Model.Telefono) ? "No registrado" : Model.Telefono)</p>
-                <p><strong>Dirección:</strong> @(string.IsNullOrWhiteSpace(Model.Direccion) ? "No registrada" : Model.Direccion)</p>
-                <p><strong>Fecha de Registro:</strong> @Model.FechaRegistro.ToString("dd/MM/yyyy")</p>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="flex-grow-1">
+                        <h3 class="fw-bold mb-1 text-dark">
+                            <i class="bi bi-person-circle me-2" style="color: #003366;"></i>@Model.Nombre @Model.Apellidos
+                        </h3>
+                        <p class="text-muted mb-0">Paciente desde <strong>@Model.FechaRegistro.ToString("dd/MM/yyyy")</strong></p>
+                    </div>
+                </div>
 
-                <!-- ID oculto, útil si necesitás usarlo en formularios o scripts -->
+                <hr class="mb-4">
+
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted"><i class="bi bi-envelope-fill me-1 text-primary"></i> Correo Electrónico</label>
+                        <div class="form-control bg-light text-dark fw-medium">@Model.Correo</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted"><i class="bi bi-telephone-fill me-1 text-primary"></i> Teléfono</label>
+                        <div class="form-control bg-light text-dark fw-medium">
+                            @(string.IsNullOrWhiteSpace(Model.Telefono) ? "No registrado" : Model.Telefono)
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label text-muted"><i class="bi bi-geo-alt-fill me-1 text-primary"></i> Dirección</label>
+                        <div class="form-control bg-light text-dark fw-medium">
+                            @(string.IsNullOrWhiteSpace(Model.Direccion) ? "No registrada" : Model.Direccion)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <a asp-action="Editar" class="btn btn-primary px-4 shadow-sm">
+                        <i class="bi bi-pencil-fill me-1"></i> Editar Perfil
+                    </a>
+                </div>
+
                 <input type="hidden" name="IdPaciente" value="@Model.IdPaciente" />
-
-                <a asp-action="Editar" class="btn btn-primary mt-3">
-                    <i class="bi bi-pencil-square"></i> Editar Perfil
-                </a>
             </div>
         </div>
     </div>
 }
 else
 {
-    <div class="alert alert-danger text-center">
-        No se encontró la información del paciente.
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center shadow-sm">
+            <i class="bi bi-exclamation-circle-fill me-2"></i> No se encontró la información del paciente.
+        </div>
     </div>
 }
+
+<style>
+    .form-control.bg-light {
+        background-color: #f9f9f9 !important;
+        font-weight: 500;
+        border: none;
+        color: #333;
+    }
+
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background-color: #00264d;
+            border-color: #00264d;
+        }
+
+    .card {
+        transition: all 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+</style>
+
+<!-- Bootstrap Icons (si aún no están cargadas globalmente) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
