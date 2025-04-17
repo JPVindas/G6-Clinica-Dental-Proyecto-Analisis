@@ -4,93 +4,86 @@
     ViewData["Title"] = "Detalles del Historial Médico";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-lg" style="border-radius: 10px;">
-        <div class="card-header text-white text-center" style="background-color: #004080; font-size: 1.5rem; font-family: 'Merriweather', serif;">
-            🏥 Detalles del Historial Médico
-        </div>
-        <div class="card-body" style="font-family: 'Arial', sans-serif; color: #003366;">
+<div class="container mt-4 py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4">
+                <h2 class="text-center text-primary fw-bold mb-4">
+                    <i class="bi bi-clipboard2-pulse-fill"></i> Detalles del Historial Médico
+                </h2>
 
-            <dl class="row">
+                <dl class="row">
+                    <dt class="col-sm-4 text-end">🧑 Paciente:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Paciente != null)
+                        {
+                            <span>@Model.Paciente.Nombre @Model.Paciente.Apellidos</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No asignado</span>
+                        }
+                    </dd>
 
-                <dt class="col-sm-4 text-end">🧑 Paciente:</dt>
-                <dd class="col-sm-8">
-                    @if (Model.Paciente != null)
-                    {
-                        <span>@Model.Paciente.Nombre @Model.Paciente.Apellidos</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">No asignado</span>
-                    }
-                </dd>
+                    <dt class="col-sm-4 text-end">👨‍⚕️ Doctor:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Empleado != null)
+                        {
+                            <span>@Model.Empleado.Nombre @Model.Empleado.Apellidos</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No asignado</span>
+                        }
+                    </dd>
 
-                <dt class="col-sm-4 text-end">👨‍⚕️ Doctor:</dt>
-                <dd class="col-sm-8">
-                    @if (Model.Empleado != null)
-                    {
-                        <span>@Model.Empleado.Nombre @Model.Empleado.Apellidos</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">No asignado</span>
-                    }
-                </dd>
+                    <dt class="col-sm-4 text-end">💉 Tratamiento:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Tratamiento != null)
+                        {
+                            <span>@Model.Tratamiento.Nombre</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No asignado</span>
+                        }
+                    </dd>
 
-                <dt class="col-sm-4 text-end">💉 Tratamiento:</dt>
-                <dd class="col-sm-8">
-                    @if (Model.Tratamiento != null)
-                    {
-                        <span>@Model.Tratamiento.Nombre</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">No asignado</span>
-                    }
-                </dd>
+                    <dt class="col-sm-4 text-end">📄 Diagnóstico:</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.Diagnostico))
+                        {
+                            <span>@Model.Diagnostico</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No disponible</span>
+                        }
+                    </dd>
 
-                <dt class="col-sm-4 text-end">📄 Diagnóstico:</dt>
-                <dd class="col-sm-8">
-                    @if (!string.IsNullOrEmpty(Model.Diagnostico))
-                    {
-                        <span>@Model.Diagnostico</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">No disponible</span>
-                    }
-                </dd>
+                    <dt class="col-sm-4 text-end">📅 Fecha de Actualización:</dt>
+                    <dd class="col-sm-8">@Model.FechaActualizacion.ToString("dd/MM/yyyy")</dd>
+                </dl>
 
-                <dt class="col-sm-4 text-end">📅 Fecha de Actualización:</dt>
-                <dd class="col-sm-8">@Model.FechaActualizacion.ToString("dd/MM/yyyy")</dd>
-            </dl>
-
-            <div class="text-center mt-4">
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver
-                </a>
-               
-               
-               
+                <div class="d-flex justify-content-center mt-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                </div>
             </div>
-
         </div>
     </div>
 </div>
 
-<!-- Importar Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
 <!-- Estilos personalizados -->
 <style>
     .container {
-        margin-top: 20px;
-    }
-
-    .card {
-        border-radius: 12px;
-        border: 1px solid #E6E6E6;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 1000px;
+        padding-top: 3.5rem;
+        padding-bottom: 1.5rem;
     }
 
     dt {
@@ -104,20 +97,22 @@
     }
 
     .btn {
-        font-weight: bold;
-        border-radius: 6px;
+        font-weight: 500;
+        border: none;
         transition: all 0.2s ease-in-out;
     }
 
-    .btn-success:hover {
-        background-color: #218838;
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
     }
 
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: scale(1.05);
+        }
 
-    .btn-secondary:hover {
-        background-color: #505050;
+    .card {
+        border-radius: 12px;
     }
 </style>

@@ -4,45 +4,64 @@
     ViewData["Title"] = "Editar Servicio";
 }
 
-<!-- Contenedor del formulario en un grid -->
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-        <div class="bg-white p-4 shadow-sm rounded">
-        <form asp-action="GuardarEdicion" method="post">
-            <input type="hidden" asp-for="Id" />
+<div class="container mt-4 py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-primary fw-bold">
+                        <i class="bi bi-pencil-square"></i> Editar Servicio
+                    </h2>
+                    <p class="text-muted">Modificá los datos del servicio que se encuentra registrado.</p>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Nombre" class="form-label">Nombre del Servicio</label>
-                <input asp-for="Nombre" class="form-control" required />
+                <form asp-action="GuardarEdicion" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre del Servicio</label>
+                        <input asp-for="Nombre" class="form-control" required />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+
+                    <!-- Costo -->
+                    <div class="mb-3">
+                        <label asp-for="Costo" class="form-label">Costo</label>
+                        <input asp-for="Costo" class="form-control" type="number" step="0.01" required />
+                        <span asp-validation-for="Costo" class="text-danger"></span>
+                    </div>
+
+                    <!-- Imagen -->
+                    <div class="mb-4">
+                        <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
+                        <input asp-for="UrlImagen" class="form-control" id="UrlImagen" />
+                        <span asp-validation-for="UrlImagen" class="text-danger"></span>
+                        <img id="imagenVistaPrevia" src="@Model.UrlImagen" alt="Imagen del servicio" class="img-thumbnail mt-2" style="max-width: 200px;" />
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle"></i> Guardar
+                        </button>
+                        <a asp-action="Servicios" class="btn btn-secondary px-4">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Descripcion" class="form-label">Descripción</label>
-                <textarea asp-for="Descripcion" class="form-control"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Costo" class="form-label">Costo</label>
-                <input asp-for="Costo" class="form-control" type="number" step="0.01" required />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="UrlImagen" class="form-label">URL de la Imagen</label>
-                <input asp-for="UrlImagen" class="form-control" />
-                <img src="@Model.UrlImagen" alt="Imagen del servicio" class="img-thumbnail mt-2" style="max-width: 200px;" />
-            </div>
-
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-check-circle"></i> Guardar
-                </button>
-
-                <a asp-action="Servicios" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Cancelar
-                </a>
-        </form>
+        </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script>
@@ -51,3 +70,50 @@
         });
     </script>
 }
+
+<!-- Estilos -->
+<style>
+    .container {
+        max-width: 1000px;
+        padding-top: 3.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    .form-control, .form-select {
+        border-radius: 5px;
+    }
+
+    .btn {
+        border: none;
+        transition: all 0.2s ease-in-out;
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: scale(1.05);
+        }
+</style>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />

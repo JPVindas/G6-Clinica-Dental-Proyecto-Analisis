@@ -5,63 +5,108 @@
 }
 
 <div class="container mt-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-success text-white text-center">
-            <h3>Confirmar Cita</h3>
-        </div>
-        <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-success fw-bold">
+                        <i class="bi bi-calendar-check-fill"></i> Confirmar Cita
+                    </h2>
+                    <p class="text-muted">Revisá los datos de tu cita antes de confirmarla.</p>
+                </div>
 
-            <dl class="row">
-                <dt class="col-sm-4">ID Cita:</dt>
-                <dd class="col-sm-8">@Model.Id</dd>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success text-center">@TempData["SuccessMessage"]</div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+                }
 
-                <dt class="col-sm-4">Paciente:</dt>
-                <dd class="col-sm-8">@($"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}")</dd>
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 fw-bold">ID Cita:</dt>
+                    <dd class="col-sm-8">@Model.Id</dd>
 
-                <dt class="col-sm-4">Teléfono:</dt>
-                <dd class="col-sm-8">@Model.Paciente.Telefono</dd>
+                    <dt class="col-sm-4 fw-bold">Paciente:</dt>
+                    <dd class="col-sm-8">@($"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}")</dd>
 
-                <dt class="col-sm-4">Fecha y Hora:</dt>
-                <dd class="col-sm-8">@Model.FechaHora.ToString("yyyy-MM-dd hh:mm tt")</dd>
+                    <dt class="col-sm-4 fw-bold">Teléfono:</dt>
+                    <dd class="col-sm-8">@Model.Paciente.Telefono</dd>
 
-                <dt class="col-sm-4">Motivo:</dt>
-                <dd class="col-sm-8">@Model.Motivo</dd>
+                    <dt class="col-sm-4 fw-bold">Fecha y Hora:</dt>
+                    <dd class="col-sm-8">@Model.FechaHora.ToString("yyyy-MM-dd hh:mm tt")</dd>
 
-                <dt class="col-sm-4">Doctor:</dt>
-                <dd class="col-sm-8">@($"{Model.Empleado.Nombre} {Model.Empleado.Apellidos}")</dd>
+                    <dt class="col-sm-4 fw-bold">Motivo:</dt>
+                    <dd class="col-sm-8">@Model.Motivo</dd>
 
-                <dt class="col-sm-4">Estado Actual:</dt>
-                <dd class="col-sm-8">
-                    <span class="badge @(Model.Estado == "Pendiente" ? "bg-warning text-dark" : Model.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
-                        @Model.Estado
-                    </span>
-                </dd>
-            </dl>
+                    <dt class="col-sm-4 fw-bold">Doctor:</dt>
+                    <dd class="col-sm-8">@($"{Model.Empleado.Nombre} {Model.Empleado.Apellidos}")</dd>
 
-            <form asp-action="ConfirmarCitaPost" method="post">
-                <input type="hidden" asp-for="Id" />
-                <button type="submit" class="btn btn-success w-100">Confirmar Cita</button>
-            </form>
+                    <dt class="col-sm-4 fw-bold">Estado Actual:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.Estado == "Pendiente" ? "bg-warning text-dark" : Model.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                            @Model.Estado
+                        </span>
+                    </dd>
+                </dl>
 
-            <a asp-action="Citas" class="btn btn-secondary w-100 mt-3">Cancelar</a>
+                <form asp-action="ConfirmarCitaPost" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-check-circle-fill"></i> Confirmar Cita
+                    </button>
+                </form>
+
+                <a asp-action="Citas" class="btn btn-secondary w-100 mt-3">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Estilos -->
 <style>
     .container {
-        max-width: 600px;
+        max-width: 700px;
     }
 
     .card {
         border-radius: 10px;
     }
+
+    .btn {
+        border: none;
+        transition: all 0.2s ease-in-out;
+        padding: 12px;
+        font-weight: 500;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: scale(1.03);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: scale(1.03);
+        }
+
+    .fw-bold {
+        font-weight: 600;
+    }
 </style>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />

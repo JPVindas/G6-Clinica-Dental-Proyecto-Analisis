@@ -4,70 +4,119 @@
     ViewData["Title"] = "Cancelar Cita";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg">
-        <div class="card-header bg-danger text-white text-center">
-            <h3>Cancelar Cita</h3>
-        </div>
-        <div class="card-body">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
+<div class="container mt-4 py-3">
 
-            <dl class="row">
-                <dt class="col-sm-4">ID Cita:</dt>
-                <dd class="col-sm-8">@Model.Id</dd>
-
-                <dt class="col-sm-4">Paciente:</dt>
-                <dd class="col-sm-8">@($"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}")</dd>
-
-                <dt class="col-sm-4">Teléfono:</dt>
-                <dd class="col-sm-8">@Model.Paciente.Telefono</dd>
-
-                <dt class="col-sm-4">Fecha y Hora:</dt>
-                <dd class="col-sm-8">@Model.FechaHora.ToString("yyyy-MM-dd hh:mm tt")</dd>
-
-                <dt class="col-sm-4">Motivo:</dt>
-                <dd class="col-sm-8">@Model.Motivo</dd>
-
-                <dt class="col-sm-4">Doctor:</dt>
-                <dd class="col-sm-8">@($"{Model.Empleado.Nombre} {Model.Empleado.Apellidos}")</dd>
-
-                <dt class="col-sm-4">Estado Actual:</dt>
-                <dd class="col-sm-8">
-                    <span class="badge @(Model.Estado == "Pendiente" ? "bg-warning text-dark" : Model.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
-                        @Model.Estado
-                    </span>
-                </dd>
-            </dl>
-
-            <form asp-action="CancelarCitaPost" method="post">
-                <input type="hidden" asp-for="Id" />
-                <div class="mb-3">
-                    <label asp-for="Observaciones" class="form-label">Motivo de Cancelación</label>
-                    <textarea asp-for="Observaciones" class="form-control" required placeholder="Ingrese el motivo de la cancelación"></textarea>
-                    <span asp-validation-for="Observaciones" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg p-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-danger fw-bold">
+                        <i class="bi bi-calendar-x-fill"></i> Cancelar Cita
+                    </h2>
+                    <p class="text-muted">Estás a punto de cancelar esta cita. Por favor confirmá el motivo.</p>
                 </div>
 
-                <button type="submit" class="btn btn-danger w-100">Cancelar Cita</button>
-            </form>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success text-center">@TempData["SuccessMessage"]</div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+                }
 
-            <a asp-action="Citas" class="btn btn-secondary w-100 mt-3">Volver</a>
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 fw-bold">ID Cita:</dt>
+                    <dd class="col-sm-8">@Model.Id</dd>
+
+                    <dt class="col-sm-4 fw-bold">Paciente:</dt>
+                    <dd class="col-sm-8">@($"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}")</dd>
+
+                    <dt class="col-sm-4 fw-bold">Teléfono:</dt>
+                    <dd class="col-sm-8">@Model.Paciente.Telefono</dd>
+
+                    <dt class="col-sm-4 fw-bold">Fecha y Hora:</dt>
+                    <dd class="col-sm-8">@Model.FechaHora.ToString("yyyy-MM-dd hh:mm tt")</dd>
+
+                    <dt class="col-sm-4 fw-bold">Motivo:</dt>
+                    <dd class="col-sm-8">@Model.Motivo</dd>
+
+                    <dt class="col-sm-4 fw-bold">Doctor:</dt>
+                    <dd class="col-sm-8">@($"{Model.Empleado.Nombre} {Model.Empleado.Apellidos}")</dd>
+
+                    <dt class="col-sm-4 fw-bold">Estado Actual:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.Estado == "Pendiente" ? "bg-warning text-dark" : Model.Estado == "Confirmada" ? "bg-success" : "bg-danger")">
+                            @Model.Estado
+                        </span>
+                    </dd>
+                </dl>
+
+                <form asp-action="CancelarCitaPost" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="mb-3">
+                        <label asp-for="Observaciones" class="form-label">Motivo de Cancelación</label>
+                        <textarea asp-for="Observaciones" class="form-control" required placeholder="Ingrese el motivo de la cancelación"></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="bi bi-x-circle-fill"></i> Cancelar Cita
+                    </button>
+                </form>
+
+                <a asp-action="Citas" class="btn btn-secondary w-100 mt-3">
+                    <i class="bi bi-arrow-left-circle"></i> Volver
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Estilos -->
 <style>
     .container {
-        max-width: 600px;
+        max-width: 700px;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
     }
+
 
     .card {
         border-radius: 10px;
     }
+
+    .btn {
+        border: none;
+        transition: all 0.2s ease-in-out;
+        padding: 12px;
+        font-weight: 500;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: scale(1.03);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: scale(1.03);
+        }
+
+    .fw-bold {
+        font-weight: 600;
+    }
 </style>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
