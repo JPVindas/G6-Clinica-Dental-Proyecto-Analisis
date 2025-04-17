@@ -1,7 +1,6 @@
 ﻿@model X.PagedList.IPagedList<WebApplication1.Models.ProductosModel>
 @using X.PagedList.Mvc.Core
 
-
 @{
     ViewData["Title"] = "Gestión de Inventario";
     var estadoActual = Context.Request.Query["estadoFiltro"].ToString();
@@ -21,7 +20,6 @@
     </div>
 }
 
-
 <div class="container mt-4">
     <div class="card shadow-lg" style="border-radius: 10px;">
         <div class="card-header text-white text-center" style="background-color: #003366; font-size: 1.5rem; font-family: 'Poppins', sans-serif;">
@@ -34,9 +32,6 @@
                         <option value="">Filtrar por Estado</option>
                         <option value="Activo" selected="@(estadoActual == "Activo")">Activo</option>
                         <option value="Inactivo" selected="@(estadoActual == "Inactivo")">Inactivo</option>
-
-
-
                     </select>
                 </div>
                 <div class="w-50">
@@ -129,16 +124,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    function filtrarPorEstado() {
-        var estado = document.getElementById('estadoFiltro').value;
-        var url = '@Url.Action("Inventario", "Inventario")' + (estado ? "?estadoFiltro=" + estado : "");
-        window.location.href = url;
-    }
-</script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
 <script>
     function filtrarPorEstado() {

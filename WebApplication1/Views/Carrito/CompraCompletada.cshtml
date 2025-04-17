@@ -16,35 +16,33 @@
     string metodoPago = ViewBag.MetodoPago ?? factura?.MetodoPago?.Nombre ?? "No especificado";
 }
 
-<div class="container mt-5">
-    <div class="alert alert-success text-center shadow-sm">
-        <h2 class="display-5">¡Compra realizada con éxito!</h2>
-        <p class="lead">Gracias por confiar en nosotros. Aquí tienes los detalles de tu compra.</p>
-    </div>
-
-    <div class="card shadow-lg" style="border-radius: 10px; font-family: 'Poppins', sans-serif;">
-        <div class="card-header bg-primary text-white text-center" style="font-size: 1.5rem;">
-            Resumen de la Compra
+<div class="page-content">
+    <div class="container mt-4">
+        <div class="alert alert-success text-center shadow-sm">
+            <h2 class="display-5"><i class="bi bi-check-circle-fill me-2"></i> ¡Compra realizada con éxito!</h2>
+            <p class="lead">Gracias por tu compra. Aquí tienes los detalles.</p>
         </div>
-        <div class="card-body" style="color: #003366;">
-            <div class="row mb-4">
+
+        <div class="card shadow-lg" style="border-radius: 10px;">
+            <div class="card-header bg-primary text-white text-center py-3" style="font-size: 1.2rem;">
+                <i class="bi bi-receipt-fill me-2"></i> Resumen de la Compra
+            </div>
+            <div class="card-body" style="color: #003366;">
                 <div class="row mb-4">
-                    <!-- Información de la Compra -->
                     <div class="col-md-6 mb-3">
                         <div class="card shadow-sm border-0 bg-light h-100">
                             <div class="card-body">
-                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Información de la Compra</h6>
-                                <p class="mb-2"><strong>📅 Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
-                                <p class="mb-0"><strong>📦 Estado:</strong> @Model.Estado</p>
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle me-2"></i> Información de la Compra</h6>
+                                <p class="mb-2"><strong><i class="bi bi-calendar-fill me-1"></i> Fecha:</strong> @Model.FechaCompra.ToString("dd/MM/yyyy")</p>
+                                <p class="mb-0"><strong><i class="bi bi-box-seam-fill me-1"></i> Estado:</strong> @Model.Estado</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Resumen de Montos -->
                     <div class="col-md-6 mb-3">
                         <div class="card shadow-sm border-0 bg-light h-100">
                             <div class="card-body">
-                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-cash-coin me-2"></i>Resumen de Montos</h6>
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-cash-coin me-2"></i> Resumen de Montos</h6>
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                                         <span class="text-muted">Subtotal:</span>
@@ -57,9 +55,9 @@
 
                                     @if (porcentajeDescuento > 0)
                                     {
-                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent text-danger">
                                             <span class="text-muted">Descuento (@porcentajeDescuento%):</span>
-                                            <span class="text-danger fw-medium">-₡@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</span>
+                                            <span class="fw-medium">-₡@montoDescuento.ToString("N2", new CultureInfo("es-CR"))</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                                             <span class="text-muted">Total antes del descuento:</span>
@@ -83,86 +81,88 @@
                     </div>
                 </div>
 
+                <hr class="my-4" />
 
-            <hr />
+                <h5 class="mb-3 text-primary"><i class="bi bi-person-fill me-2"></i> Datos del Cliente:</h5>
+                <p><strong><i class="bi bi-person me-1"></i> Nombre:</strong> @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</p>
+                <p><strong><i class="bi bi-envelope-fill me-1"></i> Correo:</strong> @Model.Paciente?.Usuario?.CorreoElectronico</p>
+                <p><strong><i class="bi bi-credit-card me-1"></i> Cédula:</strong> @Model.Paciente?.Usuario?.Cedula</p>
 
-            <h5 class="mb-3">Datos del Cliente:</h5>
-            <p><strong>Nombre:</strong> @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</p>
-            <p><strong>Correo:</strong> @Model.Paciente?.Usuario?.CorreoElectronico</p>
-            <p><strong>Cédula:</strong> @Model.Paciente?.Usuario?.Cedula</p>
-
-            @if (factura != null)
-            {
-                <hr />
-                <h5 class="mb-3">Factura Asociada:</h5>
-                <p><strong>Método de Pago:</strong> @metodoPago</p>
-
-                @if (factura.Descuento != null)
+                @if (factura != null)
                 {
-                    <p><strong>Descuento aplicado:</strong> @factura.Descuento.PorcentajeDescuento% (@factura.Descuento.Codigo)</p>
+                    <hr class="my-4" />
+                    <h5 class="mb-3 text-primary"><i class="bi bi-file-text-fill me-2"></i> Detalles de la Factura:</h5>
+                    <p><strong><i class="bi bi-credit-card-2-front-fill me-1"></i> Método de Pago:</strong> @metodoPago</p>
+
+                    @if (factura.Descuento != null)
+                    {
+                        <p><strong><i class="bi bi-tag-fill me-1"></i> Descuento aplicado:</strong> @factura.Descuento.PorcentajeDescuento% (@factura.Descuento.Codigo)</p>
+                    }
+
+                    @if (factura.DetallesFactura?.Any() == true)
+                    {
+                        <div class="mt-4">
+                            <h6 class="mb-3 text-primary"><i class="bi bi-list-check me-2"></i> Productos y Servicios:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover text-center">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Nombre</th>
+                                            <th>Cantidad</th>
+                                            <th>Subtotal</th>
+                                            <th>Impuestos</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detalle in factura.DetallesFactura)
+                                        {
+                                            var nombre = detalle.Tipo == "producto"
+                                            ? detalle.Producto?.Nombre
+                                            : detalle.Servicio?.Nombre;
+
+                                            <tr>
+                                                <td>@detalle.Tipo</td>
+                                                <td>@(nombre ?? "Sin nombre")</td>
+                                                <td>@detalle.Cantidad</td>
+                                                <td>₡@detalle.Subtotal.ToString("N2", new CultureInfo("es-CR"))</td>
+                                                <td>₡@detalle.Impuestos.ToString("N2", new CultureInfo("es-CR"))</td>
+                                                <td>₡@detalle.Total.ToString("N2", new CultureInfo("es-CR"))</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    @if (factura.Financiamiento != null)
+                    {
+                        var f = factura.Financiamiento;
+                        <div class="alert alert-info mt-4">
+                            <h6 class="text-primary"><i class="bi bi-cash-stack me-2"></i> Financiamiento Activado</h6>
+                            <ul class="list-unstyled">
+                                <li><strong><i class="bi bi-cash me-1"></i> Monto Total:</strong> ₡@f.MontoTotal.ToString("N2", new CultureInfo("es-CR"))</li>
+                                <li><strong><i class="bi bi-percent me-1"></i> Tasa de Interés:</strong> @f.TasaInteres %</li>
+                                <li><strong><i class="bi bi-list-ol me-1"></i> Cuotas:</strong> @f.Cuotas</li>
+                                <li><strong><i class="bi bi-calendar-plus-fill me-1"></i> Fecha de Inicio:</strong> @f.FechaInicio.ToString("dd/MM/yyyy")</li>
+                                <li><strong><i class="bi bi-calendar-x-fill me-1"></i> Fecha Final:</strong> @f.FechaFinal?.ToString("dd/MM/yyyy") ?? "No asignada"</li>
+                                <li><strong><i class="bi bi-play-circle-fill me-1"></i> Estado:</strong> @f.Estado ?? "Activo"</li>
+                            </ul>
+                            <p class="text-muted">Tu tratamiento ha sido financiado con éxito.</p>
+                        </div>
+                    }
                 }
 
-                @if (factura.DetallesFactura?.Any() == true)
-                {
-                    <div class="mt-4">
-                        <h5 class="mb-3">Productos y Servicios:</h5>
-                        <table class="table table-bordered table-hover text-center">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Tipo</th>
-                                    <th>Nombre</th>
-                                    <th>Cantidad</th>
-                                    <th>Subtotal</th>
-                                    <th>Impuestos</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var detalle in factura.DetallesFactura)
-                                {
-                                    var nombre = detalle.Tipo == "producto"
-                                    ? detalle.Producto?.Nombre
-                                    : detalle.Servicio?.Nombre;
-
-                                    <tr>
-                                        <td>@detalle.Tipo</td>
-                                        <td>@(nombre ?? "Sin nombre")</td>
-                                        <td>@detalle.Cantidad</td>
-                                        <td>₡@detalle.Subtotal.ToString("N2", new CultureInfo("es-CR"))</td>
-                                        <td>₡@detalle.Impuestos.ToString("N2", new CultureInfo("es-CR"))</td>
-                                        <td>₡@detalle.Total.ToString("N2", new CultureInfo("es-CR"))</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                @if (factura.Financiamiento != null)
-                {
-                    var f = factura.Financiamiento;
-                    <div class="alert alert-info mt-4">
-                        <h5 class="text-primary"><i class="bi bi-cash-stack"></i> Financiamiento Activado</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Monto Total:</strong> ₡@f.MontoTotal.ToString("N2", new CultureInfo("es-CR"))</li>
-                            <li><strong>Tasa de Interés:</strong> @f.TasaInteres %</li>
-                            <li><strong>Cuotas:</strong> @f.Cuotas</li>
-                            <li><strong>Fecha de Inicio:</strong> @f.FechaInicio.ToString("dd/MM/yyyy")</li>
-                            <li><strong>Fecha Final:</strong> @f.FechaFinal?.ToString("dd/MM/yyyy") ?? "No asignada"</li>
-                            <li><strong>Estado:</strong> @f.Estado ?? "Activo"</li>
-                        </ul>
-                        <p class="text-muted">Tu tratamiento ha sido financiado con éxito.</p>
-                    </div>
-                }
-            }
-
-            <div class="d-flex justify-content-between mt-4">
-                <a class="btn btn-primary fw-bold" style="min-width: 180px; font-size: 1rem;" href="@Url.Action("Index", "Home")">
-                    <i class="bi bi-house-door-fill"></i> Volver al Inicio
-                </a>
-                <a class="btn btn-outline-danger fw-bold" style="min-width: 180px; font-size: 1rem;" target="_blank" href="@Url.Action("GenerarFacturaPDF", "Carrito", new { idCompra = Model.IdCompra })">
-                    <i class="bi bi-file-earmark-pdf"></i> Generar Recibo PDF
-                </a>
+                <div class="d-flex justify-content-between mt-4">
+                    <a class="btn btn-primary fw-bold" style="min-width: 180px; font-size: 1rem;" href="@Url.Action("Index", "Home")">
+                        <i class="bi bi-house-door-fill me-2"></i> Volver al Inicio
+                    </a>
+                    <a class="btn btn-outline-danger fw-bold" style="min-width: 180px; font-size: 1rem;" target="_blank" href="@Url.Action("GenerarFacturaPDF", "Carrito", new { idCompra = Model.IdCompra })">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i> Generar Recibo PDF
+                    </a>
+                </div>
             </div>
         </div>
     </div>
